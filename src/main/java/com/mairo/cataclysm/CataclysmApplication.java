@@ -1,14 +1,19 @@
 package com.mairo.cataclysm;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import io.r2dbc.spi.ConnectionFactory;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.data.relational.core.query.CriteriaDefinition;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @SpringBootApplication
 public class CataclysmApplication implements CommandLineRunner {
@@ -31,8 +36,14 @@ public class CataclysmApplication implements CommandLineRunner {
     //   System.out.println(x);
     //   return x;
     // }).subscribe();
-    Flux<String> all = client.execute("select p.surname from player p where p.id > 10").as(String.class)
-        .fetch().all();
+    Mono<Optional<Player>> all = client
+        .execute("select * from player p where p.id > 1 limit 1")
+        .as(Player.class)
+        .fetch().one()
+        .map(Optional::of)
+        .defaultIfEmpty(Optional.empty());
+
+
     all.map(x -> {
       System.out.println(x);
       return x;

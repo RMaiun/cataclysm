@@ -16,7 +16,9 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 @EnableR2dbcRepositories
 class R2DBCConfiguration extends AbstractR2dbcConfiguration {
 
-  @Bean("r2dbc")
+
+  @Bean
+  @Override
   public ConnectionFactory connectionFactory() {
     MySqlConnectionConfiguration configuration = MySqlConnectionConfiguration.builder()
         .host("127.0.0.1")
@@ -31,8 +33,5 @@ class R2DBCConfiguration extends AbstractR2dbcConfiguration {
     return MySqlConnectionFactory.from(configuration);
   }
 
-  @Bean("r2dbcClient")
-  public DatabaseClient databaseClient(@Qualifier("r2dbc") ConnectionFactory cf) {
-    return DatabaseClient.create(cf);
-  }
+
 }
