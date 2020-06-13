@@ -1,28 +1,28 @@
 package com.mairo.cataclysm;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
-
-import com.mairo.cataclysm.domain.Player;
+import com.mairo.cataclysm.dto.api.FindAllSeasonRoundsRequest;
 import com.mairo.cataclysm.repository.PlayerRepository;
-import io.r2dbc.spi.ConnectionFactory;
-import java.util.Optional;
+import com.mairo.cataclysm.repository.RoundRepository;
+import com.mairo.cataclysm.repository.SeasonRepository;
+import com.mairo.cataclysm.service.RoundService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.r2dbc.core.DatabaseClient;
-import org.springframework.data.relational.core.query.CriteriaDefinition;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class CataclysmApplication implements CommandLineRunner {
 
   @Autowired
-  private PlayerRepository playerRepository;
-
+  private RoundService roundService;
   @Autowired
-  private DatabaseClient client;
+  private SeasonRepository sr;
+  @Autowired
+  private PlayerRepository pr;
+  @Autowired
+  private RoundRepository rr;
 
   public static void main(String[] args) {
     SpringApplication.run(CataclysmApplication.class, args);
@@ -31,23 +31,11 @@ public class CataclysmApplication implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    // Flux<Player> all = playerRepository.findAll();
-    // all.map(x -> {
-    //   System.out.println(x);
-    //   return x;
-    // }).subscribe();
-    Mono<Optional<Player>> all = client
-        .execute("select * from player p where p.id > 1 limit 1")
-        .as(Player.class)
-        .fetch().one()
-        .map(Optional::of)
-        .defaultIfEmpty(Optional.empty());
-
-
-    all.map(x -> {
-      System.out.println(x);
-      return x;
-    }).subscribe();
-
+    FindAllSeasonRoundsRequest dto = new FindAllSeasonRoundsRequest();
+    dto.setSeason("S1/2020");
+    roundService.findAllRoundsInSeason(dto).log().subscribe();
+//    sr.getSeason("S1/2020").log().subscribe();
+//    pr.listAll().log().subscribe();
+//    rr.listRoundsBySeason(1L).log().subscribe();
   }
 }

@@ -1,9 +1,25 @@
 package com.mairo.cataclysm.repository;
 
 import com.mairo.cataclysm.domain.Player;
-import org.springframework.data.r2dbc.repository.R2dbcRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-@Repository
-public interface PlayerRepository extends R2dbcRepository<Player, Long> {
+import java.util.List;
+
+@Service
+public class PlayerRepository {
+
+  private final DatabaseClient dbClient;
+
+  public PlayerRepository(DatabaseClient dbClient) {
+    this.dbClient = dbClient;
+  }
+
+  public Mono<List<Player>> listAll() {
+    return dbClient.select()
+        .from(Player.class)
+        .as(Player.class)
+        .all().collectList();
+  }
 }
