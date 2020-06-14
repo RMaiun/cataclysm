@@ -17,14 +17,13 @@ public class SeasonRepository {
     this.dbClient = dbClient;
   }
 
-  public Mono<Option<Season>> getSeason(String name) {
+  public Mono<Season> getSeason(String name) {
     return dbClient.select()
         .from(Season.class)
         .matching(where("name").is(name))
         .as(Season.class)
         .one()
-        .map(Option::some)
-        .defaultIfEmpty(Option.none());
+        .switchIfEmpty(Mono.error(new RuntimeException("Season is not found")));
   }
 
   public Mono<Integer> saveSeason(Season season) {
