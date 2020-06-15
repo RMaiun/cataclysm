@@ -16,7 +16,7 @@ public class RoundRepository {
     this.dbClient = dbClient;
   }
 
-  public Mono<List<Round>> listRoundsBySeason(Long season) {
+  public Mono<List<Round>> listRoundsBySeason(long season) {
     return dbClient.execute("select *  from round  r where r.season_id = :sid")
         .bind("sid", season)
         .as(Round.class)
@@ -25,7 +25,7 @@ public class RoundRepository {
         .collectList();
   }
 
-  public Mono<List<Round>> listLastRoundsBySeason(int roundsNum, long season) {
+  public Mono<List<Round>> listLastRoundsBySeason(long season, int roundsNum) {
     return dbClient.execute("select *  from round  r where r.season_id = :season order by created desc limit :num")
         .bind("season", season)
         .bind("num", roundsNum)

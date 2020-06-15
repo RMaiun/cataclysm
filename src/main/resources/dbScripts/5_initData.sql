@@ -1,8 +1,7 @@
 use cata;
-insert into season (id,name) value (1,'S1/2020');
 
 # week 1
-insert into round (winner1_id, winner2_id, loser1_id, loser2_id, isShutout, season_id, created)
+insert into round (winner1_id, winner2_id, loser1_id, loser2_id, shutout, season_id, created)
 values
        (1,2,4,12,0,     1,'2020-01-01 08:00:01'),
        (1,12,2,4,1,     1,'2020-01-01 08:01:01'),
@@ -22,7 +21,7 @@ values
        (2,4,1,12,0,     1,'2020-01-01 08:15:01');
 
 # week 2
-insert into round (winner1_id, winner2_id, loser1_id, loser2_id, isShutout, season_id, created)
+insert into round (winner1_id, winner2_id, loser1_id, loser2_id, shutout, season_id, created)
 values
 (2,4,1,3,0,         1,'2020-01-01 09:01:01'),
 (3,2,1,4,0,         1,'2020-01-01 09:02:01'),
@@ -63,7 +62,7 @@ values
 (1,4,8,3,0,         1,'2020-01-01 09:37:01');
 
 # week 3
-insert into round (winner1_id, winner2_id, loser1_id, loser2_id, isShutout, season_id, created)
+insert into round (winner1_id, winner2_id, loser1_id, loser2_id, shutout, season_id, created)
 values
 (1,3,2,4,0,         1,'2020-01-01 10:01:01'),
 (1,5,2,4,0,         1,'2020-01-01 10:02:01'),
@@ -88,7 +87,7 @@ values
 (1,3,2,4,0,         1,'2020-01-01 10:21:01');
 
 # week 4
-insert into round (winner1_id, winner2_id, loser1_id, loser2_id, isShutout, season_id, created)
+insert into round (winner1_id, winner2_id, loser1_id, loser2_id, shutout, season_id, created)
 values
 (1,4,2,3,0,         1,'2020-01-01 11:01:01'),
 (1,2,3,4,0,         1,'2020-01-01 11:02:01'),
@@ -130,7 +129,7 @@ values
 (1,4,2,3,0,         1,'2020-01-01 11:38:01');
 
 # week 5
-insert into round (winner1_id, winner2_id, loser1_id, loser2_id, isShutout, season_id, created)
+insert into round (winner1_id, winner2_id, loser1_id, loser2_id, shutout, season_id, created)
 values
 (4,5,1,3,0,         1,'2020-01-01 12:01:01'),
 (1,4,3,5,0,         1,'2020-01-01 12:02:01'),
@@ -182,7 +181,7 @@ values
 (4,5,1,2,0,         1,'2020-01-01 12:48:01');
 
 # week 6
-insert into round (winner1_id, winner2_id, loser1_id, loser2_id, isShutout, season_id, created)
+insert into round (winner1_id, winner2_id, loser1_id, loser2_id, shutout, season_id, created)
 values
 (1,3,4,6,0,         1,'2020-01-01 13:01:01'),
 (3,4,1,6,0,         1,'2020-01-01 13:02:01'),
@@ -219,7 +218,7 @@ values
 (2,4,1,5,0,         1,'2020-01-01 13:33:01');
 
 # week 7
-insert into round (winner1_id, winner2_id, loser1_id, loser2_id, isShutout, season_id, created)
+insert into round (winner1_id, winner2_id, loser1_id, loser2_id, shutout, season_id, created)
 values
 (2,4,13,14,0,         1,'2020-01-01 14:01:01'),
 (4,13,2,14,0,         1,'2020-01-01 14:02:01'),

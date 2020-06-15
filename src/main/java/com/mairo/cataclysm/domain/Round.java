@@ -22,7 +22,7 @@ public class Round {
   private Long loser1;
   @Column(value = "loser2_id")
   private Long loser2;
-  private boolean isShutout;
+  private boolean shutout;
   @Column(value = "season_id")
   private Long seasonId;
   private LocalDateTime created;

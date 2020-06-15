@@ -17,5 +17,5 @@ public class FullRound {
   private String loser2;
   private LocalDateTime created;
   private String season;
-  private boolean isShutout;
+  private boolean shutout;
 }
