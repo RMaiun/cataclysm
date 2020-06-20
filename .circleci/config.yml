@@ -20,11 +20,21 @@ jobs:
 
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: gradle dependencies
       # Download and cache dependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: cat /dev/null | gradle clean
-      - run: cat /dev/null | gradle build
+      - run: gradle clean
+      - run: gradle build
       - setup_remote_docker
       - run: docker build -t $IMAGE_NAME:latest .
       - run: docker save -o image.tar $IMAGE_NAME

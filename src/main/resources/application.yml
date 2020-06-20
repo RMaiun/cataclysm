@@ -4,3 +4,10 @@ app:
   winShutoutPoints: 50
   losePoints: -25
   loseShutoutPoints: -50
+
+db:
+  host: "127.0.0.1"
+  port: 3306
+  database: "cata"
+  username: "root"
+  password: "Mairo@888"
