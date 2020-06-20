@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("player")
+@RequestMapping("players")
 public class PlayerController {
 
   private final PlayerService playerService;

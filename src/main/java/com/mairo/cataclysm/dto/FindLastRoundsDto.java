@@ -10,5 +10,5 @@ public class FindLastRoundsDto {
   @NonNull
   private String season;
   @NonNull
-  private int qty;
+  private Integer qty;
 }

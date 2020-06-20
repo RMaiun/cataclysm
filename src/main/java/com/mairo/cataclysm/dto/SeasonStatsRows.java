@@ -16,5 +16,5 @@ public class SeasonStatsRows {
   @NonNull
   private List<List<String>> games;
   @NonNull
-  private long roundsPlayed;
+  private Integer roundsPlayed;
 }
