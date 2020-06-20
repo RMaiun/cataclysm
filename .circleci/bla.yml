@@ -1,66 +1,73 @@
+# Scala CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/sample-config/ for more details
+#
 version: 2
 jobs:
   build:
-    working_directory: ~/repo
-    environment:
-      IMAGE_NAME: utfstats
-      JVM_OPTS: -Xmx3200m
     docker:
-      - image: circleci/openjdk:8-jdk
+      # specify the version you desire here
+      - image: circleci/openjdk:11.0.3-jdk-stretch
       - image: circleci/buildpack-deps:stretch
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      IMAGE_NAME: mairo/cataclysm
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
     steps:
-      - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
-      - run:
-          name: Get sbt binary
-          command: |
-            apt update && apt install -y curl
-            curl -L -o sbt-1.3.8.deb https://dl.bintray.com/sbt/debian/sbt-1.3.8.deb
-            dpkg -i sbt-1.3.8.deb
-            rm sbt-1.3.8.deb
-            apt-get update
-            apt-get install -y sbt python-pip git
-            pip install awscli
-            apt-get clean && apt-get autoclean
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-      - run:
-          name: SBT CLEAN
-          command: cat /dev/null | sbt clean
-      - run:
-          name: SBT COMPILE
-          command: cat /dev/null | sbt compile
-      - run:
-          name: Make JAR
-          command: cat /dev/null | sbt assembly
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: gradle dependencies
+      # Download and cache dependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: gradle clean
+      - run: gradle build
       - setup_remote_docker
-      - run:
-          name: Build Docker image
-          command: docker build -t $IMAGE_NAME:latest .
+      - run: docker build -t $IMAGE_NAME:latest .
+      - run: docker save -o image.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
   publish-latest:
     environment:
-      IMAGE_NAME: building-on-ci
+      IMAGE_NAME: mairo/cataclysm
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - setup_remote_docker
-      - run:
-          name: Publish Docker Image to Docker Hub
-          command: |
-            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
+      - run: docker load -i /tmp/workspace/image.tar
+      - run: cat /dev/null | echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      - run: cat /dev/null | docker push $IMAGE_NAME:latest
+
 workflows:
   version: 2
   build-master:
     jobs:
       - build:
-          filters:
-            branches:
-              only: /release.*/
+      #          filters:
+      #            branches:
+      #              only: /release.*/
       - publish-latest:
+          context: myctx
           requires:
             - build
           filters:
             branches:
+              #              only: master
               only: /release.*/

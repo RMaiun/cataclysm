@@ -8,7 +8,7 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/openjdk:11.0.3-jdk-stretch
-      - image: circleci/buildpack-deps:stretch
+#      - image: circleci/buildpack-deps:stretch
 
     working_directory: ~/repo
 
@@ -21,53 +21,23 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.gradle" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      - run: gradle dependencies
+          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+#      - restore_cache:
+#          key: v1-gradle-cache-{{ checksum "build.gradle" }}
       # Download and cache dependencies
       - save_cache:
           paths:
-            - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run: gradle clean
-      - run: gradle build
-      - setup_remote_docker
-      - run: docker build -t $IMAGE_NAME:latest .
-      - run: docker save -o image.tar $IMAGE_NAME
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./image.tar
-  publish-latest:
-    environment:
-      IMAGE_NAME: mairo/cataclysm
-    docker:
-      - image: circleci/buildpack-deps:stretch
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - setup_remote_docker
-      - run: docker load -i /tmp/workspace/image.tar
-      - run: cat /dev/null | echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      - run: cat /dev/null | docker push $IMAGE_NAME:latest
-
-workflows:
-  version: 2
-  build-master:
-    jobs:
-      - build:
-#          filters:
-#            branches:
-#              only: /release.*/
-      - publish-latest:
-          context: myctx
-          requires:
-            - build
-          filters:
-            branches:
-#              only: master
-              only: /release.*/
+            - ~/.gradle/wrapper
+          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - run:
+          name: chmod permissions
+          command: chmod +x ./gradlew
+      - run: ./gradlew clean
+      - run: ./gradlew build
+#      - setup_remote_docker
+#      - run: docker build -t $IMAGE_NAME:latest .
+#      - run: docker save -o image.tar $IMAGE_NAME
+#      - persist_to_workspace:
+#          root: .
+#          paths:
+#            - ./image.tar
