@@ -1,6 +1,6 @@
-package com.mairo.cataclysm.dto.api;
+package com.mairo.cataclysm.dto;
 
-import com.mairo.cataclysm.domain.Player;
+import com.mairo.cataclysm.dto.FullRound;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @RequiredArgsConstructor
-public class AllPlayersResponse {
+public class FoundLastRounds {
   @NonNull
-  private List<Player> players;
+  private List<FullRound> rounds;
 }

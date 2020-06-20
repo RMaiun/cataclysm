@@ -1,0 +1,6 @@
+app:
+  topPlayersLimit: 5
+  winPoints: 25
+  winShutoutPoints: 50
+  losePoints: -25
+  loseShutoutPoints: -50

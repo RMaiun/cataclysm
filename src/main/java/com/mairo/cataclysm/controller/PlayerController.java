@@ -1,6 +1,6 @@
-package com.mairo.cataclysm.http;
+package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.dto.api.AllPlayersResponse;
+import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.service.PlayerService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +19,7 @@ public class PlayerController {
   }
 
   @GetMapping("/all")
-  public Mono<AllPlayersResponse> personById() {
+  public Mono<FoundAllPlayers> personById() {
     return playerService.findAllPlayers();
   }
 }

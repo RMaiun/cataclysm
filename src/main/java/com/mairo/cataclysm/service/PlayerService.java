@@ -1,12 +1,11 @@
 package com.mairo.cataclysm.service;
 
 import com.mairo.cataclysm.domain.Player;
-import com.mairo.cataclysm.dto.api.AllPlayersResponse;
+import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public class PlayerService {
             .collect(Collectors.toMap(Player::getId, Player::getSurname)));
   }
 
-  public Mono<AllPlayersResponse> findAllPlayers() {
-    return playerRepository.listAll().map(AllPlayersResponse::new);
+  public Mono<FoundAllPlayers> findAllPlayers() {
+    return playerRepository.listAll().map(FoundAllPlayers::new);
   }
 }

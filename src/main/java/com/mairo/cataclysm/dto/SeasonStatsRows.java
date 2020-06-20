@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.dto.api;
+package com.mairo.cataclysm.dto;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @RequiredArgsConstructor
-public class FindAllRoundsResponse {
+public class SeasonStatsRows {
   @NonNull
   private List<String> headers;
   @NonNull
