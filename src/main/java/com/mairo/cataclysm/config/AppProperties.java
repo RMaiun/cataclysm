@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 @EnableConfigurationProperties
 public class AppProperties {
 
-  public int topPlayersLimit;
-  public int winPoints;
-  public int winShutoutPoints;
-  public int losePoints;
-  public int loseShutoutPoints;
+  private int topPlayersLimit;
+  private int winPoints;
+  private int winShutoutPoints;
+  private int losePoints;
+  private int loseShutoutPoints;
 }

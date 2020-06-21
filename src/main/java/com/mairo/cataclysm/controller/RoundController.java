@@ -1,12 +1,11 @@
 package com.mairo.cataclysm.controller;
 
 
+import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FoundLastRounds;
+import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.service.RoundsService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -23,5 +22,10 @@ public class RoundController {
   public Mono<FoundLastRounds> findAllRounds(@PathVariable String season, @PathVariable int qty) {
     return roundsService.findLastRoundsInSeason(season, qty)
         .map(FoundLastRounds::new);
+  }
+
+  @PostMapping("/add")
+  public Mono<IdDto> addRound(@RequestBody AddRoundDto dto) {
+    return roundsService.saveRound(dto);
   }
 }

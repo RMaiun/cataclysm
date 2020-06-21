@@ -41,7 +41,7 @@ public class StatsServiceHelper {
     List<PlayerStats> topPlayers = calculatePointsForPlayers(rounds).entrySet()
         .stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .limit(appProperties.topPlayersLimit)
+        .limit(appProperties.getTopPlayersLimit())
         .map(e -> new PlayerStats(e.getKey(), e.getValue()))
         .collect(toList());
     stats.setTopPlayers(topPlayers);
@@ -70,17 +70,17 @@ public class StatsServiceHelper {
   private Map<String, Integer> calculatePointsForPlayers(List<FullRound> rounds) {
     return rounds.stream()
         .flatMap(r -> Stream.of(
-            Pair.of(r.getWinner1(), r.isShutout() ? appProperties.winShutoutPoints : appProperties.winPoints),
-            Pair.of(r.getWinner2(), r.isShutout() ? appProperties.winShutoutPoints : appProperties.winPoints),
-            Pair.of(r.getLoser1(), r.isShutout() ? appProperties.loseShutoutPoints : appProperties.losePoints),
-            Pair.of(r.getLoser2(), r.isShutout() ? appProperties.loseShutoutPoints : appProperties.losePoints)))
+            Pair.of(r.getWinner1(), r.isShutout() ? appProperties.getWinShutoutPoints() : appProperties.getWinPoints()),
+            Pair.of(r.getWinner2(), r.isShutout() ? appProperties.getWinShutoutPoints() : appProperties.getWinPoints()),
+            Pair.of(r.getLoser1(), r.isShutout() ? appProperties.getLoseShutoutPoints() : appProperties.getLosePoints()),
+            Pair.of(r.getLoser2(), r.isShutout() ? appProperties.getLoseShutoutPoints() : appProperties.getLosePoints())))
         .collect(groupingBy(Pair::getKey, mapping(Pair::getRight, reducing(1000, Integer::sum))));
   }
 
   private List<String> transformRoundIntoRow(FullRound r, List<String> headers) {
     List<String> row = IntStream.range(0, headers.size()).mapToObj(x -> "").collect(toList());
-    String winPoints = r.isShutout() ? String.valueOf(appProperties.winShutoutPoints) : String.valueOf(appProperties.winPoints);
-    String losePoints = r.isShutout() ? String.valueOf(appProperties.loseShutoutPoints) : String.valueOf(appProperties.losePoints);
+    String winPoints = r.isShutout() ? String.valueOf(appProperties.getWinShutoutPoints()) : String.valueOf(appProperties.getWinPoints());
+    String losePoints = r.isShutout() ? String.valueOf(appProperties.getLoseShutoutPoints()) : String.valueOf(appProperties.getLosePoints());
     row.set(headers.indexOf(r.getWinner1()), winPoints);
     row.set(headers.indexOf(r.getWinner2()), winPoints);
     row.set(headers.indexOf(r.getLoser1()), losePoints);
