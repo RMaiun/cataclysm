@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.3.0.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'java'
+    id "org.flywaydb.flyway" version "6.4.4"
 }
 
 group = 'com.mairo'
@@ -35,7 +36,6 @@ dependencies {
     implementation 'dev.miku:r2dbc-mysql'
     runtimeOnly 'mysql:mysql-connector-java'
 
-
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
@@ -47,4 +47,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+flyway {
+    url = 'jdbc:mysql://localhost:3306/cata?useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8'
+    user = 'myUsr'
+    password = 'mySecretPwd'
 }
