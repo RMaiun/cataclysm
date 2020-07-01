@@ -1,4 +1,4 @@
-package com.mairo.cataclysm;
+package com.mairo.cataclysm.controller;
 
 
 import com.mairo.cataclysm.controller.PlayerController;

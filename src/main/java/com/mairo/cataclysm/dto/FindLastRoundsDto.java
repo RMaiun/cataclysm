@@ -1,14 +1,14 @@
 package com.mairo.cataclysm.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class FindLastRoundsDto {
-  @NonNull
+
   private String season;
-  @NonNull
   private Integer qty;
 }
