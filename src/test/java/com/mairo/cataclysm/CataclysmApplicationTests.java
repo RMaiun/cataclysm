@@ -24,7 +24,7 @@ class CataclysmApplicationTests {
   void contextLoads() {
     assertNotNull(playerRepository);
     assertNotNull(appProperties);
-    assertEquals(25, appProperties.winPoints);
+    assertEquals(25, appProperties.getWinPoints());
   }
 
 }

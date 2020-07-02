@@ -6,6 +6,4 @@ services:
       - '3306:3306'
     environment:
       - MYSQL_DATABASE=cata
-      - MYSQL_PASSWORD=password
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=admin
+      - MYSQL_ROOT_PASSWORD=Mairo@888
