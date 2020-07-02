@@ -1,7 +1,6 @@
-| CI |
-| --- |
-|[![CircleCI](https://circleci.com/gh/mschuwalow/zio-todo-backend/tree/develop.svg?style=svg)](https://app.circleci.com/pipelines/github/RMaiun/cataclysm?branch=master) |
-
+| CI Status | master |
+| --------- |:------:|
+|Build and fingerprint tests | [![CircleCI](https://circleci.com/gh/RMaiun/cataclysm/tree/master.svg?style=svg&circle-token=c973489579b9096866a8c23dd926ba0ec771573c)](https://app.circleci.com/pipelines/github/RMaiun/cataclysm)|
 # Table Football back end service
 How to run:
 - run docker compose in /docker package
