@@ -17,12 +17,12 @@ public class StatsController {
 
   private final StatisticsService statisticsService;
 
-  @GetMapping("/rows/{season}")
+  @GetMapping("/table/{season}")
   public Mono<SeasonStatsRows> seasonRowsStatistic(@PathVariable String season) {
     return statisticsService.seasonStatisticsRows(season);
   }
 
-  @GetMapping("/general/{season}")
+  @GetMapping("/short/{season}")
   public Mono<SeasonShortStats> generalSeasonStatistics(@PathVariable String season) {
     return statisticsService.seasonShortInfoStatistics(season);
   }

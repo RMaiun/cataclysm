@@ -10,4 +10,6 @@ public class SeasonShortStats {
   private List<PlayerStats> topPlayers;
   private int gamesPlayed;
   private int daysToSeasonEnd;
+  private Streak bestStreak;
+  private Streak worstStreak;
 }
