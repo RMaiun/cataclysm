@@ -1,15 +1,14 @@
 package com.mairo.cataclysm.dto;
 
-import com.mairo.cataclysm.dto.FullRound;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class FoundLastRounds {
-  @NonNull
   private List<FullRound> rounds;
 }

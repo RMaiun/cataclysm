@@ -35,11 +35,11 @@ public class RoundRepository {
         .collectList();
   }
 
-  public Mono<Integer> saveRound(Round round) {
+  public Mono<Long> saveRound(Round round) {
     return dbClient.insert()
         .into(Round.class)
         .using(round)
-        .map((r, m) -> r.get("id", Integer.class))
+        .map((r, m) -> r.get("id", Long.class))
         .one();
   }
 }
