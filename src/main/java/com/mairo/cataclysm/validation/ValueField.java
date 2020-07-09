@@ -2,8 +2,8 @@ package com.mairo.cataclysm.validation;
 
 public class ValueField<T> {
 
-  private T data;
-  private String field;
+  private final T data;
+  private final String field;
 
   public ValueField(T data, String field) {
     this.data = data;
