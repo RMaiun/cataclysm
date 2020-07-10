@@ -15,12 +15,10 @@ import static com.mairo.cataclysm.validation.ValidationRule.requiredRule;
 import static com.mairo.cataclysm.validation.ValidationRule.rule;
 import static com.mairo.cataclysm.validation.ValidationSchema.schema;
 import static com.mairo.cataclysm.validation.ValidationTypes.listLastRoundsValidationType;
-import static java.util.List.of;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ValidatorTest {
-
 
   @Test
   void testSuccessfulValidation() {
@@ -65,13 +63,13 @@ class ValidatorTest {
   public void complexValidationTest() {
     ValidationType<ValidationTestData.Cat> catValidationType = c ->
         schema()
-            .witRule(rule(c.sound, "sound", of(oneOf("mew", "pur"))))
-            .witRule(rule(c.hungryPrecentage, "hungryPrecentage", of(intBetween(0, 100))));
+            .witRule(rule(c.sound, "sound", oneOf("mew", "pur")))
+            .witRule(rule(c.hungryPrecentage, "hungryPrecentage", intBetween(0, 100)));
 
     ValidationType<ValidationTestData.Person> personValidationType = p ->
         schema()
-            .witRule(requiredRule(p.age, "age", of(intBetween(0, 130))))
-            .witRule(requiredRule(p.name, "name", of(length(2, 5), oneOf("Kate", "John"))))
+            .witRule(requiredRule(p.age, "age", intBetween(0, 130)))
+            .witRule(requiredRule(p.name, "name", length(2, 5), oneOf("Kate", "John")))
             .witRule(requiredRule(p.cat, "cat", catValidationType));
 
     ValidationTestData.Person p = new ValidationTestData.Person("Joko", 23,

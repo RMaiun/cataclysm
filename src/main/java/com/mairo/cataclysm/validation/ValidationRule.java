@@ -24,12 +24,16 @@ public class ValidationRule {
     return validationType.applyDto(obj).validate().getMsgs();
   }
 
-  public static <T> Supplier<Stream<String>> rule(T data, String field, List<ValidationFunction<T>> validators) {
-    return () -> isNull(data) ? Stream.empty() : executeRule(data, field, validators);
+  @SafeVarargs
+  @SuppressWarnings("varargs")
+  public static <T> Supplier<Stream<String>> rule(T data, String field, ValidationFunction<T>... validators) {
+    return () -> isNull(data) ? Stream.empty() : executeRule(data, field, List.of(validators));
   }
 
-  public static <T> Supplier<Stream<String>> requiredRule(T data, String field, List<ValidationFunction<T>> validators) {
-    return () -> executeRule(data, field, validators);
+  @SafeVarargs
+  @SuppressWarnings("varargs")
+  public static <T> Supplier<Stream<String>> requiredRule(T data, String field, ValidationFunction<T>... validators) {
+    return () -> executeRule(data, field, List.of(validators));
   }
 
   public static <T> Supplier<Stream<String>> requiredRule(T data, String field, ValidationType<T> validationType) {
