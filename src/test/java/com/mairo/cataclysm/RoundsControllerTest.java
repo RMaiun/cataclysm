@@ -44,7 +44,7 @@ public class RoundsControllerTest {
   public void setup() {
     webClient = WebTestClient.bindToApplicationContext(ctx).build();
     when(playerRepository.listAll()).thenReturn(Mono.just(TestData.testPlayers()));
-    when(seasonRepository.getSeason(any())).thenReturn(Mono.just(new Season(1L, "S1/2020")));
+    when(seasonRepository.getSeason(any())).thenReturn(Mono.just(new Season(1L, "S1|2020")));
     when(roundRepository.listLastRoundsBySeason(anyLong(), anyInt())).thenReturn(Mono.just(TestData.testRounds()));
   }
 
@@ -52,7 +52,7 @@ public class RoundsControllerTest {
   @DisplayName("round/findLast test")
   public void findLastTest() {
     webClient.get()
-        .uri("/round/findLast/S1%2F2020/10")
+        .uri("/round/findLast/S1|2020/10")
         .exchange()
         .expectStatus().isOk()
         .expectBody(FoundLastRounds.class)

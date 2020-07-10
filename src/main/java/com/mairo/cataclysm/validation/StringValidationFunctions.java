@@ -1,9 +1,9 @@
 package com.mairo.cataclysm.validation;
 
+import java.util.Arrays;
+
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-
-import java.util.Arrays;
 
 public interface StringValidationFunctions {
 
@@ -20,9 +20,9 @@ public interface StringValidationFunctions {
   }
 
   static ValidationFunction<String> isSeason() {
-    String seasonPattern = "^[Ss][1-4]\\/\\d{4}$";
+    String seasonPattern = "^[Ss][1-4]\\|\\d{4}$";
     return vf -> vf.getData().length() == 7 && vf.getData().matches(seasonPattern)
         ? emptyList()
-        : singletonList(String.format("Field %s is not a season (Season pattern:S{1-4}/yyyy)", vf.getField()));
+        : singletonList(String.format("Field %s is not a season (Season pattern:S{1-4}|yyyy)", vf.getField()));
   }
 }

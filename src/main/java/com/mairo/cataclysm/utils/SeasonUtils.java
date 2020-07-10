@@ -12,6 +12,6 @@ public class SeasonUtils {
     int month = now.getMonth().getValue();
     int year = now.getYear();
     int q = month <= 3 ? 1 : month <= 6 ? 2 : month <= 9 ? 3 : 4;
-    return String.format("S%d/%d", q, year);
+    return String.format("S%d|%d", q, year);
   }
 }

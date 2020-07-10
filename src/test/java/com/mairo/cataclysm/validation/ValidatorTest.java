@@ -22,14 +22,14 @@ class ValidatorTest {
 
   @Test
   void testSuccessfulValidation() {
-    FindLastRoundsDto dto = new FindLastRoundsDto("S2/2020", 1000);
+    FindLastRoundsDto dto = new FindLastRoundsDto("S2|2020", 1000);
     Mono<FindLastRoundsDto> validate = Validator.validate(dto, listLastRoundsValidationType);
     validate.subscribe(result -> assertEquals(dto, result));
   }
 
   @Test
   void testInvalidSeason() {
-    FindLastRoundsDto dto = new FindLastRoundsDto("S22/4", 3004);
+    FindLastRoundsDto dto = new FindLastRoundsDto("S22|4", 3004);
     Mono<FindLastRoundsDto> validate = Validator.validate(dto, listLastRoundsValidationType);
     StepVerifier.create(validate)
         .expectError(ValidationException.class)
@@ -38,7 +38,7 @@ class ValidatorTest {
 
   @Test
   void testInvalidQty() {
-    FindLastRoundsDto dto = new FindLastRoundsDto("S2/2020", 4000);
+    FindLastRoundsDto dto = new FindLastRoundsDto("S2|2020", 4000);
     Mono<FindLastRoundsDto> validate = Validator.validate(dto, listLastRoundsValidationType);
     StepVerifier.create(validate)
         .expectError(ValidationException.class)
@@ -48,7 +48,7 @@ class ValidatorTest {
 
   @Test
   public void testInvalidBothValues() {
-    FindLastRoundsDto dto = new FindLastRoundsDto("S22/4", 4000);
+    FindLastRoundsDto dto = new FindLastRoundsDto("S22|4", 4000);
     Mono<FindLastRoundsDto> validate = Validator.validate(dto, listLastRoundsValidationType);
     StepVerifier.create(validate)
         .expectErrorSatisfies(throwable -> {
