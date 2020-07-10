@@ -23,4 +23,7 @@ public interface ValidationTypes {
           .witRule(requiredRule(dto.getW2(), "w2", of(longBetween(1L, Long.MAX_VALUE))))
           .witRule(requiredRule(dto.getL1(), "l1", of(longBetween(1L, Long.MAX_VALUE))))
           .witRule(requiredRule(dto.getL2(), "l2", of(longBetween(1L, Long.MAX_VALUE))));
+
+  ValidationType<String> seasonValidationType = dto ->
+      schema().witRule(requiredRule(dto, "season", of(isSeason())));
 }

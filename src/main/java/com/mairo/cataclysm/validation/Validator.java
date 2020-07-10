@@ -8,6 +8,6 @@ public class Validator {
   }
 
   public static <T> Mono<T> validate(T dto, ValidationType<T> validationType) {
-    return validationType.describeSchema(dto).validate().asMono().map(__ -> dto);
+    return validationType.applyDto(dto).validate().asMono().map(__ -> dto);
   }
 }

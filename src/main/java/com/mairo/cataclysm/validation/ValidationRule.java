@@ -21,7 +21,7 @@ public class ValidationRule {
     if (isNull(obj)) {
       return Stream.of(String.format("Field %s must be present", field));
     }
-    return validationType.describeSchema(obj).validate().getMsgs();
+    return validationType.applyDto(obj).validate().getMsgs();
   }
 
   public static <T> Supplier<Stream<String>> rule(T data, String field, List<ValidationFunction<T>> validators) {
