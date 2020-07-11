@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class SeasonShortStats {
   private String season;
-  private List<PlayerStats> topPlayers;
+  private List<PlayerStats> playersRating;
   private int gamesPlayed;
   private int daysToSeasonEnd;
   private Streak bestStreak;

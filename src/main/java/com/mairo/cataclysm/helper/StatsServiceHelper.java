@@ -41,10 +41,9 @@ public class StatsServiceHelper {
     List<PlayerStats> topPlayers = calculatePointsForPlayers(rounds).entrySet()
         .stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .limit(appProperties.getTopPlayersLimit())
         .map(e -> new PlayerStats(e.getKey(), e.getValue()))
         .collect(toList());
-    stats.setTopPlayers(topPlayers);
+    stats.setPlayersRating(topPlayers);
 
     Pair<Optional<Streak>, Optional<Streak>> optionalOptionalPair = calculateStreaks(rounds);
     optionalOptionalPair.getLeft().ifPresent(stats::setBestStreak);
