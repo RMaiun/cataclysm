@@ -1,20 +1,16 @@
 package com.mairo.cataclysm.controller;
 
 
-import com.mairo.cataclysm.controller.PlayerController;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.repository.PlayerRepository;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -36,7 +32,7 @@ public class PlayerControllerTest {
   private static WebTestClient webClient;
 
   @BeforeEach
-  public void setup(){
+  public void setup() {
     webClient = WebTestClient.bindToApplicationContext(ctx).build();
   }
 

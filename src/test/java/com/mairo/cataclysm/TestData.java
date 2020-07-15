@@ -6,6 +6,7 @@ import com.mairo.cataclysm.domain.Round;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface TestData {
 
@@ -27,6 +28,10 @@ public interface TestData {
     Round r4 = new Round(1L, 1L, 2L, 3L, 4L,
         false, 1L, LocalDateTime.now());
     return Arrays.asList(r1, r2, r3, r4);
+  }
+
+  static List<Player> players(List<Long> ids){
+    return ids.stream().map(id -> new Player(id, id.toString())).collect(Collectors.toList());
   }
 
 

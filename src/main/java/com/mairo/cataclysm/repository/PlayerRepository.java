@@ -8,6 +8,8 @@ import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+
 @Service
 public class PlayerRepository {
 
@@ -26,5 +28,13 @@ public class PlayerRepository {
         .map(list -> list.stream()
             .sorted(Comparator.comparing(Player::getId))
             .collect(Collectors.toList()));
+  }
+
+  public Mono<List<Player>> findPlayers(List<Long> ids) {
+    return dbClient.select()
+        .from(Player.class)
+        .matching(where("id").in(ids))
+        .as(Player.class)
+        .all().collectList();
   }
 }

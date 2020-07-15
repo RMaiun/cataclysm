@@ -1,11 +1,7 @@
 package com.mairo.cataclysm.service;
 
 import com.mairo.cataclysm.domain.Round;
-import com.mairo.cataclysm.dto.AddRoundDto;
-import com.mairo.cataclysm.dto.FindLastRoundsDto;
-import com.mairo.cataclysm.dto.FullRound;
-import com.mairo.cataclysm.dto.IdDto;
-import com.mairo.cataclysm.dto.PlayerSeasonData;
+import com.mairo.cataclysm.dto.*;
 import com.mairo.cataclysm.helper.RoundServiceHelper;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
@@ -45,12 +41,14 @@ public class RoundsService {
   }
 
   public Mono<IdDto> saveRound(AddRoundDto dto) {
-    return seasonRepository.getSeason(currentSeason())
-        .flatMap(s -> roundRepository.saveRound(new Round(null,
+    return Mono.zip(
+        seasonRepository.getSeason(currentSeason()),
+        playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())))
+        .flatMap(t -> roundRepository.saveRound(new Round(null,
             dto.getW1(), dto.getW2(),
             dto.getL1(), dto.getL2(),
             dto.isShutout(),
-            s.getId(),
+            t.getT1().getId(),
             LocalDateTime.now(ZoneOffset.UTC))))
         .map(IdDto::new);
   }

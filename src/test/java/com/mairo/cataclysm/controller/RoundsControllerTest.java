@@ -1,9 +1,11 @@
-package com.mairo.cataclysm;
+package com.mairo.cataclysm.controller;
 
+import com.mairo.cataclysm.TestData;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FoundLastRounds;
 import com.mairo.cataclysm.dto.IdDto;
+import com.mairo.cataclysm.exception.CataRuntimeException;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
@@ -19,10 +21,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -64,8 +67,12 @@ public class RoundsControllerTest {
 
   @Test
   @DisplayName("round/add")
-  public void addRoundTest() {
+  public void addRoundHdsTest() {
     when(roundRepository.saveRound(any())).thenReturn(Mono.just(100L));
+    when(playerRepository.findPlayers(anyList())).thenAnswer(invocation -> {
+      List<Long> argument = invocation.getArgument(0);
+      return Mono.just(TestData.players(argument));
+    });
     webClient.post()
         .uri("/round/add")
         .contentType(MediaType.APPLICATION_JSON)
@@ -77,5 +84,22 @@ public class RoundsControllerTest {
           assertNotNull(res.getResponseBody());
           assertEquals(100L, res.getResponseBody().getId());
         });
+  }
+
+  @Test
+  @DisplayName("round/add")
+  public void addRoundNoPlayersFoundTest() {
+    when(roundRepository.saveRound(any())).thenReturn(Mono.just(100L));
+    when(playerRepository.findPlayers(anyList())).thenAnswer(invocation -> {
+      List<Long> argument = invocation.getArgument(0);
+      return Mono.just(TestData.players(argument.subList(0, argument.size() - 2)));
+    });
+    webClient.post()
+        .uri("/round/add")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromValue(new AddRoundDto(1L, 2L, 3L, 4L, true)))
+        .exchange()
+        .expectStatus().is5xxServerError()
+        .expectBody(CataRuntimeException.class);
   }
 }

@@ -1,7 +1,7 @@
 package com.mairo.cataclysm.repository;
 
 import com.mairo.cataclysm.domain.Season;
-import io.vavr.control.Option;
+import com.mairo.cataclysm.exception.SeasonNotFoundException;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -23,7 +23,7 @@ public class SeasonRepository {
         .matching(where("name").is(name))
         .as(Season.class)
         .one()
-        .switchIfEmpty(Mono.error(new RuntimeException("Season is not found")));
+        .switchIfEmpty(Mono.error(new SeasonNotFoundException(name)));
   }
 
   public Mono<Integer> saveSeason(Season season) {
