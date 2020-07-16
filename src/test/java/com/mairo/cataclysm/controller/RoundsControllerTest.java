@@ -99,7 +99,7 @@ public class RoundsControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(new AddRoundDto(1L, 2L, 3L, 4L, true)))
         .exchange()
-        .expectStatus().is5xxServerError()
+        .expectStatus().is4xxClientError()
         .expectBody(CataRuntimeException.class);
   }
 }
