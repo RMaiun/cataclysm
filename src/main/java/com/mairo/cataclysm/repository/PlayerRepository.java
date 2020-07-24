@@ -1,5 +1,7 @@
 package com.mairo.cataclysm.repository;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+
 import com.mairo.cataclysm.domain.Player;
 import java.util.Comparator;
 import java.util.List;
