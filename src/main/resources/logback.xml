@@ -9,7 +9,7 @@
   <logger name="com.mairo.cataclysm" level="debug" additivity="false">
     <appender-ref ref="CONSOLE"/>
   </logger>
-  <root level="error">
+  <root level="INFO">
     <appender-ref ref="CONSOLE"/>
   </root>
 </configuration>

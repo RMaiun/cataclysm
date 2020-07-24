@@ -10,4 +10,4 @@ db:
   port: 3306
   database: "cata"
   username: "root"
-  password: "Mairo@888"
+  password: "password"

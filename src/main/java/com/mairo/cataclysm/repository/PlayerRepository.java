@@ -1,11 +1,12 @@
 package com.mairo.cataclysm.repository;
 
 import com.mairo.cataclysm.domain.Player;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 public class PlayerRepository {
@@ -20,6 +21,10 @@ public class PlayerRepository {
     return dbClient.select()
         .from(Player.class)
         .as(Player.class)
-        .all().collectList();
+        .all()
+        .collectList()
+        .map(list -> list.stream()
+            .sorted(Comparator.comparing(Player::getId))
+            .collect(Collectors.toList()));
   }
 }
