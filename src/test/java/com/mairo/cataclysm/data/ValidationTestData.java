@@ -3,6 +3,7 @@ package com.mairo.cataclysm.data;
 public class ValidationTestData {
 
   public static class Person {
+
     public final String name;
     public final int age;
     public final Cat cat;
@@ -15,12 +16,13 @@ public class ValidationTestData {
   }
 
   public static class Cat {
-    public final String sound;
-    public final int hungryPrecentage;
 
-    public Cat(String sound, int hungryPrecentage) {
+    public final String sound;
+    public final int hungryPercentage;
+
+    public Cat(String sound, int hungryPercentage) {
       this.sound = sound;
-      this.hungryPrecentage = hungryPrecentage;
+      this.hungryPercentage = hungryPercentage;
     }
   }
 }

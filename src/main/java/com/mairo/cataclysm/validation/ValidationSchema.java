@@ -1,20 +1,19 @@
 package com.mairo.cataclysm.validation;
 
 import com.mairo.cataclysm.exception.ValidationException;
-import reactor.core.publisher.Mono;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import reactor.core.publisher.Mono;
 
 public class ValidationSchema {
 
   private final List<Supplier<Stream<String>>> prodsList;
   private Stream<String> msgs = Stream.empty();
 
-  public ValidationSchema() {
+  private ValidationSchema() {
     this.prodsList = new ArrayList<>();
   }
 
@@ -22,17 +21,17 @@ public class ValidationSchema {
     return new ValidationSchema();
   }
 
-  public ValidationSchema witRule(Supplier<Stream<String>> prod) {
+  public ValidationSchema withRule(Supplier<Stream<String>> prod) {
     this.prodsList.add(prod);
     return this;
   }
 
-  public ValidationSchema validate() {
+  ValidationSchema validate() {
     msgs = prodsList.stream().flatMap(Supplier::get);
     return this;
   }
 
-  public Mono<Boolean> asMono() {
+  Mono<Boolean> asMono() {
     List<String> msgList = msgs.collect(Collectors.toList());
     if (msgList.isEmpty()) {
       return Mono.just(true);
@@ -41,7 +40,7 @@ public class ValidationSchema {
     }
   }
 
-  public Stream<String> getMsgs() {
+  Stream<String> getMsgs() {
     return msgs;
   }
 }

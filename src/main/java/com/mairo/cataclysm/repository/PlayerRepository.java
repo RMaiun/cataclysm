@@ -6,6 +6,8 @@ import com.mairo.cataclysm.domain.Player;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -38,5 +40,22 @@ public class PlayerRepository {
         .matching(where("id").in(ids))
         .as(Player.class)
         .all().collectList();
+  }
+
+  public Mono<Long> savePlayer(Player player) {
+    return dbClient.insert()
+        .into(Player.class)
+        .using(player)
+        .map((r, m) -> r.get("id", Long.class))
+        .one();
+  }
+
+  public Mono<Long> findLastId() {
+    return dbClient.select()
+        .from(Player.class)
+        .orderBy(Sort.by(Order.desc("id")))
+        .map((r, m) -> r.get("id", Long.class))
+        .first()
+        .switchIfEmpty(Mono.just(0L));
   }
 }

@@ -1,7 +1,9 @@
 package com.mairo.cataclysm.service;
 
 import com.mairo.cataclysm.domain.Player;
+import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
+import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.exception.PlayersNotFoundException;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,7 @@ public class PlayerService {
     this.playerRepository = playerRepository;
   }
 
-  public Mono<Map<Long, String>> findAllPlayersAsMap() {
+  Mono<Map<Long, String>> findAllPlayersAsMap() {
     return playerRepository.listAll()
         .map(list -> list.stream()
             .collect(Collectors.toMap(Player::getId, Player::getSurname)));
@@ -30,7 +32,7 @@ public class PlayerService {
     return playerRepository.listAll().map(FoundAllPlayers::new);
   }
 
-  public Mono<List<Player>> checkPlayersExist(List<Long> playerIdList) {
+  Mono<List<Player>> checkPlayersExist(List<Long> playerIdList) {
     return playerRepository.findPlayers(playerIdList)
         .flatMap(list -> {
           if (list.size() == playerIdList.size()) {
@@ -45,5 +47,11 @@ public class PlayerService {
             return Mono.error(new PlayersNotFoundException(missedPlayers));
           }
         });
+  }
+
+  public Mono<IdDto> addPlayer(AddPlayerDto dto){
+    return playerRepository.findLastId()
+        .flatMap(id -> playerRepository.savePlayer(new Player(id+1,dto.getSurname().toLowerCase())))
+        .map(IdDto::new);
   }
 }

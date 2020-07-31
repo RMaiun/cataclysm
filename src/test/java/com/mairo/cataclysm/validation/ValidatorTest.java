@@ -1,13 +1,5 @@
 package com.mairo.cataclysm.validation;
 
-import com.mairo.cataclysm.data.ValidationTestData;
-import com.mairo.cataclysm.dto.FindLastRoundsDto;
-import com.mairo.cataclysm.exception.ValidationException;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
 import static com.mairo.cataclysm.validation.NumberValidationFunctions.intBetween;
 import static com.mairo.cataclysm.validation.StringValidationFunctions.length;
 import static com.mairo.cataclysm.validation.StringValidationFunctions.oneOf;
@@ -15,7 +7,17 @@ import static com.mairo.cataclysm.validation.ValidationRule.requiredRule;
 import static com.mairo.cataclysm.validation.ValidationRule.rule;
 import static com.mairo.cataclysm.validation.ValidationSchema.schema;
 import static com.mairo.cataclysm.validation.ValidationTypes.listLastRoundsValidationType;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.mairo.cataclysm.data.ValidationTestData;
+import com.mairo.cataclysm.dto.FindLastRoundsDto;
+import com.mairo.cataclysm.exception.ValidationException;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @SpringBootTest
 class ValidatorTest {
@@ -47,7 +49,7 @@ class ValidatorTest {
   }
 
   @Test
-  public void testInvalidBothValues() {
+  void testInvalidBothValues() {
     FindLastRoundsDto dto = new FindLastRoundsDto("S22|4", 4000);
     Mono<FindLastRoundsDto> validate = Validator.validate(dto, listLastRoundsValidationType);
     StepVerifier.create(validate)
@@ -60,17 +62,17 @@ class ValidatorTest {
   }
 
   @Test
-  public void complexValidationTest() {
+  void complexValidationTest() {
     ValidationType<ValidationTestData.Cat> catValidationType = c ->
         schema()
-            .witRule(rule(c.sound, "sound", oneOf("mew", "pur")))
-            .witRule(rule(c.hungryPrecentage, "hungryPrecentage", intBetween(0, 100)));
+            .withRule(rule(c.sound, "sound", oneOf("mew", "pur")))
+            .withRule(rule(c.hungryPercentage, "hungryPrecentage", intBetween(0, 100)));
 
     ValidationType<ValidationTestData.Person> personValidationType = p ->
         schema()
-            .witRule(requiredRule(p.age, "age", intBetween(0, 130)))
-            .witRule(requiredRule(p.name, "name", length(2, 5), oneOf("Kate", "John")))
-            .witRule(requiredRule(p.cat, "cat", catValidationType));
+            .withRule(requiredRule(p.age, "age", intBetween(0, 130)))
+            .withRule(requiredRule(p.name, "name", length(2, 5), oneOf("Kate", "John")))
+            .withRule(requiredRule(p.cat, "cat", catValidationType));
 
     ValidationTestData.Person p = new ValidationTestData.Person("Joko", 23,
         new ValidationTestData.Cat("skibidi", 100));
