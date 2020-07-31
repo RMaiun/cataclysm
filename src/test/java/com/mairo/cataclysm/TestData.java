@@ -2,7 +2,6 @@ package com.mairo.cataclysm;
 
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Round;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -11,10 +10,10 @@ import java.util.stream.Collectors;
 public interface TestData {
 
   static List<Player> testPlayers() {
-    Player p1 = new Player(1L, "player1");
-    Player p2 = new Player(2L, "player2");
-    Player p3 = new Player(3L, "player3");
-    Player p4 = new Player(4L, "player4");
+    Player p1 = new Player(1L, "player1", null, false);
+    Player p2 = new Player(2L, "player2", null, false);
+    Player p3 = new Player(3L, "player3", null, false);
+    Player p4 = new Player(4L, "player4", null, false);
     return Arrays.asList(p1, p2, p3, p4);
   }
 
@@ -30,8 +29,10 @@ public interface TestData {
     return Arrays.asList(r1, r2, r3, r4);
   }
 
-  static List<Player> players(List<Long> ids){
-    return ids.stream().map(id -> new Player(id, id.toString())).collect(Collectors.toList());
+  static List<Player> players(List<String> surnames) {
+    return surnames.stream()
+        .map(s -> new Player(surnames.indexOf(s) + 1L, s, null, false))
+        .collect(Collectors.toList());
   }
 
 

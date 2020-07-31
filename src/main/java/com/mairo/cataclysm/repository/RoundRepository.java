@@ -39,7 +39,7 @@ public class RoundRepository {
     return dbClient.insert()
         .into(Round.class)
         .using(round)
-        .map((r, m) -> r.get("id", Long.class))
+        .map((r, m) -> r.get(0, Long.class))
         .one();
   }
 }

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 
 @Data
 @AllArgsConstructor
@@ -15,4 +14,6 @@ public class Player {
   private Long id;
 
   private String surname;
+  private String tid;
+  private boolean admin;
 }

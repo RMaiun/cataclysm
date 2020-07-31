@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class AddPlayerDto {
 
   private String surname;
-  private String id;
+  private String tid;
+  private boolean admin;
 }

@@ -5,6 +5,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import com.mairo.cataclysm.domain.Player;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -34,19 +35,29 @@ public class PlayerRepository {
             .collect(Collectors.toList()));
   }
 
-  public Mono<List<Player>> findPlayers(List<Long> ids) {
+  public Mono<List<Player>> findPlayers(List<String> surnames) {
     return dbClient.select()
         .from(Player.class)
-        .matching(where("id").in(ids))
+        .matching(where("surname").in(surnames))
         .as(Player.class)
         .all().collectList();
+  }
+
+  public Mono<Optional<Player>> getPlayer(String name) {
+    return dbClient.select()
+        .from(Player.class)
+        .matching(where("surname").is(name))
+        .as(Player.class)
+        .one()
+        .map(Optional::of)
+        .switchIfEmpty(Mono.just(Optional.empty()));
   }
 
   public Mono<Long> savePlayer(Player player) {
     return dbClient.insert()
         .into(Player.class)
         .using(player)
-        .map((r, m) -> r.get("id", Long.class))
+        .map((r, m) -> r.get(0, Long.class))
         .one();
   }
 

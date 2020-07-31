@@ -1,15 +1,19 @@
 package com.mairo.cataclysm.helper;
 
-import com.mairo.cataclysm.config.AppProperties;
-import com.mairo.cataclysm.dto.*;
-import io.vavr.Tuple4;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.stereotype.Service;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.reducing;
+import static java.util.stream.Collectors.toList;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.TemporalAdjusters;
+import com.mairo.cataclysm.config.AppProperties;
+import com.mairo.cataclysm.dto.FullRound;
+import com.mairo.cataclysm.dto.PlayerStats;
+import com.mairo.cataclysm.dto.SeasonShortStats;
+import com.mairo.cataclysm.dto.SeasonStatsRows;
+import com.mairo.cataclysm.dto.Streak;
+import com.mairo.cataclysm.utils.SeasonUtils;
+import io.vavr.Tuple4;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +21,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.*;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -30,14 +35,15 @@ public class StatsServiceHelper {
     SeasonShortStats stats = new SeasonShortStats();
     stats.setGamesPlayed(rounds.size());
     stats.setSeason(seasonName);
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-    LocalDateTime firstDayOfQuarter = now.with(now.getMonth().firstMonthOfQuarter())
-        .with(TemporalAdjusters.firstDayOfMonth());
-    LocalDateTime lastDayOfQuarter = firstDayOfQuarter.plusMonths(2)
-        .with(TemporalAdjusters.lastDayOfMonth());
-    int daysLeft = lastDayOfQuarter.getDayOfYear() - now.getDayOfYear();
-    stats.setDaysToSeasonEnd(daysLeft);
 
+    Pair<LocalDate, LocalDate> seasonGate = SeasonUtils.seasonGate(seasonName);
+    LocalDate now = LocalDate.now();
+    if (now.compareTo(seasonGate.getRight()) > 0) {
+      stats.setDaysToSeasonEnd(0);
+    } else {
+      int daysLeft = seasonGate.getRight().getDayOfYear() - now.getDayOfYear();
+      stats.setDaysToSeasonEnd(daysLeft);
+    }
     List<PlayerStats> topPlayers = calculatePointsForPlayers(rounds).entrySet()
         .stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -76,7 +82,7 @@ public class StatsServiceHelper {
   }
 
   private void checkStreak(Map<String, Tuple4<Integer, Integer, Integer, Integer>> results,
-                           String surname, int score) {
+      String surname, int score) {
     Tuple4<Integer, Integer, Integer, Integer> found = results.get(surname);
     if (score > 0) {
       int currentWin = found._1 + 1;

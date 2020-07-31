@@ -1,5 +1,13 @@
 package com.mairo.cataclysm.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+
 import com.mairo.cataclysm.TestData;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.AddRoundDto;
@@ -9,6 +17,7 @@ import com.mairo.cataclysm.exception.CataRuntimeException;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,16 +30,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class RoundsControllerTest {
+class RoundsControllerTest {
 
   @Autowired
   private ApplicationContext ctx;
@@ -44,7 +45,7 @@ public class RoundsControllerTest {
   private static WebTestClient webClient;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     webClient = WebTestClient.bindToApplicationContext(ctx).build();
     when(playerRepository.listAll()).thenReturn(Mono.just(TestData.testPlayers()));
     when(seasonRepository.getSeason(any())).thenReturn(Mono.just(new Season(1L, "S1|2020")));
@@ -52,10 +53,10 @@ public class RoundsControllerTest {
   }
 
   @Test
-  @DisplayName("round/findLast test")
-  public void findLastTest() {
+  @DisplayName("rounds/findLast test")
+  void findLastTest() {
     webClient.get()
-        .uri("/round/findLast/S1|2020/10")
+        .uri("/rounds/findLast/S1|2020/10")
         .exchange()
         .expectStatus().isOk()
         .expectBody(FoundLastRounds.class)
@@ -66,17 +67,17 @@ public class RoundsControllerTest {
   }
 
   @Test
-  @DisplayName("round/add")
-  public void addRoundHdsTest() {
+  @DisplayName("rounds/add")
+  void addRoundHdsTest() {
     when(roundRepository.saveRound(any())).thenReturn(Mono.just(100L));
     when(playerRepository.findPlayers(anyList())).thenAnswer(invocation -> {
-      List<Long> argument = invocation.getArgument(0);
+      List<String> argument = invocation.getArgument(0);
       return Mono.just(TestData.players(argument));
     });
     webClient.post()
-        .uri("/round/add")
+        .uri("/rounds/add")
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddRoundDto(1L, 2L, 3L, 4L, true)))
+        .body(BodyInserters.fromValue(new AddRoundDto("px", "py", "pz", "pk", true)))
         .exchange()
         .expectStatus().isOk()
         .expectBody(IdDto.class)
@@ -87,17 +88,34 @@ public class RoundsControllerTest {
   }
 
   @Test
-  @DisplayName("round/add")
-  public void addRoundNoPlayersFoundTest() {
+  @DisplayName("rounds/add with absent players")
+  void addRoundNoPlayersFoundTest() {
     when(roundRepository.saveRound(any())).thenReturn(Mono.just(100L));
     when(playerRepository.findPlayers(anyList())).thenAnswer(invocation -> {
-      List<Long> argument = invocation.getArgument(0);
+      List<String> argument = invocation.getArgument(0);
       return Mono.just(TestData.players(argument.subList(0, argument.size() - 2)));
     });
     webClient.post()
-        .uri("/round/add")
+        .uri("/rounds/add")
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddRoundDto(1L, 2L, 3L, 4L, true)))
+        .body(BodyInserters.fromValue(new AddRoundDto("px", "py", "pz", "pk", true)))
+        .exchange()
+        .expectStatus().is4xxClientError()
+        .expectBody(CataRuntimeException.class);
+  }
+
+  @Test
+  @DisplayName("rounds/add with same players")
+  void addRoundWithSamePlayersTest() {
+    when(roundRepository.saveRound(any())).thenReturn(Mono.just(100L));
+    when(playerRepository.findPlayers(anyList())).thenAnswer(invocation -> {
+      List<String> argument = invocation.getArgument(0);
+      return Mono.just(TestData.players(argument.subList(0, argument.size() - 2)));
+    });
+    webClient.post()
+        .uri("/rounds/add")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromValue(new AddRoundDto("px", "px", "pz", "pk", true)))
         .exchange()
         .expectStatus().is4xxClientError()
         .expectBody(CataRuntimeException.class);

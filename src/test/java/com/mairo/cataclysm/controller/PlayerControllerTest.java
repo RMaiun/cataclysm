@@ -3,6 +3,7 @@ package com.mairo.cataclysm.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,8 +13,10 @@ import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
+import com.mairo.cataclysm.exception.CataRuntimeException;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +46,6 @@ class PlayerControllerTest {
   }
 
   @Test
-  @DisplayName("Context test case")
   void playersAllTest() {
     Player p = new Player();
     p.setId(1L);
@@ -64,19 +66,19 @@ class PlayerControllerTest {
   }
 
   @Test
-  @DisplayName("Context test case")
   void playersAddTest() {
     Player p = new Player();
     p.setId(1L);
     p.setSurname("test");
     when(repository.findLastId()).thenReturn(Mono.just(34L));
+    when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.empty()));
     when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(35L));
 
     webClient.post()
         .uri("/players/add")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddPlayerDto("Testuser", "1444")))
+        .body(BodyInserters.fromValue(new AddPlayerDto("Testuser", "1444",false)))
         .exchange()
         .expectStatus().isOk()
         .expectBody(IdDto.class)
@@ -84,5 +86,24 @@ class PlayerControllerTest {
           assertNotNull(res.getResponseBody());
           assertEquals(35, res.getResponseBody().getId());
         });
+  }
+
+  @Test
+  void playersAddTestUserExistsException() {
+    Player p = new Player();
+    p.setId(1L);
+    p.setSurname("test");
+    when(repository.findLastId()).thenReturn(Mono.just(34L));
+    when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.of(new Player(30L,"test","1",false))));
+    when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(35L));
+
+    webClient.post()
+        .uri("/players/add")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromValue(new AddPlayerDto("Testuser", "1444",false)))
+        .exchange()
+        .expectStatus().is4xxClientError()
+        .expectBody(CataRuntimeException.class);
   }
 }

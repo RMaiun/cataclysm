@@ -4,14 +4,14 @@ import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
+import com.mairo.cataclysm.exception.PlayerAlreadyExistsException;
 import com.mairo.cataclysm.exception.PlayersNotFoundException;
 import com.mairo.cataclysm.repository.PlayerRepository;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 public class PlayerService {
@@ -32,16 +32,19 @@ public class PlayerService {
     return playerRepository.listAll().map(FoundAllPlayers::new);
   }
 
-  Mono<List<Player>> checkPlayersExist(List<Long> playerIdList) {
-    return playerRepository.findPlayers(playerIdList)
+  Mono<List<Player>> checkPlayersExist(List<String> surnameList) {
+    List<String> surnames = surnameList.stream()
+        .map(String::toLowerCase)
+        .collect(Collectors.toList());
+    return playerRepository.findPlayers(surnames)
         .flatMap(list -> {
-          if (list.size() == playerIdList.size()) {
+          if (list.size() == surnames.size()) {
             return Mono.just(list);
           } else {
-            List<Long> foundIds = list.stream()
-                .map(Player::getId)
+            List<String> foundIds = list.stream()
+                .map(Player::getSurname)
                 .collect(Collectors.toList());
-            List<Long> missedPlayers = playerIdList.stream()
+            List<String> missedPlayers = surnames.stream()
                 .filter(x -> !foundIds.contains(x))
                 .collect(Collectors.toList());
             return Mono.error(new PlayersNotFoundException(missedPlayers));
@@ -49,9 +52,13 @@ public class PlayerService {
         });
   }
 
-  public Mono<IdDto> addPlayer(AddPlayerDto dto){
-    return playerRepository.findLastId()
-        .flatMap(id -> playerRepository.savePlayer(new Player(id+1,dto.getSurname().toLowerCase())))
+  public Mono<IdDto> addPlayer(AddPlayerDto dto) {
+    Mono<AddPlayerDto> checkedPlayer = playerRepository.getPlayer(dto.getSurname())
+        .flatMap(p -> p.isPresent() ? Mono.error(new PlayerAlreadyExistsException(p.get().getId()))
+            : Mono.just(dto));
+
+    return Mono.zip(checkedPlayer, playerRepository.findLastId())
+        .flatMap(t -> playerRepository.savePlayer(new Player(t.getT2() + 1, t.getT1().getSurname().toLowerCase(), t.getT1().getTid(), t.getT1().isAdmin())))
         .map(IdDto::new);
   }
 }

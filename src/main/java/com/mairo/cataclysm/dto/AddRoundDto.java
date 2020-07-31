@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddRoundDto {
-  private long w1;
-  private long w2;
-  private long l1;
-  private long l2;
+
+  private String w1;
+  private String w2;
+  private String l1;
+  private String l2;
   private boolean shutout;
 }

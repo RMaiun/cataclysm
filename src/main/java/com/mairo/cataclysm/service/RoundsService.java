@@ -1,19 +1,22 @@
 package com.mairo.cataclysm.service;
 
-import com.mairo.cataclysm.domain.Round;
-import com.mairo.cataclysm.dto.*;
+import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
+
+import com.mairo.cataclysm.dto.AddRoundDto;
+import com.mairo.cataclysm.dto.FindLastRoundsDto;
+import com.mairo.cataclysm.dto.FullRound;
+import com.mairo.cataclysm.dto.IdDto;
+import com.mairo.cataclysm.dto.PlayerSeasonData;
+import com.mairo.cataclysm.exception.SamePlayersInRoundException;
 import com.mairo.cataclysm.helper.RoundServiceHelper;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-
-import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +35,7 @@ public class RoundsService {
         .map(roundServiceHelper::transformRounds);
   }
 
-  public Mono<List<FullRound>> findAllRounds(String seasonName) {
+  Mono<List<FullRound>> findAllRounds(String seasonName) {
     return playerService.findAllPlayersAsMap()
         .zipWith(seasonRepository.getSeason(seasonName),
             (players, season) -> new PlayerSeasonData(season, players, null))
@@ -41,15 +44,20 @@ public class RoundsService {
   }
 
   public Mono<IdDto> saveRound(AddRoundDto dto) {
-    return Mono.zip(
-        seasonRepository.getSeason(currentSeason()),
-        playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())))
-        .flatMap(t -> roundRepository.saveRound(new Round(null,
-            dto.getW1(), dto.getW2(),
-            dto.getL1(), dto.getL2(),
-            dto.isShutout(),
-            t.getT1().getId(),
-            LocalDateTime.now(ZoneOffset.UTC))))
-        .map(IdDto::new);
+    return checkAllPlayersAreDifferent(dto)
+        .then(Mono.zip(
+            seasonRepository.getSeason(currentSeason()),
+            playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())))
+            .flatMap(t -> roundRepository.saveRound(roundServiceHelper.prepareRound(t.getT2(), dto, t.getT1().getId()))
+                .map(IdDto::new)));
+  }
+
+  private Mono<Void> checkAllPlayersAreDifferent(AddRoundDto dto) {
+    List<String> playersList = List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2());
+    Set<String> playersSet = new HashSet<>(playersList);
+    if (playersList.size() != playersSet.size()) {
+      return Mono.error(new SamePlayersInRoundException());
+    }
+    return Mono.empty().then();
   }
 }
