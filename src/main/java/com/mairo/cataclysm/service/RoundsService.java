@@ -2,6 +2,8 @@ package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
 
+import com.mairo.cataclysm.domain.Player;
+import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FindLastRoundsDto;
 import com.mairo.cataclysm.dto.FullRound;
@@ -17,6 +19,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class RoundsService {
   private final SeasonRepository seasonRepository;
   private final RoundRepository roundRepository;
   private final RoundServiceHelper roundServiceHelper;
+  private final UserRightsService userRightsService;
 
   public Mono<List<FullRound>> findLastRoundsInSeason(FindLastRoundsDto dto) {
     return playerService.findAllPlayersAsMap()
@@ -44,12 +48,14 @@ public class RoundsService {
   }
 
   public Mono<IdDto> saveRound(AddRoundDto dto) {
-    return checkAllPlayersAreDifferent(dto)
-        .then(Mono.zip(
-            seasonRepository.getSeason(currentSeason()),
-            playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())))
-            .flatMap(t -> roundRepository.saveRound(roundServiceHelper.prepareRound(t.getT2(), dto, t.getT1().getId()))
-                .map(IdDto::new)));
+    Mono<Void> differentPlayersMono = checkAllPlayersAreDifferent(dto);
+    Mono<Tuple2<Season, List<Player>>> seasonWithCheckedPlayers = Mono.zip(
+        seasonRepository.getSeason(currentSeason()),
+        playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())));
+    return userRightsService.checkUserIsAdmin(dto.getModerator())
+        .flatMap(__ -> differentPlayersMono.then(seasonWithCheckedPlayers))
+        .flatMap(t -> roundRepository.saveRound(roundServiceHelper.prepareRound(t.getT2(), dto, t.getT1().getId()))
+            .map(IdDto::new));
   }
 
   private Mono<Void> checkAllPlayersAreDifferent(AddRoundDto dto) {

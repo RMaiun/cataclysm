@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 import com.mairo.cataclysm.TestData;
+import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FoundLastRounds;
@@ -17,6 +19,7 @@ import com.mairo.cataclysm.exception.CataRuntimeException;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
+import com.mairo.cataclysm.service.UserRightsService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +44,8 @@ class RoundsControllerTest {
   SeasonRepository seasonRepository;
   @MockBean
   RoundRepository roundRepository;
+  @MockBean
+  UserRightsService userRightsService;
 
   private static WebTestClient webClient;
 
@@ -74,10 +79,12 @@ class RoundsControllerTest {
       List<String> argument = invocation.getArgument(0);
       return Mono.just(TestData.players(argument));
     });
+    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
+
     webClient.post()
         .uri("/rounds/add")
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddRoundDto("px", "py", "pz", "pk", true)))
+        .body(BodyInserters.fromValue(new AddRoundDto("px", "py", "pz", "pk", true, "1111")))
         .exchange()
         .expectStatus().isOk()
         .expectBody(IdDto.class)
@@ -95,10 +102,12 @@ class RoundsControllerTest {
       List<String> argument = invocation.getArgument(0);
       return Mono.just(TestData.players(argument.subList(0, argument.size() - 2)));
     });
+    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
+
     webClient.post()
         .uri("/rounds/add")
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddRoundDto("px", "py", "pz", "pk", true)))
+        .body(BodyInserters.fromValue(new AddRoundDto("px", "py", "pz", "pk", true, "1111")))
         .exchange()
         .expectStatus().is4xxClientError()
         .expectBody(CataRuntimeException.class);
@@ -112,10 +121,12 @@ class RoundsControllerTest {
       List<String> argument = invocation.getArgument(0);
       return Mono.just(TestData.players(argument.subList(0, argument.size() - 2)));
     });
+    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
+
     webClient.post()
         .uri("/rounds/add")
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddRoundDto("px", "px", "pz", "pk", true)))
+        .body(BodyInserters.fromValue(new AddRoundDto("px", "px", "pz", "pk", true, "1111")))
         .exchange()
         .expectStatus().is4xxClientError()
         .expectBody(CataRuntimeException.class);

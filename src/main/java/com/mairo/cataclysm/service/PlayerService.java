@@ -10,17 +10,16 @@ import com.mairo.cataclysm.repository.PlayerRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class PlayerService {
 
   private final PlayerRepository playerRepository;
-
-  public PlayerService(PlayerRepository playerRepository) {
-    this.playerRepository = playerRepository;
-  }
+  private final UserRightsService userRightsService;
 
   Mono<Map<Long, String>> findAllPlayersAsMap() {
     return playerRepository.listAll()
@@ -53,11 +52,14 @@ public class PlayerService {
   }
 
   public Mono<IdDto> addPlayer(AddPlayerDto dto) {
+
+    Mono<Player> authorizedModerator = userRightsService.checkUserIsAdmin(dto.getModerator());
+
     Mono<AddPlayerDto> checkedPlayer = playerRepository.getPlayer(dto.getSurname())
         .flatMap(p -> p.isPresent() ? Mono.error(new PlayerAlreadyExistsException(p.get().getId()))
             : Mono.just(dto));
 
-    return Mono.zip(checkedPlayer, playerRepository.findLastId())
+    return authorizedModerator.flatMap(__ -> Mono.zip(checkedPlayer, playerRepository.findLastId()))
         .flatMap(t -> playerRepository.savePlayer(new Player(t.getT2() + 1, t.getT1().getSurname().toLowerCase(), t.getT1().getTid(), t.getT1().isAdmin())))
         .map(IdDto::new);
   }

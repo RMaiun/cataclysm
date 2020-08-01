@@ -12,4 +12,5 @@ public class AddPlayerDto {
   private String surname;
   private String tid;
   private boolean admin;
+  private String moderator;
 }

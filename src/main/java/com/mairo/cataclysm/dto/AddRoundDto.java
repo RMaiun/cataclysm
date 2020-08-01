@@ -14,4 +14,5 @@ public class AddRoundDto {
   private String l1;
   private String l2;
   private boolean shutout;
+  private String moderator;
 }

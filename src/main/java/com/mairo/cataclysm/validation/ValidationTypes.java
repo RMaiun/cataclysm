@@ -26,13 +26,15 @@ public interface ValidationTypes {
           .withRule(requiredRule(dto.getW1(), "w1", notEmpty(), onlyLetters()))
           .withRule(requiredRule(dto.getW2(), "w2", notEmpty(), onlyLetters()))
           .withRule(requiredRule(dto.getL1(), "l1", notEmpty(), onlyLetters()))
-          .withRule(requiredRule(dto.getL2(), "l2", notEmpty(), onlyLetters()));
+          .withRule(requiredRule(dto.getL2(), "l2", notEmpty(), onlyLetters()))
+          .withRule(rule(dto.getModerator(), "moderator", notEmpty()));
 
   ValidationType<String> seasonValidationType = dto ->
       schema().withRule(requiredRule(dto, "season", isSeason()));
 
   ValidationType<AddPlayerDto> addPlayerValidationType = dto ->
       schema()
-          .withRule(rule(dto.getTid(), "tid", onlyNumbers()))
-          .withRule(requiredRule(dto.getSurname(), "surname", length(2, 20), onlyLetters()));
+          .withRule(rule(dto.getTid(), "moderator", onlyNumbers()))
+          .withRule(requiredRule(dto.getSurname(), "surname", length(2, 20), onlyLetters()))
+          .withRule(rule(dto.getModerator(), "moderator", notEmpty()));
 }

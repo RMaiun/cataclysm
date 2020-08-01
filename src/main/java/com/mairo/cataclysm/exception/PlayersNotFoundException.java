@@ -1,11 +1,11 @@
 package com.mairo.cataclysm.exception;
 
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-
 public class PlayersNotFoundException extends CataRuntimeException {
+
   public PlayersNotFoundException(List<String> missedPlayers) {
-    super(String.format("Players with id: [%s] were not found", StringUtils.join(",", missedPlayers)));
+    super(String.format("Players with names: [%s] were not found", StringUtils.join(missedPlayers, ",")));
   }
 }

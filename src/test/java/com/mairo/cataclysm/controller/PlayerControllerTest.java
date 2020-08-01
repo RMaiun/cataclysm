@@ -4,6 +4,7 @@ package com.mairo.cataclysm.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.exception.CataRuntimeException;
 import com.mairo.cataclysm.repository.PlayerRepository;
+import com.mairo.cataclysm.service.UserRightsService;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,8 @@ class PlayerControllerTest {
 
   @MockBean
   PlayerRepository repository;
+  @MockBean
+  UserRightsService userRightsService;
 
   private static WebTestClient webClient;
 
@@ -73,12 +77,12 @@ class PlayerControllerTest {
     when(repository.findLastId()).thenReturn(Mono.just(34L));
     when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.empty()));
     when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(35L));
-
+    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
     webClient.post()
         .uri("/players/add")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddPlayerDto("Testuser", "1444",false)))
+        .body(BodyInserters.fromValue(new AddPlayerDto("Testuser", "1444",false, "1111")))
         .exchange()
         .expectStatus().isOk()
         .expectBody(IdDto.class)
@@ -96,12 +100,13 @@ class PlayerControllerTest {
     when(repository.findLastId()).thenReturn(Mono.just(34L));
     when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.of(new Player(30L,"test","1",false))));
     when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(35L));
+    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
 
     webClient.post()
         .uri("/players/add")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new AddPlayerDto("Testuser", "1444",false)))
+        .body(BodyInserters.fromValue(new AddPlayerDto("Testuser", "1444",false,"1111")))
         .exchange()
         .expectStatus().is4xxClientError()
         .expectBody(CataRuntimeException.class);
