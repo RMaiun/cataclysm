@@ -1,7 +1,7 @@
 alter table cata.player
     add tid varchar(20) default null;
 alter table cata.player
-    add mid varchar(20) default null;
+    add cid varchar(20) default null;
 alter table cata.player
     add admin boolean default false;
 

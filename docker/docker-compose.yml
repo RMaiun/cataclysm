@@ -1,5 +1,16 @@
 version: '2'
 services:
+  cataclysm:
+    image: 'mairo/cataclysm:latest'
+    container_name: cata
+    ports:
+      - '8080:8080'
+    environment:
+      - USER=root
+      - PASS=password
+      - HOST=192.168.126.65
+    depends_on:
+      - mysql
   mysql:
     image: mysql
     ports:
