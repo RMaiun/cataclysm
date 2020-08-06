@@ -16,5 +16,7 @@ public class SeasonStatsRows {
   @NonNull
   private List<List<String>> games;
   @NonNull
+  private List<String> createdDates;
+  @NonNull
   private Integer roundsPlayed;
 }

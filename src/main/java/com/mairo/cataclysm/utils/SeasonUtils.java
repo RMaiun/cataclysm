@@ -3,7 +3,6 @@ package com.mairo.cataclysm.utils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.ZoneOffset;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class SeasonUtils {
@@ -12,7 +11,7 @@ public class SeasonUtils {
   }
 
   public static String currentSeason() {
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+    LocalDateTime now = DateUtils.now();
     int month = now.getMonth().getValue();
     int year = now.getYear();
     int q = month <= 3 ? 1 : month <= 6 ? 2 : month <= 9 ? 3 : 4;

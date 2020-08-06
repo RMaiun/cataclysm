@@ -7,8 +7,7 @@ import com.mairo.cataclysm.domain.Round;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.PlayerSeasonData;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import com.mairo.cataclysm.utils.DateUtils;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -26,7 +25,7 @@ public class RoundServiceHelper {
         StringUtils.capitalize(pm.get(r.getWinner2())),
         StringUtils.capitalize(pm.get(r.getLoser1())),
         StringUtils.capitalize(pm.get(r.getLoser2())),
-        r.getCreated(),
+        DateUtils.utcToEet(r.getCreated()),
         s, r.isShutout());
   }
 
@@ -40,7 +39,7 @@ public class RoundServiceHelper {
   public Round prepareRound(List<Player> players, AddRoundDto dto, Long seasonId) {
     List<Long> relatedSurnames = findRelatedSurnames(dto, players);
     return new Round(null, relatedSurnames.get(0), relatedSurnames.get(1), relatedSurnames.get(2),
-        relatedSurnames.get(3), dto.isShutout(), seasonId, LocalDateTime.now(ZoneOffset.UTC));
+        relatedSurnames.get(3), dto.isShutout(), seasonId, DateUtils.now());
   }
 
   private List<Long> findRelatedSurnames(AddRoundDto dto, List<Player> foundPlayers) {

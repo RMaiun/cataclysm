@@ -2,6 +2,7 @@ package com.mairo.cataclysm;
 
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Round;
+import com.mairo.cataclysm.utils.DateUtils;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -19,13 +20,13 @@ public interface TestData {
 
   static List<Round> testRounds() {
     Round r1 = new Round(1L, 1L, 2L, 3L, 4L,
-        false, 1L, LocalDateTime.now());
+        false, 1L, DateUtils.now());
     Round r2 = new Round(1L, 1L, 3L, 2L, 4L,
-        false, 1L, LocalDateTime.now());
+        false, 1L, DateUtils.now());
     Round r3 = new Round(1L, 1L, 4L, 2L, 4L,
-        false, 1L, LocalDateTime.now());
+        false, 1L,DateUtils.now());
     Round r4 = new Round(1L, 1L, 2L, 3L, 4L,
-        false, 1L, LocalDateTime.now());
+        false, 1L, DateUtils.now());
     return Arrays.asList(r1, r2, r3, r4);
   }
 

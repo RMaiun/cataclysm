@@ -5,6 +5,7 @@ import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.AddRoundDto;
+import com.mairo.cataclysm.dto.BinaryFileDto;
 import com.mairo.cataclysm.dto.FindLastRoundsDto;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.IdDto;
@@ -15,6 +16,7 @@ import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class RoundsService {
   private final RoundRepository roundRepository;
   private final RoundServiceHelper roundServiceHelper;
   private final UserRightsService userRightsService;
+  private final ReportStupidCacheService cacheService;
 
   public Mono<List<FullRound>> findLastRoundsInSeason(FindLastRoundsDto dto) {
     return playerService.findAllPlayersAsMap()
@@ -49,13 +52,22 @@ public class RoundsService {
 
   public Mono<IdDto> saveRound(AddRoundDto dto) {
     Mono<Void> differentPlayersMono = checkAllPlayersAreDifferent(dto);
-    Mono<Tuple2<Season, List<Player>>> seasonWithCheckedPlayers = Mono.zip(
+    return userRightsService.checkUserIsAdmin(dto.getModerator())
+        .flatMap(__ -> differentPlayersMono.then(checkPlayersExist(dto)))
+        .flatMap(t -> saveWithCacheRefresh(t, dto))
+        .map(t -> new IdDto(t.getT1()));
+  }
+
+  private Mono<Tuple2<Season, List<Player>>> checkPlayersExist(AddRoundDto dto){
+    return  Mono.zip(
         seasonRepository.getSeason(currentSeason()),
         playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())));
-    return userRightsService.checkUserIsAdmin(dto.getModerator())
-        .flatMap(__ -> differentPlayersMono.then(seasonWithCheckedPlayers))
-        .flatMap(t -> roundRepository.saveRound(roundServiceHelper.prepareRound(t.getT2(), dto, t.getT1().getId()))
-            .map(IdDto::new));
+  }
+
+  private Mono<Tuple2<Long, Optional<BinaryFileDto>>> saveWithCacheRefresh(Tuple2<Season, List<Player>> t, AddRoundDto dto) {
+    return Mono.zip(
+        roundRepository.saveRound(roundServiceHelper.prepareRound(t.getT2(), dto, t.getT1().getId())),
+        cacheService.remove(t.getT1().getName()));
   }
 
   private Mono<Void> checkAllPlayersAreDifferent(AddRoundDto dto) {

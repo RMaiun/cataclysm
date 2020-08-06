@@ -13,6 +13,7 @@ import static com.mairo.cataclysm.validation.ValidationSchema.schema;
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FindLastRoundsDto;
+import com.mairo.cataclysm.dto.GenerateStatsDocumentDto;
 
 public interface ValidationTypes {
 
@@ -37,4 +38,8 @@ public interface ValidationTypes {
           .withRule(rule(dto.getTid(), "moderator", onlyNumbers()))
           .withRule(requiredRule(dto.getSurname(), "surname", length(2, 20), onlyLetters()))
           .withRule(rule(dto.getModerator(), "moderator", notEmpty()));
+
+  ValidationType<GenerateStatsDocumentDto> generateStatsDocumentValidationType = dto ->
+      schema()
+          .withRule(requiredRule(dto.getSeason(), "season", isSeason()));
 }

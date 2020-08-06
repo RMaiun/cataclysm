@@ -1,17 +1,16 @@
 package com.mairo.cataclysm.repository;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
-
 import com.mairo.cataclysm.domain.Player;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
 
