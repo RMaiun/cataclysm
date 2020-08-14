@@ -4,24 +4,18 @@ import com.mairo.cataclysm.dto.BinaryFileDto;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
 import com.mairo.cataclysm.exception.WriteXlsxDocumentException;
 import io.vavr.control.Try;
-import java.io.ByteArrayOutputStream;
-import java.util.List;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +72,7 @@ public class XlsxWriter {
     Row row = sheet.createRow(2);
     IntStream.range(0, size).forEach(i -> {
       Cell cell = row.createCell(i + 1);
-      cell.setCellStyle(customColorCellStyle(new XSSFColor(new java.awt.Color(226, 239, 218)), workbook, true));
+      cell.setCellStyle(customColorCellStyle(new XSSFColor(new byte[]{(byte) 226, (byte) 239, (byte) 218}, null), workbook, true));
       cell.setCellValue(1000);
     });
   }
@@ -109,19 +103,19 @@ public class XlsxWriter {
     Cell cell = row.createCell(index);
     switch (value) {
       case "50":
-        cell.setCellStyle(customColorCellStyle(new XSSFColor(new java.awt.Color(106, 168, 79)), workbook, false));
+        cell.setCellStyle(customColorCellStyle(color(106, 168, 79), workbook, false));
         cell.setCellValue(50);
         break;
       case "-50":
-        cell.setCellStyle(customColorCellStyle(new XSSFColor(new java.awt.Color(224, 102, 102)), workbook, false));
+        cell.setCellStyle(customColorCellStyle(color(224, 102, 102), workbook, false));
         cell.setCellValue(-50);
         break;
       case "25":
-        cell.setCellStyle(customColorCellStyle(new XSSFColor(new java.awt.Color(182, 215, 168)), workbook, false));
+        cell.setCellStyle(customColorCellStyle(color(182, 215, 168), workbook, false));
         cell.setCellValue(25);
         break;
       case "-25":
-        cell.setCellStyle(customColorCellStyle(new XSSFColor(new java.awt.Color(244, 204, 204)), workbook, false));
+        cell.setCellStyle(customColorCellStyle(color(244, 204, 204), workbook, false));
         cell.setCellValue(-25);
         break;
       default:
@@ -129,6 +123,10 @@ public class XlsxWriter {
         cell.setCellValue(value);
         break;
     }
+  }
+
+  private XSSFColor color(int x1, int x2, int x3) {
+    return new XSSFColor(new byte[]{(byte) x1, (byte) x2, (byte) x3}, null);
   }
 
   private Font defaultFont(XSSFWorkbook workbook) {
@@ -145,7 +143,7 @@ public class XlsxWriter {
   }
 
   private CellStyle greyCellStyle(XSSFWorkbook workbook) {
-    XSSFColor greyColor = new XSSFColor(new java.awt.Color(220, 220, 220));
+    XSSFColor greyColor = color(220, 220, 220);
     return customColorCellStyle(greyColor, workbook, true);
   }
 
