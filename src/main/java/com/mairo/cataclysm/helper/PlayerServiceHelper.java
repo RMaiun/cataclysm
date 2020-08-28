@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.delegate;
+package com.mairo.cataclysm.helper;
 
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.exception.PlayersNotFoundException;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PlayerServiceDelegate {
+public class PlayerServiceHelper {
 
   public List<String> lowercaseSurnames(List<String> surnameList) {
     return surnameList.stream()

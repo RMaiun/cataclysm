@@ -2,7 +2,7 @@ package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.FuncPredef.toMono;
 
-import com.mairo.cataclysm.delegate.PlayerServiceDelegate;
+import com.mairo.cataclysm.helper.PlayerServiceHelper;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
@@ -23,7 +23,7 @@ public class PlayerService {
 
   private final PlayerRepository playerRepository;
   private final UserRightsService userRightsService;
-  private final PlayerServiceDelegate psDelegate;
+  private final PlayerServiceHelper psDelegate;
 
   Mono<Map<Long, String>> findAllPlayersAsMap() {
     return playerRepository.listAll()

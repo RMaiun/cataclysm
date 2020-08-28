@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppProperties {
 
   private int topPlayersLimit;
+  private int minGames;
   private int winPoints;
   private int winShutoutPoints;
   private int losePoints;

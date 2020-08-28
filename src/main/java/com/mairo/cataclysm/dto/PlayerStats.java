@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 public class PlayerStats {
+
   @NonNull
   private String surname;
   @NonNull
   private Integer score;
+  @NonNull
+  private Integer games;
 }

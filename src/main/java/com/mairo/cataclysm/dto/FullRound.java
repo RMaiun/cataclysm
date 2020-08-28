@@ -10,9 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FullRound {
 
+  private long w1Id;
   private String winner1;
+  private long w2Id;
   private String winner2;
+  private long l1Id;
   private String loser1;
+  private long l2Id;
   private String loser2;
   private LocalDateTime created;
   private String season;

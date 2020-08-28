@@ -1,5 +1,6 @@
 app:
   topPlayersLimit: 5
+  minGames: 30
   winPoints: 25
   winShutoutPoints: 50
   losePoints: -25
@@ -11,3 +12,6 @@ db:
   database: "cata"
   username: "root"
   password: "password"
+
+server:
+  port: 8080

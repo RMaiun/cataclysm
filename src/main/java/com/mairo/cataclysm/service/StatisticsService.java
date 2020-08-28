@@ -2,7 +2,7 @@ package com.mairo.cataclysm.service;
 
 import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
-import com.mairo.cataclysm.delegate.StatsServiceDelegate;
+import com.mairo.cataclysm.helper.StatsServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 public class StatisticsService {
 
   private final RoundsService roundsService;
-  private final StatsServiceDelegate statsServiceHelper;
+  private final StatsServiceHelper statsServiceHelper;
 
   public Mono<SeasonStatsRows> seasonStatisticsRows(String seasonName) {
     return roundsService.findAllRounds(seasonName)
