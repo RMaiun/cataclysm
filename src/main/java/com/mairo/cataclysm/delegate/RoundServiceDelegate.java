@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.helper;
+package com.mairo.cataclysm.delegate;
 
 import static java.util.stream.Collectors.toList;
 
@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RoundServiceHelper {
+public class RoundServiceDelegate {
 
   private FullRound transformRound(Round r, Map<Long, String> pm, String s) {
     return new FullRound(

@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.helper;
+package com.mairo.cataclysm.delegate;
 
 import com.mairo.cataclysm.config.AppProperties;
 import com.mairo.cataclysm.dto.*;
@@ -22,7 +22,7 @@ import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
-public class StatsServiceHelper {
+public class StatsServiceDelegate {
 
   private final AppProperties appProperties;
 
