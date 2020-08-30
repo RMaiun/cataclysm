@@ -13,8 +13,8 @@ public class DateUtils {
   private DateUtils() {
   }
 
-  private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-  private static ZoneId EET_ZONE = ZoneId.of("Europe/Kiev");
+  private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+  private static final ZoneId EET_ZONE = ZoneId.of("Europe/Kiev");
 
   public static LocalDateTime now() {
     return LocalDateTime.now(ZoneOffset.UTC);
