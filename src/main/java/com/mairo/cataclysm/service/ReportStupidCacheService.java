@@ -18,7 +18,7 @@ public class ReportStupidCacheService {
   private Map<String, BinaryFileDto> cache = new ConcurrentHashMap<>();
 
   public Mono<BinaryFileDto> memorize(BinaryFileDto dto) {
-    String key = String.format("%s.%s", dto.getFileName(), dto.getExtension());
+    String key = dto.getFileName();
     cache.put(key, dto);
     return Mono.just(dto);
   }
@@ -27,12 +27,8 @@ public class ReportStupidCacheService {
     return Mono.just(ofNullable(cache.get(key)));
   }
 
-  public Mono<Optional<BinaryFileDto>> removeXlsxReportBySeason(String season) {
+  public Mono<Optional<BinaryFileDto>> remove(String season) {
     String key = String.format(REPORT_NAME_WITH_EXT, season);
-    return Mono.just(ofNullable(cache.remove(key)));
-  }
-
-  public Mono<Optional<BinaryFileDto>> remove(String key) {
     return Mono.just(ofNullable(cache.remove(key)));
   }
 
