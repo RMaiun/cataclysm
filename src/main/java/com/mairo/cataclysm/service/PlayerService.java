@@ -2,13 +2,12 @@ package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.FuncPredef.toMono;
 
-import com.mairo.cataclysm.helper.PlayerServiceHelper;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.exception.PlayerAlreadyExistsException;
-import com.mairo.cataclysm.rabbit.RabbitSender;
+import com.mairo.cataclysm.helper.PlayerServiceHelper;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ public class PlayerService {
   private final PlayerRepository playerRepository;
   private final UserRightsService userRightsService;
   private final PlayerServiceHelper psDelegate;
-  private final RabbitSender rabbitSender;
 
   Mono<Map<Long, String>> findAllPlayersAsMap() {
     return playerRepository.listAll()
@@ -34,8 +32,7 @@ public class PlayerService {
   }
 
   public Mono<FoundAllPlayers> findAllPlayers() {
-    return playerRepository.listAll().map(FoundAllPlayers::new)
-        .flatMap(dto -> rabbitSender.send("list_players",dto));
+    return playerRepository.listAll().map(FoundAllPlayers::new);
   }
 
   Mono<List<Player>> checkPlayersExist(List<String> surnameList) {

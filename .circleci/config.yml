@@ -60,12 +60,7 @@ workflows:
   version: 2
   build-master:
     jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - master
-                - dev
+      - build
       - publish-latest:
           context: myctx
           requires:
