@@ -1,16 +1,16 @@
 version: '2'
 services:
-  cataclysm:
-    image: 'mairo/cataclysm:latest'
-    container_name: cataclysm
-    ports:
-      - '8080:8080'
-    environment:
-      - USER=root
-      - PASS=password
-      - HOST=192.168.126.65
-    depends_on:
-      - mysql
+#  cataclysm:
+#    image: 'mairo/cataclysm:latest'
+#    container_name: cataclysm
+#    ports:
+#      - '8080:8080'
+#    environment:
+#      - USER=root
+#      - PASS=password
+#      - HOST=192.168.126.65
+#    depends_on:
+#      - mysql
   mysql:
     image: mysql
     ports:
@@ -18,3 +18,15 @@ services:
     environment:
       - MYSQL_DATABASE=cata
       - MYSQL_ROOT_PASSWORD=password
+  rabbit1:
+    image: "rabbitmq:3-management"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "ukl"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "ukl_rabbit"

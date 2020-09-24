@@ -22,10 +22,12 @@ repositories {
 dependencies {
 //    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 //    implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 //    implementation 'org.springframework.boot:spring-boot-starter-security'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'io.projectreactor.rabbitmq:reactor-rabbitmq:1.4.4.RELEASE'
 
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'io.vavr:vavr:0.10.3'

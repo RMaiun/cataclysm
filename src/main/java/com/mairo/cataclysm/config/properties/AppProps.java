@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.config;
+package com.mairo.cataclysm.config.properties;
 
 import com.mairo.cataclysm.dto.AlgorithmType;
 import lombok.Data;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app")
-public class AppProperties {
+public class AppProps {
 
   private int topPlayersLimit;
   private int minGames;

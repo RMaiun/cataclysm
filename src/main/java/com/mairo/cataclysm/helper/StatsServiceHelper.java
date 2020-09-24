@@ -39,7 +39,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class StatsServiceHelper {
 
-  private final AppProperties appProperties;
+  private final AppProps appProps;
 
   public SeasonShortStats prepareSeasonShortStats(String seasonName, List<FullRound> rounds, AlgorithmType algorithmType) {
     SeasonShortStats stats = new SeasonShortStats();
@@ -230,13 +230,13 @@ public class StatsServiceHelper {
 
   private int calculatePoints(boolean win, boolean shutout) {
     if (win && shutout) {
-      return appProperties.getWinShutoutPoints();
+      return appProps.getWinShutoutPoints();
     } else if (win) {
-      return appProperties.getWinPoints();
+      return appProps.getWinPoints();
     } else if (shutout) {
-      return appProperties.getLoseShutoutPoints();
+      return appProps.getLoseShutoutPoints();
     } else {
-      return appProperties.getLosePoints();
+      return appProps.getLosePoints();
     }
   }
 }
