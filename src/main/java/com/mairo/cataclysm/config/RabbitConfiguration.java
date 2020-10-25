@@ -2,18 +2,16 @@ package com.mairo.cataclysm.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.config.properties.RabbitProps;
-import com.mairo.cataclysm.rabbit.RabbitSender;
+import com.mairo.cataclysm.rabbit.TelegramRabbitSender;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.rabbitmq.BindingSpecification;
 import reactor.rabbitmq.ChannelPool;
 import reactor.rabbitmq.ChannelPoolFactory;
 import reactor.rabbitmq.ChannelPoolOptions;
-import reactor.rabbitmq.ExchangeSpecification;
 import reactor.rabbitmq.QueueSpecification;
 import reactor.rabbitmq.RabbitFlux;
 import reactor.rabbitmq.Sender;
@@ -34,11 +32,11 @@ public class RabbitConfiguration {
   @Bean()
   ConnectionFactory rabbitConnectionFactory() {
     ConnectionFactory connectionFactory = new ConnectionFactory();
-    connectionFactory.setHost(rabbitProperties.getGlobal().getHost());
-    connectionFactory.setPort(rabbitProperties.getGlobal().getPort());
-    connectionFactory.setUsername(rabbitProperties.getGlobal().getUsername());
-    connectionFactory.setPassword(rabbitProperties.getGlobal().getPassword());
-    connectionFactory.setVirtualHost(rabbitProperties.getGlobal().getVirtualHost());
+    connectionFactory.setHost(rabbitProperties.getHost());
+    connectionFactory.setPort(rabbitProperties.getPort());
+    connectionFactory.setUsername(rabbitProperties.getUsername());
+    connectionFactory.setPassword(rabbitProperties.getPassword());
+    connectionFactory.setVirtualHost(rabbitProperties.getVirtualHost());
     connectionFactory.useNio();
     return connectionFactory;
   }
@@ -51,28 +49,24 @@ public class RabbitConfiguration {
         .resourceManagementScheduler(Schedulers.elastic());
 
     Sender sender = RabbitFlux.createSender(senderOptions);
-    String exchange = rabbitProperties.getGlobal().getExchange();
-    sender.declare(ExchangeSpecification.exchange(exchange))
-        .then(sender.declare(QueueSpecification.queue(rabbitProperties.getListPlayersQueue().getName())))
-        .then(sender.declare(QueueSpecification.queue(rabbitProperties.getAddPlayerQueue().getName())))
-        .then(sender.declare(QueueSpecification.queue(rabbitProperties.getErrorsQueue().getName())))
-        .then(sender.bind(BindingSpecification.binding(exchange, rabbitProperties.getListPlayersQueue().getKey(), rabbitProperties.getListPlayersQueue().getName())))
-        .then(sender.bind(BindingSpecification.binding(exchange, rabbitProperties.getAddPlayerQueue().getKey(), rabbitProperties.getAddPlayerQueue().getName())))
-        .then(sender.bind(BindingSpecification.binding(exchange, rabbitProperties.getErrorsQueue().getKey(), rabbitProperties.getErrorsQueue().getName())))
+    sender.declare(QueueSpecification.queue(rabbitProperties.getInputQueue()))
+        .then(sender.declare(QueueSpecification.queue(rabbitProperties.getOutputQueue())))
+        .then(sender.declare(QueueSpecification.queue(rabbitProperties.getErrorQueue())))
+        .then(sender.declare(QueueSpecification.queue(rabbitProperties.getBinaryQueue())))
         .subscribe();
     return sender;
   }
 
   @Bean
-  RabbitSender rabbitSender(Sender sender) {
-    return new RabbitSender(sender, rabbitProperties.getGlobal().getExchange(), objectMapper);
+  TelegramRabbitSender rabbitSender(Sender sender) {
+    return new TelegramRabbitSender(sender, objectMapper, rabbitProperties);
   }
 
   @Bean
   ChannelPool channelPool(ConnectionFactory connectionFactory) {
     return ChannelPoolFactory.createChannelPool(
         Mono.fromCallable(connectionFactory::newConnection).cache(),
-        new ChannelPoolOptions().maxCacheSize(5)
+        new ChannelPoolOptions().maxCacheSize(10)
     );
   }
 

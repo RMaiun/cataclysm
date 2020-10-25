@@ -1,40 +1,64 @@
 package com.mairo.cataclysm.config;
 
+import static io.r2dbc.pool.PoolingConnectionFactoryProvider.MAX_SIZE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PROTOCOL;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
+
 import com.mairo.cataclysm.config.properties.DbProps;
-import dev.miku.r2dbc.mysql.MySqlConnectionConfiguration;
-import dev.miku.r2dbc.mysql.MySqlConnectionFactory;
-import dev.miku.r2dbc.mysql.constant.ZeroDateOption;
+import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.pool.ConnectionPoolConfiguration;
+import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
-
-import java.time.Duration;
 
 @Configuration
 @EnableR2dbcRepositories
 @RequiredArgsConstructor
-class R2DBCConfiguration extends AbstractR2dbcConfiguration {
+class R2DBCConfiguration/* extends AbstractR2dbcConfiguration */ {
 
   private final DbProps dbProps;
 
   @Bean
-  @Override
+  @Primary
   public ConnectionFactory connectionFactory() {
-    MySqlConnectionConfiguration configuration = MySqlConnectionConfiguration.builder()
-        .host(dbProps.getHost())
-        .port(dbProps.getPort()) // optional, default 3306
-        .database(dbProps.getDatabase()) // optional, default null, null means not specifying the database
-        .username(dbProps.getUsername())
-        .password(dbProps.getPassword()) // optional, default null, null means has no password
-        .connectTimeout(Duration.ofSeconds(3)) // optional, default null, null means no timeout
-        .zeroDateOption(ZeroDateOption.USE_NULL) // optional, default ZeroDateOption.USE_NULL
-        .useServerPrepareStatement() // Use server-preparing statements, default use client-preparing statements
+    ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
+        .option(DRIVER, "pool")
+        .option(PROTOCOL, "mysql") // driver identifier, PROTOCOL is delegated as DRIVER by the pool.
+        .option(HOST, dbProps.getHost())
+        .option(PORT, dbProps.getPort())
+        .option(USER, dbProps.getUsername())
+        .option(PASSWORD, dbProps.getPassword())
+        .option(DATABASE, dbProps.getDatabase())
+        .option(MAX_SIZE, 1000)
+        .build());
+
+    ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
+        .maxIdleTime(Duration.ofMinutes(30))
+        .initialSize(50)
+        .maxSize(200)
+        .maxCreateConnectionTime(Duration.ofSeconds(3))
+        .acquireRetry(3)
         .build();
-    return MySqlConnectionFactory.from(configuration);
+    return new ConnectionPool(configuration);
+
+    // return connectionFactory;
   }
 
-
+  @Bean
+  @Primary
+  DatabaseClient dbc() {
+    return DatabaseClient.create(connectionFactory());
+  }
 }

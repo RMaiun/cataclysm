@@ -15,22 +15,15 @@ db:
   password: "password"
 
 rabbit:
-  global:
-    username: "rabbitmq"
-    password: "rabbitmq"
-    host: "localhost"
-    virtualHost: "ukl"
-    port: 5672
-    exchange: "ukl_exchange"
-  listPlayersQueue:
-    name: "listPlayersQueue"
-    key: "list_players"
-  addPlayerQueue:
-    name: "addPlayerQueue"
-    key: "add_player"
-  errorsQueue:
-    name: "errorsQueue"
-    key: "errors"
+  username: "rabbitmq"
+  password: "rabbitmq"
+  host: "localhost"
+  virtualHost: "ukl"
+  port: 5672
+  inputQueue: "input_q"
+  outputQueue: "output_q"
+  errorQueue: "error_q"
+  binaryQueue: "binary_q"
 
 server:
-  port: 8080
+  port: 8081

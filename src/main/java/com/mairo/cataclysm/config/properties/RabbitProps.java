@@ -9,28 +9,13 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "rabbit")
 public class RabbitProps {
 
-  private RabbitGlobalConfig global;
-  private RabbitQueueConfig listPlayersQueue;
-  private RabbitQueueConfig addPlayerQueue;
-  private RabbitQueueConfig errorsQueue;
-
-
-  @Data
-  public static class RabbitGlobalConfig {
-
-    private String username;
-    private String password;
-    private String host;
-    private String virtualHost;
-    private int port;
-    private String exchange;
-  }
-
-
-  @Data
-  public static class RabbitQueueConfig {
-
-    private String name;
-    private String key;
-  }
+  private String username;
+  private String password;
+  private String host;
+  private String virtualHost;
+  private int port;
+  private String inputQueue;
+  private String outputQueue;
+  private String errorQueue;
+  private String binaryQueue;
 }

@@ -3,10 +3,11 @@ package com.mairo.cataclysm.rabbit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.config.properties.RabbitProps;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
-import com.mairo.cataclysm.dto.RabbitErrorAdapterDto;
+import com.mairo.cataclysm.dto.OutputMessage;
+import com.mairo.cataclysm.dto.TelegramResponseDto;
+import com.mairo.cataclysm.formatter.ListPlayersMessageFormatter;
 import com.mairo.cataclysm.service.PlayerService;
 import com.rabbitmq.client.ConnectionFactory;
-import io.vavr.control.Try;
 import java.time.Duration;
 import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,14 @@ public class ListPlayersReceiver extends GeneralReceiver<FoundAllPlayers> {
 
   private final PlayerService playerService;
   private final ConnectionFactory connectionFactory;
-  private final ObjectMapper objectMapper;
+  private final ListPlayersMessageFormatter formatter;
 
-  public ListPlayersReceiver(RabbitSender rabbitSender, RabbitProps rabbitProps, PlayerService playerService, ConnectionFactory connectionFactory,
-      ObjectMapper objectMapper) {
-    super(rabbitSender, rabbitProps);
-    this.playerService = playerService;
+  public ListPlayersReceiver(TelegramRabbitSender telegramRabbitSender, RabbitProps rabbitProps, ConnectionFactory connectionFactory,
+      ObjectMapper objectMapper, PlayerService playerService, ListPlayersMessageFormatter formatter) {
+    super(telegramRabbitSender, rabbitProps, objectMapper);
     this.connectionFactory = connectionFactory;
-    this.objectMapper = objectMapper;
+    this.playerService = playerService;
+    this.formatter = formatter;
   }
 
   @PostConstruct
@@ -36,18 +37,22 @@ public class ListPlayersReceiver extends GeneralReceiver<FoundAllPlayers> {
     ReceiverOptions receiverOptions = new ReceiverOptions()
         .connectionFactory(connectionFactory)
         .connectionMonoConfigurator(cm -> cm.retryWhen(RetrySpec.backoff(3, Duration.ofSeconds(5))))
-        .connectionSupplier(cf -> cf.newConnection("sender"));
+        .connectionSupplier(cf -> cf.newConnection("listPlayersConn"));
+
     Receiver receiver = RabbitFlux.createReceiver(receiverOptions);
-    receiver.consumeAutoAck(rabbitProps.getListPlayersQueue().getName())
-        .flatMap(delivery -> deser(delivery.getBody()))
-        .map(RabbitErrorAdapterDto::new)
-        .onErrorResume(this::handleError)
+
+    receiver.consumeAutoAck(rabbitProps.getInputQueue())
+        .flatMap(delivery -> deserialize(delivery.getBody()))
+        .flatMap(x -> preparePlayers(x.getChatId()))
+        .flatMap(telegramRabbitSender::send)
         .subscribe(System.out::println);
   }
 
-  private Mono<FoundAllPlayers> deser(byte[] data) {
-    return Mono.fromCallable(() -> Try.of(() -> objectMapper.readValue(data, FoundAllPlayers.class)))
-        .flatMap(x -> x.isFailure() ? Mono.error(x.getCause()) : Mono.just(x.get()));
+  private Mono<OutputMessage> preparePlayers(String chatId) {
+    return playerService.findAllPlayers()
+        .map(formatter::format)
+        .map(str -> OutputMessage.ok(new TelegramResponseDto(chatId, str)))
+        .onErrorResume(e -> Mono.just(OutputMessage.error(new TelegramResponseDto(chatId, e.getMessage()))));
   }
 
 }
