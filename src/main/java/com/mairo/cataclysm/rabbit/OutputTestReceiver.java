@@ -11,7 +11,7 @@ import reactor.rabbitmq.Receiver;
 import reactor.rabbitmq.ReceiverOptions;
 import reactor.util.retry.RetrySpec;
 
-@Service
+// @Service
 @RequiredArgsConstructor
 public class OutputTestReceiver {
 

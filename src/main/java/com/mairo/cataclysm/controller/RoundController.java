@@ -31,8 +31,7 @@ public class RoundController {
   @GetMapping("/findLast/{season}/{qty}")
   public Mono<FoundLastRounds> findAllRounds(@PathVariable String season, @PathVariable int qty) {
     return validate(new FindLastRoundsDto(season, qty), listLastRoundsValidationType)
-        .flatMap(roundsService::findLastRoundsInSeason)
-        .map(FoundLastRounds::new);
+        .flatMap(roundsService::findLastRoundsInSeason);
   }
 
   @PostMapping("/add")

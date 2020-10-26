@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InputMessage {
+public class BotInputMessage {
 
   private String cmd;
   private String chatId;

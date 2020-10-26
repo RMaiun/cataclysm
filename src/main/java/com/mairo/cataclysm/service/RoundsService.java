@@ -7,6 +7,7 @@ import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.BinaryFileDto;
 import com.mairo.cataclysm.dto.FindLastRoundsDto;
+import com.mairo.cataclysm.dto.FoundLastRounds;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.dto.PlayerSeasonData;
@@ -35,12 +36,13 @@ public class RoundsService {
   private final UserRightsService userRightsService;
   private final ReportStupidCacheService cacheService;
 
-  public Mono<List<FullRound>> findLastRoundsInSeason(FindLastRoundsDto dto) {
+  public Mono<FoundLastRounds> findLastRoundsInSeason(FindLastRoundsDto dto) {
     return playerService.findAllPlayersAsMap()
         .zipWith(seasonRepository.getSeason(dto.getSeason()),
             (players, season) -> Pair.of(season, players))
         .flatMap(t -> preparePlayerSeasonData(t, dto.getQty()))
-        .map(roundServiceHelper::transformRounds);
+        .map(roundServiceHelper::transformRounds)
+        .map(rounds -> new FoundLastRounds(dto.getSeason(), rounds));
   }
 
   private Mono<PlayerSeasonData> preparePlayerSeasonData(Pair<Season, Map<Long, String>> t, int itemQty) {

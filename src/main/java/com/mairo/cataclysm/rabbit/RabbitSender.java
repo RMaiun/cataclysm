@@ -3,15 +3,15 @@ package com.mairo.cataclysm.rabbit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.config.properties.RabbitProps;
+import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.dto.TelegramResponseDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 import reactor.rabbitmq.OutboundMessage;
 import reactor.rabbitmq.Sender;
 
 @RequiredArgsConstructor
-public class TelegramRabbitSender {
+public class RabbitSender {
 
   private final Sender sender;
   private final ObjectMapper objectMapper;
@@ -22,7 +22,7 @@ public class TelegramRabbitSender {
     return send(queue, msg.getData()).map(__ -> msg);
   }
 
-  private Mono<TelegramResponseDto> send(String key, TelegramResponseDto dto) {
+  private Mono<BotOutputMessage> send(String key, BotOutputMessage dto) {
     Mono<OutboundMessage> publisher = stringify(dto)
         .map(str -> new OutboundMessage("", key, str.getBytes()));
     return sender.send(publisher).then(Mono.just(dto));
@@ -33,7 +33,7 @@ public class TelegramRabbitSender {
     return sender.send(publisher).then(Mono.just(dto));
   }
 
-  private Mono<String> stringify(TelegramResponseDto value) {
+  private Mono<String> stringify(BotOutputMessage value) {
     try {
       return Mono.just(objectMapper.writeValueAsString(value));
     } catch (JsonProcessingException e) {

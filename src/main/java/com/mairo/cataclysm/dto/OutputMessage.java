@@ -8,13 +8,13 @@ import lombok.Data;
 public class OutputMessage {
 
   private boolean error;
-  private TelegramResponseDto data;
+  private BotOutputMessage data;
 
-  public static OutputMessage ok(TelegramResponseDto data) {
+  public static OutputMessage ok(BotOutputMessage data) {
     return new OutputMessage(false, data);
   }
 
-  public static OutputMessage error(TelegramResponseDto data) {
+  public static OutputMessage error(BotOutputMessage data) {
     return new OutputMessage(true, data);
   }
 }

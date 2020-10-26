@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
-import com.mairo.cataclysm.dto.InputMessage;
-import com.mairo.cataclysm.rabbit.TelegramRabbitSender;
+import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.rabbit.RabbitSender;
 import com.mairo.cataclysm.service.PlayerService;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
@@ -27,21 +27,9 @@ import reactor.core.publisher.Mono;
 public class PlayerController {
 
   private final PlayerService playerService;
-  private final TelegramRabbitSender sender;
+  private final RabbitSender sender;
   private final ObjectMapper mapper;
 
-  // @PostConstruct
-  //   // public void init() throws JsonProcessingException {
-  //   //   IntStream.rangeClosed(1, 10_000)
-  //   //       .forEach(i -> {
-  //   //         try {
-  //   //           sender.send("input_q", mapper.writeValueAsString(new InputMessage("" + i, "xyz", new HashMap<>())))
-  //   //               .subscribe();
-  //   //         } catch (JsonProcessingException e) {
-  //   //           e.printStackTrace();
-  //   //         }
-  //   //       });
-  //   // }
 
   @GetMapping("/all")
   public Mono<FoundAllPlayers> findAllPlayers() {
@@ -49,7 +37,7 @@ public class PlayerController {
         .flatMap(x ->
         {
           try {
-            return sender.send("input_q", mapper.writeValueAsString(new InputMessage("111", "xyz", new HashMap<>())))
+            return sender.send("input_q", mapper.writeValueAsString(new BotInputMessage("111", "xyz", new HashMap<>())))
                 .map(om -> Pair.of(x, om));
           } catch (JsonProcessingException e) {
             return Mono.just(Pair.of(x, "Sdas"));

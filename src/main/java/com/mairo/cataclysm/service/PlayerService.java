@@ -1,6 +1,6 @@
 package com.mairo.cataclysm.service;
 
-import static com.mairo.cataclysm.utils.FuncPredef.toMono;
+import static com.mairo.cataclysm.utils.MonoSupport.eitherToMono;
 
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.AddPlayerDto;
@@ -69,6 +69,6 @@ public class PlayerService {
 
   private Mono<List<Player>> findAndCheckPlayers(List<String> surnames) {
     return playerRepository.findPlayers(surnames)
-        .flatMap(players -> toMono(psDelegate.prepareCheckedPlayers(players, surnames)));
+        .flatMap(players -> eitherToMono(psDelegate.prepareCheckedPlayers(players, surnames)));
   }
 }
