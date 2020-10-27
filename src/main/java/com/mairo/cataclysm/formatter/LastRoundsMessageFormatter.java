@@ -7,24 +7,20 @@ import com.mairo.cataclysm.dto.FoundLastRounds;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.utils.DateUtils;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LastRoundsMessageFormatter implements MessageFormatter<FoundLastRounds> {
 
-  private static final String SEPARATOR = StringUtils.repeat("-", 34);
-
-
   @Override
   public String format(FoundLastRounds data) {
 
     if (isEmpty(data.getRounds())) {
-      return String.format("```There are no games in season %s for current moment```", data.getSeason());
+      return String.format("%s There are no games in season %s%s", PREFIX, data.getSeason(), SUFFIX);
     } else {
       return data.getRounds().stream()
           .map(this::formatRound)
-          .collect(Collectors.joining(SEPARATOR, "```", "```"));
+          .collect(Collectors.joining(DELIMITER, PREFIX, SUFFIX));
     }
   }
 

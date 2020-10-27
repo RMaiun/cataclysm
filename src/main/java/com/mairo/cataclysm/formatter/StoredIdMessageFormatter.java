@@ -8,6 +8,7 @@ public class StoredIdMessageFormatter implements MessageFormatter<IdDto> {
 
   @Override
   public String format(IdDto data) {
-    return String.format("```New round was stored with id %s ```", data.getId());
+    return String.format("%s New round was stored with id %s %s",
+        PREFIX, data.getId(), SUFFIX);
   }
 }

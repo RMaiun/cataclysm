@@ -22,8 +22,7 @@ rabbit:
   port: 5672
   inputQueue: "input_q"
   outputQueue: "output_q"
-  errorQueue: "error_q"
   binaryQueue: "binary_q"
 
 server:
-  port: 8081
+  port: 8080
