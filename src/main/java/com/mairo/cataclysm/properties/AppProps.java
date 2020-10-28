@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.config.properties;
+package com.mairo.cataclysm.properties;
 
 import com.mairo.cataclysm.dto.AlgorithmType;
 import lombok.Data;

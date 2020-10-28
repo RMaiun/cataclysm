@@ -7,10 +7,13 @@ import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.exception.PlayerAlreadyExistsException;
+import com.mairo.cataclysm.exception.PlayerNotFoundException;
 import com.mairo.cataclysm.helper.PlayerServiceHelper;
 import com.mairo.cataclysm.repository.PlayerRepository;
+import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,6 +50,11 @@ public class PlayerService {
         .map(IdDto::new);
   }
 
+  public Mono<Player> findPlayer(String surname) {
+    return playerRepository.getPlayer(surname)
+        .flatMap(maybePlayer -> MonoSupport.fromOptional(maybePlayer, new PlayerNotFoundException(surname)));
+  }
+
   private Mono<Long> savePlayer(Tuple2<AddPlayerDto, Long> t) {
     Player player = new Player(t.getT2() + 1, t.getT1().getSurname().toLowerCase(), t.getT1().getTid(), t.getT1().isAdmin());
     return playerRepository.savePlayer(player);
@@ -62,9 +70,15 @@ public class PlayerService {
 
   private Mono<AddPlayerDto> checkPlayerNotExist(AddPlayerDto dto) {
     return playerRepository.getPlayer(dto.getSurname())
-        .flatMap(p -> p.isPresent()
-            ? Mono.error(new PlayerAlreadyExistsException(p.get().getId()))
-            : Mono.just(dto));
+        .flatMap(p -> checkPlayerIsNew(p, dto));
+  }
+
+  private Mono<AddPlayerDto> checkPlayerIsNew(Optional<Player> maybePlayer, AddPlayerDto dto) {
+    if (maybePlayer.isEmpty()) {
+      return Mono.just(dto);
+    } else {
+      return Mono.error(new PlayerAlreadyExistsException(maybePlayer.get().getId()));
+    }
   }
 
   private Mono<List<Player>> findAndCheckPlayers(List<String> surnames) {

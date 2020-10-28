@@ -14,11 +14,14 @@ public class StatsMessageFormatter implements MessageFormatter<SeasonShortStats>
     if (data.getGamesPlayed() == 0) {
       return String.format("%sNo games found in season %s%s", PREFIX, data.getSeason(), SUFFIX);
     }
-    String ratings = IntStream.range(0, data.getPlayersRating().size())
-        .mapToObj(i -> String.format("%d. %s %d", i + 1,
-            StringUtils.capitalize(data.getPlayersRating().get(i).getSurname()),
-            data.getPlayersRating().get(i).getScore())
-        ).collect(Collectors.joining(LINE_SEPARATOR));
+
+    String ratings = data.getPlayersRating().isEmpty()
+        ? "Nobody played more that 30 games"
+        : IntStream.range(0, data.getPlayersRating().size())
+            .mapToObj(i -> String.format("%d. %s %d", i + 1,
+                StringUtils.capitalize(data.getPlayersRating().get(i).getSurname()),
+                data.getPlayersRating().get(i).getScore()))
+            .collect(Collectors.joining(LINE_SEPARATOR));
 
     String bestStreak = String.format("%s: %d games in row", data.getBestStreak().getPlayer(), data.getBestStreak().getGames());
     String worstStreak = String.format("%s: %d games in row", data.getWorstStreak().getPlayer(), data.getWorstStreak().getGames());

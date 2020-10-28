@@ -3,8 +3,8 @@ package com.mairo.cataclysm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.mairo.cataclysm.config.properties.AppProps;
-import com.mairo.cataclysm.config.properties.RabbitProps;
+import com.mairo.cataclysm.properties.AppProps;
+import com.mairo.cataclysm.properties.RabbitProps;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

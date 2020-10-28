@@ -1,6 +1,5 @@
 package com.mairo.cataclysm.formatter;
 
-import static java.lang.System.lineSeparator;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 import com.mairo.cataclysm.dto.FoundLastRounds;
@@ -28,10 +27,13 @@ public class LastRoundsMessageFormatter implements MessageFormatter<FoundLastRou
     String date = DateUtils.formatDateWithHour(round.getCreated());
     String winners = String.format("%s/%s", round.getWinner1(), round.getWinner2());
     String losers = String.format("%s/%s", round.getLoser1(), round.getLoser2());
-    String shutout = round.isShutout() ? String.format("%s|shutout: ✓", lineSeparator()) : "";
-    return "date: " + date + lineSeparator()
-        + "winners: " + winners + lineSeparator()
-        + "losers: " + losers + lineSeparator()
-        + shutout;
+    StringBuilder sb = new StringBuilder();
+    sb.append("date: ").append(date).append(LINE_SEPARATOR);
+    sb.append("winners: ").append(winners).append(LINE_SEPARATOR);
+    sb.append("losers: ").append(losers).append(LINE_SEPARATOR);
+    if (round.isShutout()) {
+      sb.append("shutout: ✓").append(LINE_SEPARATOR);
+    }
+    return sb.toString();
   }
 }

@@ -4,19 +4,23 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import com.mairo.cataclysm.config.properties.RabbitProps;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.exception.InvalidCommandException;
+import com.mairo.cataclysm.postprocessor.PostProcessor;
+import com.mairo.cataclysm.properties.RabbitProps;
 import com.mairo.cataclysm.rabbit.processor.AddRoundCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.LastCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.ListPlayersCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.StatsCmdProcessor;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.rabbitmq.RabbitFlux;
 import reactor.rabbitmq.Receiver;
@@ -37,6 +41,8 @@ public class CommandReceiver {
   private final StatsCmdProcessor statsCmdProcessor;
   private final LastCmdProcessor lastCmdProcessor;
 
+  private final List<PostProcessor> postProcessorList;
+
   @PostConstruct
   public void init() {
     ReceiverOptions receiverOptions = new ReceiverOptions()
@@ -48,15 +54,24 @@ public class CommandReceiver {
 
     receiver.consumeAutoAck(rabbitProps.getInputQueue())
         .flatMap(delivery -> metadataParser.parseCommand(delivery.getBody()))
-        .flatMap(this::processCmd)
-        .flatMap(rabbitSender::send)
-        .subscribe(System.out::println);
+        .flatMap(input -> processCmd(input).map(res -> Pair.of(input, res)))
+        .flatMap(p -> rabbitSender.send(p.getRight()).map(__ -> p))
+        .flatMap(p -> postProcess(p.getLeft()))
+        .subscribe();
+  }
+
+  private Flux<OutputMessage> postProcess(BotInputMessage input) {
+    return postProcessorList.stream()
+        .filter(pp -> pp.cmd().equals(input.getCmd()))
+        .findAny()
+        .map(pp -> pp.postProcess(input, msgId()))
+        .orElseGet(Flux::empty);
   }
 
   private Mono<OutputMessage> processCmd(BotInputMessage dto) {
     return Match(dto.getCmd()).of(
         Case($("listPlayers"), listPlayersCmdProcessor.preparePlayers(dto, msgId())),
-        Case($("addPlayer"), addRoundCmdProcessor.addPlayer(dto, msgId())),
+        Case($("addRound"), addRoundCmdProcessor.addPlayer(dto, msgId())),
         Case($("shortStats"), statsCmdProcessor.prepareStats(dto, msgId())),
         Case($("findLastRounds"), lastCmdProcessor.prepareStats(dto, msgId())),
         Case($(), Mono.error(new InvalidCommandException(dto.getCmd())))

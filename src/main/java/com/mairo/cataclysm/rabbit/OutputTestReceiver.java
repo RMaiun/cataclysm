@@ -1,11 +1,10 @@
 package com.mairo.cataclysm.rabbit;
 
-import com.mairo.cataclysm.config.properties.RabbitProps;
+import com.mairo.cataclysm.properties.RabbitProps;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import reactor.rabbitmq.RabbitFlux;
 import reactor.rabbitmq.Receiver;
 import reactor.rabbitmq.ReceiverOptions;

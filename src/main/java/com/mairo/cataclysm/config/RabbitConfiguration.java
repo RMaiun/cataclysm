@@ -1,7 +1,7 @@
 package com.mairo.cataclysm.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mairo.cataclysm.config.properties.RabbitProps;
+import com.mairo.cataclysm.properties.RabbitProps;
 import com.mairo.cataclysm.rabbit.RabbitSender;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.RequiredArgsConstructor;
