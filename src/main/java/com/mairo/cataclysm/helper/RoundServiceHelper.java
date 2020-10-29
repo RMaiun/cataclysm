@@ -6,7 +6,7 @@ import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Round;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FullRound;
-import com.mairo.cataclysm.dto.PlayerSeasonData;
+import com.mairo.cataclysm.dto.PlayerSeasonRoundsData;
 import com.mairo.cataclysm.utils.DateUtils;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -33,7 +33,7 @@ public class RoundServiceHelper {
         s, r.isShutout());
   }
 
-  public List<FullRound> transformRounds(PlayerSeasonData psd) {
+  public List<FullRound> transformRounds(PlayerSeasonRoundsData psd) {
     return psd.getRounds().stream()
         .map(r -> transformRound(r, psd.getPlayers(), psd.getSeason().getName()))
         .sorted(Comparator.comparing(FullRound::getCreated))
