@@ -1,6 +1,9 @@
 package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
+import static com.mairo.cataclysm.validation.ValidationTypes.addRoundValidationType;
+import static com.mairo.cataclysm.validation.ValidationTypes.listLastRoundsValidationType;
+import static com.mairo.cataclysm.validation.Validator.validate;
 
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Season;
@@ -37,7 +40,8 @@ public class RoundsService {
   private final ReportStupidCacheService cacheService;
 
   public Mono<FoundLastRounds> findLastRoundsInSeason(FindLastRoundsDto dto) {
-    return playerService.findAllPlayersAsMap()
+    return validate(dto, listLastRoundsValidationType)
+        .flatMap(__ -> playerService.findAllPlayersAsMap())
         .zipWith(seasonRepository.getSeason(dto.getSeason()),
             (players, season) -> Pair.of(season, players))
         .flatMap(t -> preparePlayerSeasonData(t, dto.getQty()))
@@ -59,7 +63,8 @@ public class RoundsService {
   }
 
   public Mono<IdDto> saveRound(AddRoundDto dto) {
-    return userRightsService.checkUserIsAdmin(dto.getModerator())
+    return validate(dto, addRoundValidationType)
+        .flatMap(__ -> userRightsService.checkUserIsAdmin(dto.getModerator()))
         .flatMap(__ -> checkAllPlayersAreDifferent(dto).then(checkPlayersExist(dto)))
         .flatMap(p -> saveWithCacheRefresh(p, dto))
         .map(t -> new IdDto(t.getKey()));

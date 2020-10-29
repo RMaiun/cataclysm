@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import static com.mairo.cataclysm.validation.ValidationTypes.seasonValidationType;
-import static com.mairo.cataclysm.validation.Validator.validate;
-
 @RestController
 @RequestMapping("stats")
 @RequiredArgsConstructor
@@ -22,13 +19,11 @@ public class StatsController {
 
   @GetMapping("/table/{season}")
   public Mono<SeasonStatsRows> seasonRowsStatistic(@PathVariable String season) {
-    return validate(season, seasonValidationType)
-        .flatMap(statisticsService::seasonStatisticsRows);
+    return statisticsService.seasonStatisticsRows(season);
   }
 
   @GetMapping("/short/{season}")
   public Mono<SeasonShortStats> generalSeasonStatistics(@PathVariable String season) {
-    return validate(season, seasonValidationType)
-        .flatMap(statisticsService::seasonShortInfoStatistics);
+    return statisticsService.seasonShortInfoStatistics(season);
   }
 }

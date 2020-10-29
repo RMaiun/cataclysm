@@ -1,8 +1,5 @@
 package com.mairo.cataclysm.controller;
 
-import static com.mairo.cataclysm.validation.ValidationTypes.addPlayerValidationType;
-import static com.mairo.cataclysm.validation.Validator.validate;
-
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
@@ -30,7 +27,6 @@ public class PlayerController {
 
   @PostMapping("/add")
   public Mono<IdDto> addPlayer(@RequestBody AddPlayerDto addPlayerDto) {
-    return validate(addPlayerDto, addPlayerValidationType)
-        .flatMap(playerService::addPlayer);
+    return playerService.addPlayer(addPlayerDto);
   }
 }

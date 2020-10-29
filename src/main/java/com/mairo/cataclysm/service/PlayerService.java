@@ -1,6 +1,8 @@
 package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.MonoSupport.eitherToMono;
+import static com.mairo.cataclysm.validation.ValidationTypes.addPlayerValidationType;
+import static com.mairo.cataclysm.validation.Validator.validate;
 
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.AddPlayerDto;
@@ -44,15 +46,20 @@ public class PlayerService {
   }
 
   public Mono<IdDto> addPlayer(AddPlayerDto dto) {
-    return checkUserIsAdmin(dto.getModerator())
-        .flatMap(__ -> prepareIdForCheckedPlayer(dto))
-        .flatMap(this::savePlayer)
-        .map(IdDto::new);
+    return validate(dto, addPlayerValidationType)
+        .flatMap(this::processPlayerAdd);
   }
 
   public Mono<Player> findPlayer(String surname) {
     return playerRepository.getPlayer(surname)
         .flatMap(maybePlayer -> MonoSupport.fromOptional(maybePlayer, new PlayerNotFoundException(surname)));
+  }
+
+  private Mono<IdDto> processPlayerAdd(AddPlayerDto dto) {
+    return checkUserIsAdmin(dto.getModerator())
+        .flatMap(__ -> prepareIdForCheckedPlayer(dto))
+        .flatMap(this::savePlayer)
+        .map(IdDto::new);
   }
 
   private Mono<Long> savePlayer(Tuple2<AddPlayerDto, Long> t) {

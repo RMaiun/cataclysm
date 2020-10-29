@@ -1,10 +1,6 @@
 package com.mairo.cataclysm.controller;
 
 
-import static com.mairo.cataclysm.validation.ValidationTypes.addRoundValidationType;
-import static com.mairo.cataclysm.validation.ValidationTypes.listLastRoundsValidationType;
-import static com.mairo.cataclysm.validation.Validator.validate;
-
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FindLastRoundsDto;
 import com.mairo.cataclysm.dto.FoundLastRounds;
@@ -30,13 +26,11 @@ public class RoundController {
 
   @GetMapping("/findLast/{season}/{qty}")
   public Mono<FoundLastRounds> findAllRounds(@PathVariable String season, @PathVariable int qty) {
-    return validate(new FindLastRoundsDto(season, qty), listLastRoundsValidationType)
-        .flatMap(roundsService::findLastRoundsInSeason);
+    return roundsService.findLastRoundsInSeason(new FindLastRoundsDto(season, qty));
   }
 
   @PostMapping("/add")
   public Mono<IdDto> addRound(@RequestBody AddRoundDto dto) {
-    return validate(dto, addRoundValidationType)
-        .flatMap(x -> roundsService.saveRound(dto));
+    return roundsService.saveRound(dto);
   }
 }

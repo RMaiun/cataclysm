@@ -1,6 +1,9 @@
 package com.mairo.cataclysm.service;
 
 import com.mairo.cataclysm.config.AppProperties;
+import static com.mairo.cataclysm.validation.ValidationTypes.seasonValidationType;
+import static com.mairo.cataclysm.validation.Validator.validate;
+
 import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
 import com.mairo.cataclysm.helper.StatsServiceHelper;
@@ -17,12 +20,14 @@ public class StatisticsService {
   private final AppProperties appProperties;
 
   public Mono<SeasonStatsRows> seasonStatisticsRows(String seasonName) {
-    return roundsService.findAllRounds(seasonName)
+    return validate(seasonName, seasonValidationType)
+        .flatMap(__ -> roundsService.findAllRounds(seasonName))
         .map(statsServiceHelper::prepareSeasonStatsTable);
   }
 
   public Mono<SeasonShortStats> seasonShortInfoStatistics(String seasonName) {
-    return roundsService.findAllRounds(seasonName)
+      return validate(seasonName, seasonValidationType)
+        .flatMap(__ -> roundsService.findAllRounds(seasonName))
         .map(rounds -> statsServiceHelper.prepareSeasonShortStats(seasonName, rounds, appProperties.getAlgorithm()));
   }
 }
