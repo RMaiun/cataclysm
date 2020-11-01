@@ -2,9 +2,9 @@ package com.mairo.cataclysm.rabbit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mairo.cataclysm.properties.RabbitProps;
 import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
+import com.mairo.cataclysm.properties.RabbitProps;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 import reactor.rabbitmq.OutboundMessage;
@@ -18,8 +18,7 @@ public class RabbitSender {
   private final RabbitProps rabbitProps;
 
   public Mono<OutputMessage> send(OutputMessage msg) {
-    String queue = msg.isError() ? rabbitProps.getErrorQueue() : rabbitProps.getOutputQueue();
-    return send(queue, msg.getData()).map(__ -> msg);
+    return send(rabbitProps.getOutputQueue(), msg.getData()).map(__ -> msg);
   }
 
   private Mono<BotOutputMessage> send(String key, BotOutputMessage dto) {

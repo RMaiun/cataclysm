@@ -1,12 +1,13 @@
 package com.mairo.cataclysm.repository;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.exception.SeasonNotFoundException;
+import java.util.List;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
 
 @Service
 public class SeasonRepository {
@@ -32,5 +33,12 @@ public class SeasonRepository {
         .using(season)
         .fetch()
         .rowsUpdated();
+  }
+
+  public Mono<List<Season>> listAll() {
+    return dbClient.select()
+        .from(Season.class)
+        .as(Season.class)
+        .all().collectList();
   }
 }

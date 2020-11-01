@@ -19,7 +19,7 @@ public class MonoSupport {
     return Mono.just(either.get());
   }
 
-  private static <T> Mono<T> fromTry(Try<T> fa) {
+  public static <T> Mono<T> fromTry(Try<T> fa) {
     return eitherToMono(fa.toEither());
   }
 

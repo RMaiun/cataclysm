@@ -1,6 +1,7 @@
 package com.mairo.cataclysm.repository;
 
 import com.mairo.cataclysm.domain.Round;
+import java.time.LocalDateTime;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -42,4 +43,15 @@ public class RoundRepository {
         .map((r, m) -> r.get(0, Long.class))
         .one();
   }
+
+  public Mono<List<Round>> listLastRoundsBeforeDate(LocalDateTime before) {
+    return dbClient.execute("select *  from round  r where r.created <= :before")
+        .bind("before", before)
+        .as(Round.class)
+        .fetch()
+        .all()
+        .collectList();
+  }
+
+
 }

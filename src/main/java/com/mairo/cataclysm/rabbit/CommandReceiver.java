@@ -48,7 +48,7 @@ public class CommandReceiver {
     ReceiverOptions receiverOptions = new ReceiverOptions()
         .connectionFactory(connectionFactory)
         .connectionMonoConfigurator(cm -> cm.retryWhen(RetrySpec.backoff(3, Duration.ofSeconds(3))))
-        .connectionSupplier(cf -> cf.newConnection("listPlayersConn"));
+        .connectionSupplier(cf -> cf.newConnection("cata_input_receiver_conn"));
 
     Receiver receiver = RabbitFlux.createReceiver(receiverOptions);
 
