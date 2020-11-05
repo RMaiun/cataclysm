@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import com.mairo.cataclysm.config.AppProperties;
+import com.mairo.cataclysm.dto.AlgorithmType;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.PlayerStats;
 import com.mairo.cataclysm.dto.RatingWithGames;
@@ -17,8 +18,12 @@ import com.mairo.cataclysm.dto.Streak;
 import com.mairo.cataclysm.utils.DateUtils;
 import com.mairo.cataclysm.utils.SeasonUtils;
 import io.vavr.Tuple4;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,7 +41,7 @@ public class StatsServiceHelper {
 
   private final AppProperties appProperties;
 
-  public SeasonShortStats prepareSeasonShortStats(String seasonName, List<FullRound> rounds) {
+  public SeasonShortStats prepareSeasonShortStats(String seasonName, List<FullRound> rounds, AlgorithmType algorithmType) {
     SeasonShortStats stats = new SeasonShortStats();
     stats.setGamesPlayed(rounds.size());
     stats.setSeason(seasonName);
@@ -49,11 +54,9 @@ public class StatsServiceHelper {
       int daysLeft = seasonGate.getRight().getDayOfYear() - now.getDayOfYear();
       stats.setDaysToSeasonEnd(daysLeft);
     }
-    List<PlayerStats> topPlayers = calculatePointsForPlayers(rounds, true)
-        .stream()
-        .sorted(Comparator.comparing(RatingWithGames::getRating, Comparator.reverseOrder()))
-        .map(rwg -> new PlayerStats(rwg.getPlayer(), rwg.getRating(), rwg.getGames()))
-        .collect(toList());
+    List<PlayerStats> topPlayers = AlgorithmType.PERCENTAGE == algorithmType
+        ? percentagePlayersStats(rounds)
+        : pointsPlayersStats(rounds);
     stats.setPlayersRating(topPlayers);
 
     Pair<Optional<Streak>, Optional<Streak>> optionalOptionalPair = calculateStreaks(rounds);
@@ -61,6 +64,40 @@ public class StatsServiceHelper {
     optionalOptionalPair.getRight().ifPresent(stats::setWorstStreak);
 
     return stats;
+  }
+
+  private List<PlayerStats> percentagePlayersStats(List<FullRound> rounds) {
+    Map<String, Integer> allRounds = prepareAcceptedPlayersForShortStats(aggregatePlayersWithGames(rounds), true);
+    Map<String, BigDecimal> winRounds = new HashMap<>();
+    rounds.forEach(r -> {
+      fillWinMap(r.getWinner1(), winRounds);
+      fillWinMap(r.getWinner2(), winRounds);
+    });
+    return allRounds.entrySet().stream()
+        .map(e -> new PlayerStats(e.getKey(), preparePercentageStats(e, winRounds), e.getValue()))
+        .sorted(Comparator.comparing(ps -> new BigDecimal(ps.getScore()), Comparator.reverseOrder()))
+        .collect(toList());
+  }
+
+  private String preparePercentageStats(Map.Entry<String, Integer> entry, Map<String, BigDecimal> winRounds) {
+    BigDecimal foundWins = winRounds.getOrDefault(entry.getKey(), BigDecimal.ZERO);
+    BigDecimal result = foundWins.divide(BigDecimal.valueOf(entry.getValue()), new MathContext(3, RoundingMode.HALF_EVEN));
+
+    BigDecimal roundedResult = result.setScale(3, RoundingMode.UNNECESSARY);
+    return roundedResult.toString();
+  }
+
+  private void fillWinMap(String surname, Map<String, BigDecimal> winRounds) {
+    BigDecimal winFound = winRounds.getOrDefault(surname, BigDecimal.ZERO);
+    winRounds.put(surname, winFound.add(BigDecimal.ONE));
+  }
+
+  private List<PlayerStats> pointsPlayersStats(List<FullRound> rounds) {
+    return calculatePointsForPlayers(rounds, true)
+        .stream()
+        .sorted(Comparator.comparing(RatingWithGames::getRating, Comparator.reverseOrder()))
+        .map(rwg -> new PlayerStats(rwg.getPlayer(), String.valueOf(rwg.getRating()), rwg.getGames()))
+        .collect(toList());
   }
 
   private Pair<Optional<Streak>, Optional<Streak>> calculateStreaks(List<FullRound> rounds) {
@@ -127,14 +164,7 @@ public class StatsServiceHelper {
   }
 
   private List<RatingWithGames> calculatePointsForPlayers(List<FullRound> rounds, boolean shortStats) {
-    List<StatsCalcData> roundData = rounds.stream()
-        .flatMap(r -> Stream.of(
-            new StatsCalcData(r.getW1Id(), r.getWinner1(), winPoints(r.isShutout())),
-            new StatsCalcData(r.getW2Id(), r.getWinner2(), winPoints(r.isShutout())),
-            new StatsCalcData(r.getL1Id(), r.getLoser1(), losePoints(r.isShutout())),
-            new StatsCalcData(r.getL2Id(), r.getLoser2(), losePoints(r.isShutout()))))
-        .collect(toList());
-
+    List<StatsCalcData> roundData = aggregatePlayersWithGames(rounds);
     Map<String, Integer> acceptedPlayers = prepareAcceptedPlayersForShortStats(roundData, shortStats);
 
     Map<String, List<StatsCalcData>> dataByPlayer = roundData.stream()
@@ -142,6 +172,16 @@ public class StatsServiceHelper {
         .collect(groupingBy(StatsCalcData::getPlayer));
 
     return prepareRatingWithGames(dataByPlayer);
+  }
+
+  private List<StatsCalcData> aggregatePlayersWithGames(List<FullRound> rounds) {
+    return rounds.stream()
+        .flatMap(r -> Stream.of(
+            new StatsCalcData(r.getW1Id(), r.getWinner1(), winPoints(r.isShutout())),
+            new StatsCalcData(r.getW2Id(), r.getWinner2(), winPoints(r.isShutout())),
+            new StatsCalcData(r.getL1Id(), r.getLoser1(), losePoints(r.isShutout())),
+            new StatsCalcData(r.getL2Id(), r.getLoser2(), losePoints(r.isShutout()))))
+        .collect(toList());
   }
 
   private Map<String, Integer> prepareAcceptedPlayersForShortStats(List<StatsCalcData> roundData, boolean filterByGames) {

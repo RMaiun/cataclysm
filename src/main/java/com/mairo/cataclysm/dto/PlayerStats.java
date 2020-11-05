@@ -11,7 +11,7 @@ public class PlayerStats {
   @NonNull
   private String surname;
   @NonNull
-  private Integer score;
+  private String score;
   @NonNull
   private Integer games;
 }

@@ -1,5 +1,6 @@
 package com.mairo.cataclysm.service;
 
+import com.mairo.cataclysm.config.AppProperties;
 import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
 import com.mairo.cataclysm.helper.StatsServiceHelper;
@@ -13,6 +14,7 @@ public class StatisticsService {
 
   private final RoundsService roundsService;
   private final StatsServiceHelper statsServiceHelper;
+  private final AppProperties appProperties;
 
   public Mono<SeasonStatsRows> seasonStatisticsRows(String seasonName) {
     return roundsService.findAllRounds(seasonName)
@@ -21,6 +23,6 @@ public class StatisticsService {
 
   public Mono<SeasonShortStats> seasonShortInfoStatistics(String seasonName) {
     return roundsService.findAllRounds(seasonName)
-        .map(rounds -> statsServiceHelper.prepareSeasonShortStats(seasonName, rounds));
+        .map(rounds -> statsServiceHelper.prepareSeasonShortStats(seasonName, rounds, appProperties.getAlgorithm()));
   }
 }

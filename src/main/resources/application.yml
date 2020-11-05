@@ -5,6 +5,7 @@ app:
   winShutoutPoints: 50
   losePoints: -25
   loseShutoutPoints: -50
+  algorithm: "PERCENTAGE"
 
 db:
   host: "127.0.0.1"
