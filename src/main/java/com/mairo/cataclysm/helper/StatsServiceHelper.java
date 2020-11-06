@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-import com.mairo.cataclysm.config.AppProperties;
 import com.mairo.cataclysm.dto.AlgorithmType;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.PlayerStats;
@@ -15,6 +14,7 @@ import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
 import com.mairo.cataclysm.dto.StatsCalcData;
 import com.mairo.cataclysm.dto.Streak;
+import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.utils.DateUtils;
 import com.mairo.cataclysm.utils.SeasonUtils;
 import io.vavr.Tuple4;
