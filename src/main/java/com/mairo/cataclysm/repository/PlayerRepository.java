@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -51,12 +52,32 @@ public class PlayerRepository {
         .switchIfEmpty(Mono.just(Optional.empty()));
   }
 
+  public Mono<Optional<Player>> getPlayerByCriteria(Criteria criteria) {
+    return dbClient.select()
+        .from(Player.class)
+        .matching(criteria)
+        .as(Player.class)
+        .one()
+        .map(Optional::of)
+        .switchIfEmpty(Mono.just(Optional.empty()));
+  }
+
   public Mono<Long> savePlayer(Player player) {
     return dbClient.insert()
         .into(Player.class)
         .using(player)
         .map((r, m) -> r.get(0, Long.class))
         .one();
+  }
+
+  public Mono<Player> updatePlayer(Player player) {
+    return dbClient.update()
+        .table(Player.class)
+        .using(player)
+        .matching(where("id").is(player.getId()))
+        .fetch()
+        .rowsUpdated()
+        .map(__ -> player);
   }
 
   public Mono<Long> findLastId() {

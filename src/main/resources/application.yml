@@ -6,6 +6,7 @@ app:
   losePoints: -25
   loseShutoutPoints: -50
   algorithm: "PERCENTAGE"
+  archiveReceiver: "маюн"
 
 db:
   host: "127.0.0.1"

@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -50,9 +51,27 @@ public class PlayerService {
         .flatMap(this::processPlayerAdd);
   }
 
-  public Mono<Player> findPlayer(String surname) {
-    return playerRepository.getPlayer(surname)
+  public Mono<Player> findPlayerByName(String surname) {
+    return playerRepository.getPlayerByCriteria(Criteria.where("name").is(surname))
         .flatMap(maybePlayer -> MonoSupport.fromOptional(maybePlayer, new PlayerNotFoundException(surname)));
+  }
+
+  public Mono<Player> findPlayerByTid(String tid) {
+    return findPlayerByCriteria(Criteria.where("tid").is(tid));
+  }
+
+  public Mono<Player> enableNotifications(String surname, String tid) {
+    return findPlayerByName(surname).map(p -> p.withNotificationsEnabled(true).withTid(tid))
+        .flatMap(playerRepository::updatePlayer);
+  }
+
+  public Mono<Player> updatePlayer(Player p) {
+    return playerRepository.updatePlayer(p);
+  }
+
+  private Mono<Player> findPlayerByCriteria(Criteria criteria) {
+    return playerRepository.getPlayerByCriteria(criteria)
+        .flatMap(maybePlayer -> MonoSupport.fromOptional(maybePlayer, new PlayerNotFoundException(criteria.toString())));
   }
 
   private Mono<IdDto> processPlayerAdd(AddPlayerDto dto) {
@@ -63,7 +82,7 @@ public class PlayerService {
   }
 
   private Mono<Long> savePlayer(Tuple2<AddPlayerDto, Long> t) {
-    Player player = new Player(t.getT2() + 1, t.getT1().getSurname().toLowerCase(), t.getT1().getTid(), t.getT1().isAdmin());
+    Player player = new Player(t.getT2() + 1, t.getT1().getSurname().toLowerCase(), t.getT1().getTid(), t.getT1().isAdmin(), false);
     return playerRepository.savePlayer(player);
   }
 
