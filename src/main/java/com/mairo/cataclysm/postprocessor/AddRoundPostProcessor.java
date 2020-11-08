@@ -13,6 +13,7 @@ import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.formatter.MessageFormatter;
 import com.mairo.cataclysm.rabbit.RabbitSender;
 import com.mairo.cataclysm.service.PlayerService;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,8 @@ public class AddRoundPostProcessor implements PostProcessor {
   private final RabbitSender rabbitSender;
 
   @Override
-  public String cmd() {
-    return "addRound";
+  public List<String> cmds() {
+    return Collections.singletonList("addRound");
   }
 
   @Override

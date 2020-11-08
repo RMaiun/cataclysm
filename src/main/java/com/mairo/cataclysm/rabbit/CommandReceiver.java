@@ -11,8 +11,10 @@ import com.mairo.cataclysm.postprocessor.PostProcessor;
 import com.mairo.cataclysm.properties.RabbitProps;
 import com.mairo.cataclysm.rabbit.processor.AddRoundCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.LastCmdProcessor;
+import com.mairo.cataclysm.rabbit.processor.LinkTidCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.ListPlayersCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.StatsCmdProcessor;
+import com.mairo.cataclysm.rabbit.processor.SubscriptionCmdProcessor;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
 import java.util.List;
@@ -40,6 +42,8 @@ public class CommandReceiver {
   private final AddRoundCmdProcessor addRoundCmdProcessor;
   private final StatsCmdProcessor statsCmdProcessor;
   private final LastCmdProcessor lastCmdProcessor;
+  private final LinkTidCmdProcessor linkTidCmdProcessor;
+  private final SubscriptionCmdProcessor subscriptionCmdProcessor;
 
   private final List<PostProcessor> postProcessorList;
 
@@ -62,7 +66,7 @@ public class CommandReceiver {
 
   private Flux<OutputMessage> postProcess(BotInputMessage input) {
     return postProcessorList.stream()
-        .filter(pp -> pp.cmd().equals(input.getCmd()))
+        .filter(pp -> pp.cmds().contains(input.getCmd()))
         .findAny()
         .map(pp -> pp.postProcess(input, msgId()))
         .orElseGet(Flux::empty);
@@ -74,6 +78,9 @@ public class CommandReceiver {
         Case($("addRound"), addRoundCmdProcessor.addPlayer(dto, msgId())),
         Case($("shortStats"), statsCmdProcessor.prepareStats(dto, msgId())),
         Case($("findLastRounds"), lastCmdProcessor.prepareStats(dto, msgId())),
+        Case($("linkTid"), linkTidCmdProcessor.process(dto, msgId())),
+        Case($("subscribe"), subscriptionCmdProcessor.process(dto, msgId())),
+        Case($("unsubscribe"), subscriptionCmdProcessor.process(dto, msgId())),
         Case($(), Mono.error(new InvalidCommandException(dto.getCmd())))
     );
   }

@@ -22,7 +22,7 @@ public class SubscriptionService {
     return Validator.validate(dto, ValidationTypes.linkTidValidationType)
         .flatMap(__ -> userRightsService.checkUserIsAdmin(dto.getModerator()))
         .flatMap(admin -> playerService.enableNotifications(dto.getNameToLink(), dto.getTid()))
-        .map(res -> new SubscriptionResultDto(dto.getNameToLink(), dto.getTid(), LocalDateTime.now()));
+        .map(res -> new SubscriptionResultDto(dto.getNameToLink(), dto.getTid(), LocalDateTime.now(), true));
   }
 
   public Mono<SubscriptionResultDto> updateSubscriptionsStatus(SubscriptionActionDto dto) {
@@ -30,7 +30,7 @@ public class SubscriptionService {
         .flatMap(__ -> playerService.findPlayerByTid(dto.getTid()))
         .map(p -> p.withNotificationsEnabled(dto.isEnableSubscriptions()))
         .flatMap(playerService::updatePlayer)
-        .map(p -> new SubscriptionResultDto(p.getSurname(), p.getTid(), LocalDateTime.now()));
+        .map(p -> new SubscriptionResultDto(p.getSurname(), p.getTid(), LocalDateTime.now(), dto.isEnableSubscriptions()));
   }
 
 }

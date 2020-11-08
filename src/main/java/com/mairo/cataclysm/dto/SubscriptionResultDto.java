@@ -13,4 +13,5 @@ public class SubscriptionResultDto {
   private String subscribedSurname;
   private String subscribedTid;
   private LocalDateTime createdDate;
+  private boolean notificationsEnabled;
 }
