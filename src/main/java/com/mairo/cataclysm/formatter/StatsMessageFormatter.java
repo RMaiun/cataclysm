@@ -16,9 +16,9 @@ public class StatsMessageFormatter implements MessageFormatter<SeasonShortStats>
     }
 
     String ratings = data.getPlayersRating().isEmpty()
-        ? "Nobody played more that 30 games"
+        ? "Nobody played more than 30 games"
         : IntStream.range(0, data.getPlayersRating().size())
-            .mapToObj(i -> String.format("%d. %s %d", i + 1,
+            .mapToObj(i -> String.format("%d. %s %s", i + 1,
                 StringUtils.capitalize(data.getPlayersRating().get(i).getSurname()),
                 data.getPlayersRating().get(i).getScore()))
             .collect(Collectors.joining(LINE_SEPARATOR));

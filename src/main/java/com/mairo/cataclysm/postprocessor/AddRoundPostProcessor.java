@@ -6,6 +6,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.BotOutputMessage;
@@ -55,6 +56,7 @@ public class AddRoundPostProcessor implements PostProcessor {
 
   private Mono<OutputMessage> sendNotificationToUser(int msgId, String player, boolean winner, String opponents) {
     return playerService.findPlayerByName(player)
+        .filter(Player::isNotificationsEnabled)
         .filter(p -> nonNull(p.getTid()))
         .map(p -> new BotOutputMessage(p.getTid(), msgId, formatNotification(opponents, winner)))
         .map(OutputMessage::ok)

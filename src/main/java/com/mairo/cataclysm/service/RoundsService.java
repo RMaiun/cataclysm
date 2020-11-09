@@ -16,6 +16,7 @@ import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.dto.PlayerSeasonData;
 import com.mairo.cataclysm.dto.PlayerSeasonRoundsData;
 import com.mairo.cataclysm.exception.SamePlayersInRoundException;
+import com.mairo.cataclysm.exception.SeasonNotFoundException;
 import com.mairo.cataclysm.helper.RoundServiceHelper;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
@@ -73,10 +74,9 @@ public class RoundsService {
   }
 
   private Mono<Pair<Season, List<Player>>> checkPlayersExist(AddRoundDto dto) {
-    return Mono.zip(
-        seasonRepository.getSeason(currentSeason()),
-        playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())))
-        .map(x -> Pair.of(x.getT1(), x.getT2()));
+    return safeSeasonGet(currentSeason())
+        .zipWith(playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())),
+            Pair::of);
   }
 
   private Mono<Pair<Long, Optional<BinaryFileDto>>> saveWithCacheRefresh(Pair<Season, List<Player>> p, AddRoundDto dto) {
@@ -91,5 +91,21 @@ public class RoundsService {
       return Mono.error(new SamePlayersInRoundException());
     }
     return Mono.empty();
+  }
+
+  private Mono<Season> safeSeasonGet(String season) {
+    return seasonRepository.getSeason(season)
+        .onErrorResume(err -> prepareAbsentSeason(season));
+  }
+
+  private Mono<Season> prepareAbsentSeason(String expected) {
+    String current = currentSeason();
+    if (current.equals(expected)) {
+      return seasonRepository.findLastId()
+          .map(id -> new Season(id + 1, expected))
+          .flatMap(season -> seasonRepository.saveSeason(season).map(__ -> season));
+    } else {
+      return Mono.error(new SeasonNotFoundException(expected));
+    }
   }
 }

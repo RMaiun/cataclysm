@@ -52,7 +52,7 @@ public class PlayerService {
   }
 
   public Mono<Player> findPlayerByName(String surname) {
-    return playerRepository.getPlayerByCriteria(Criteria.where("name").is(surname))
+    return playerRepository.getPlayerByCriteria(Criteria.where("surname").is(surname))
         .flatMap(maybePlayer -> MonoSupport.fromOptional(maybePlayer, new PlayerNotFoundException(surname)));
   }
 

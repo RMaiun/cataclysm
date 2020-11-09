@@ -8,7 +8,7 @@ import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.formatter.MessageFormatter;
 import com.mairo.cataclysm.rabbit.RabbitSender;
 import com.mairo.cataclysm.utils.MonoSupport;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class SubscriptionPostProcessor implements PostProcessor {
 
   @Override
   public List<String> cmds() {
-    return Arrays.asList("linkTid", "subscribe", "unsubscribe");
+    return Collections.singletonList("linkTid");
   }
 
   @Override

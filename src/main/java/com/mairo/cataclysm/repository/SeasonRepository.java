@@ -5,6 +5,8 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.exception.SeasonNotFoundException;
 import java.util.List;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -40,5 +42,14 @@ public class SeasonRepository {
         .from(Season.class)
         .as(Season.class)
         .all().collectList();
+  }
+
+  public Mono<Long> findLastId() {
+    return dbClient.select()
+        .from(Season.class)
+        .orderBy(Sort.by(Order.desc("id")))
+        .map((r, m) -> r.get("id", Long.class))
+        .first()
+        .switchIfEmpty(Mono.just(0L));
   }
 }
