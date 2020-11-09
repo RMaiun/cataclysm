@@ -98,7 +98,7 @@ class PlayerControllerTest {
     p.setId(1L);
     p.setSurname("test");
     when(repository.findLastId()).thenReturn(Mono.just(34L));
-    when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.of(new Player(30L,"test","1",false))));
+    when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.of(new Player(30L,"test","1",false,false))));
     when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(35L));
     when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
 
