@@ -88,4 +88,11 @@ public class PlayerRepository {
         .first()
         .switchIfEmpty(Mono.just(0L));
   }
+
+  public Mono<Integer> removeAll() {
+    return dbClient.delete()
+        .from(Player.class)
+        .fetch()
+        .rowsUpdated();
+  }
 }

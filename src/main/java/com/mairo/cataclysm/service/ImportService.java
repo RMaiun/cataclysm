@@ -50,10 +50,20 @@ public class ImportService {
 
 
   private Mono<ImportDumpDto> storeDumpData(ImportDumpData data) {
-    return importSeasons(data.getSeasonList())
+    return clearTables()
+        .then(importSeasons(data.getSeasonList()))
         .flatMap(sSize -> importPlayers(data.getPlayersList())
             .map(pSize -> new ImportDumpDto().withPlayers(pSize).withSeasons(sSize)))
         .flatMap(result -> importRounds(data.getRoundsList(), data.getSeasonList()).map(result::withRounds));
+  }
+
+  private Mono<Integer> clearTables() {
+    return Mono.zip(
+        roundRepository.removeAll(),
+        seasonRepository.removeAll(),
+        playerRepository.removeAll())
+        .map(t -> t.getT1() + t.getT2() + t.getT3());
+
   }
 
   private Mono<InputStream> filePartToInputStream(FilePart file) {

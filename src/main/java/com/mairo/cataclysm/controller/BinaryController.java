@@ -6,6 +6,7 @@ import com.mairo.cataclysm.service.ExportService;
 import com.mairo.cataclysm.service.ImportService;
 import com.mairo.cataclysm.service.ReportGeneratorService;
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +40,19 @@ public class BinaryController {
   }
 
   @PostMapping(value = "/dump/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<ImportDumpDto> exportDump(@RequestPart("file") Mono<FilePart> filePartMono) {
+  public Mono<ImportDumpDto> importDump(@RequestPart("file") Mono<FilePart> filePartMono) {
     return filePartMono.flatMap(importService::importDump);
+  }
+
+  @GetMapping(value = "/dump/export", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public Mono<ResponseEntity<InputStreamResource>> exportDump() {
+    LocalDateTime now = LocalDateTime.now();
+    return exportService.export(now)
+        .map(res -> {
+          String fileName = String.format("%s.%s", res.getFileName(), res.getExtension());
+          return ResponseEntity.ok()
+              .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", fileName))
+              .body(new InputStreamResource(new ByteArrayInputStream(res.getData())));
+        });
   }
 }

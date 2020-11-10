@@ -52,4 +52,11 @@ public class SeasonRepository {
         .first()
         .switchIfEmpty(Mono.just(0L));
   }
+
+  public Mono<Integer> removeAll() {
+    return dbClient.delete()
+        .from(Season.class)
+        .fetch()
+        .rowsUpdated();
+  }
 }

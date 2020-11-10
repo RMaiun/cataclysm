@@ -2,11 +2,10 @@ package com.mairo.cataclysm.repository;
 
 import com.mairo.cataclysm.domain.Round;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 public class RoundRepository {
@@ -53,5 +52,11 @@ public class RoundRepository {
         .collectList();
   }
 
+  public Mono<Integer> removeAll() {
+    return dbClient.delete()
+        .from(Round.class)
+        .fetch()
+        .rowsUpdated();
+  }
 
 }
