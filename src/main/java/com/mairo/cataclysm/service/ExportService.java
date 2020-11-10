@@ -35,13 +35,15 @@ public class ExportService {
   private final PlayerRepository playerRepository;
   private final RoundRepository roundRepository;
   private final ObjectMapper objectMapper;
+  private final UserRightsService userRightsService;
 
   private final String SEASONS = "seasons.json";
   private final String PLAYERS = "players.json";
   private final String ROUNDS = "rounds_%s.json";
 
-  public Mono<BinaryFileDto> export(LocalDateTime before) {
-    return Mono.zip(findAllSeasons(), findAllPlayers(), findRoundsBeforeDate(before))
+  public Mono<BinaryFileDto> export(LocalDateTime before, String moderator) {
+    return userRightsService.checkUserIsAdmin(moderator)
+        .flatMap(__ -> Mono.zip(findAllSeasons(), findAllPlayers(), findRoundsBeforeDate(before)))
         .flatMap(this::prepareZipArchive);
   }
 

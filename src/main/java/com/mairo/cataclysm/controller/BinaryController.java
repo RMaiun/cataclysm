@@ -39,15 +39,15 @@ public class BinaryController {
         });
   }
 
-  @PostMapping(value = "/dump/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<ImportDumpDto> importDump(@RequestPart("file") Mono<FilePart> filePartMono) {
-    return filePartMono.flatMap(importService::importDump);
+  @PostMapping(value = "/dump/import/{moderator}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<ImportDumpDto> importDump(@RequestPart("file") Mono<FilePart> filePartMono, @PathVariable String moderator) {
+    return filePartMono.flatMap(filePart -> importService.importDump(filePart, moderator));
   }
 
-  @GetMapping(value = "/dump/export", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public Mono<ResponseEntity<InputStreamResource>> exportDump() {
+  @GetMapping(value = "/dump/export/{moderator}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public Mono<ResponseEntity<InputStreamResource>> exportDump(@PathVariable String moderator) {
     LocalDateTime now = LocalDateTime.now();
-    return exportService.export(now)
+    return exportService.export(now, moderator)
         .map(res -> {
           String fileName = String.format("%s.%s", res.getFileName(), res.getExtension());
           return ResponseEntity.ok()

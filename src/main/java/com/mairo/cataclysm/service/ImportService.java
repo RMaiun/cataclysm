@@ -39,10 +39,12 @@ public class ImportService {
   private final SeasonRepository seasonRepository;
   private final PlayerRepository playerRepository;
   private final RoundRepository roundRepository;
+  private final UserRightsService userRightsService;
 
 
-  public Mono<ImportDumpDto> importDump(FilePart file) {
-    return filePartToInputStream(file)
+  public Mono<ImportDumpDto> importDump(FilePart file, String moderator) {
+    return userRightsService.checkUserIsAdmin(moderator)
+        .flatMap(__ -> filePartToInputStream(file))
         .flatMap(this::fetchDumpData)
         .flatMap(MonoSupport::fromTry)
         .flatMap(this::storeDumpData);
