@@ -5,6 +5,7 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
 import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.exception.InvalidCommandException;
 import com.mairo.cataclysm.postprocessor.PostProcessor;
@@ -15,14 +16,13 @@ import com.mairo.cataclysm.rabbit.processor.LinkTidCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.ListPlayersCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.StatsCmdProcessor;
 import com.mairo.cataclysm.rabbit.processor.SubscriptionCmdProcessor;
+import com.mairo.cataclysm.utils.ErrorFormatter;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.rabbitmq.RabbitFlux;
 import reactor.rabbitmq.Receiver;
@@ -58,18 +58,27 @@ public class CommandReceiver {
 
     receiver.consumeAutoAck(rabbitProps.getInputQueue())
         .flatMap(delivery -> metadataParser.parseCommand(delivery.getBody()))
-        .flatMap(input -> processCmd(input).map(res -> Pair.of(input, res)))
-        .flatMap(p -> rabbitSender.send(p.getRight()).map(__ -> p))
-        .flatMap(p -> postProcess(p.getLeft()))
+        .flatMap(this::runProcessor)
         .subscribe();
   }
 
-  private Flux<OutputMessage> postProcess(BotInputMessage input) {
+  private Mono<List<OutputMessage>> runProcessor(BotInputMessage input) {
+    return processCmd(input)
+        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId(), ErrorFormatter.format(e)))))
+        .flatMap(rabbitSender::send)
+        .flatMap(output -> runPostProcess(input, output));
+  }
+
+  private Mono<List<OutputMessage>> runPostProcess(BotInputMessage input, OutputMessage output) {
+    return output.isError() ? Mono.empty() : postProcess(input);
+  }
+
+  private Mono<List<OutputMessage>> postProcess(BotInputMessage input) {
     return postProcessorList.stream()
         .filter(pp -> pp.cmds().contains(input.getCmd()))
         .findAny()
-        .map(pp -> pp.postProcess(input, msgId()))
-        .orElseGet(Flux::empty);
+        .map(pp -> pp.postProcess(input, msgId()).collectList())
+        .orElseGet(Mono::empty);
   }
 
   private Mono<OutputMessage> processCmd(BotInputMessage dto) {
