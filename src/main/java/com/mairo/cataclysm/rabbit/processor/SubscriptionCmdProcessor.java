@@ -8,7 +8,6 @@ import com.mairo.cataclysm.dto.SubscriptionActionDto;
 import com.mairo.cataclysm.dto.SubscriptionResultDto;
 import com.mairo.cataclysm.formatter.MessageFormatter;
 import com.mairo.cataclysm.service.SubscriptionService;
-import com.mairo.cataclysm.utils.ErrorFormatter;
 import com.mairo.cataclysm.utils.MonoSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,7 @@ public class SubscriptionCmdProcessor {
     return MonoSupport.fromTry(() -> objectMapper.convertValue(input.getData(), SubscriptionActionDto.class))
         .flatMap(subscriptionService::updateSubscriptionsStatus)
         .map(this::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)))
-        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId, ErrorFormatter.format(e)))));
+        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
   }
 
   private String format(SubscriptionResultDto dto) {

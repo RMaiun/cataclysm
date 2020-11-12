@@ -5,7 +5,6 @@ import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.formatter.ListPlayersMessageFormatter;
 import com.mairo.cataclysm.service.PlayerService;
-import com.mairo.cataclysm.utils.ErrorFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,8 +20,7 @@ public class ListPlayersCmdProcessor {
   public Mono<OutputMessage> preparePlayers(BotInputMessage dto, int msgId) {
     return playerService.findAllPlayers()
         .map(formatter::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(dto.getChatId(), msgId, str)))
-        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(dto.getChatId(), msgId, ErrorFormatter.format(e)))));
+        .map(str -> OutputMessage.ok(new BotOutputMessage(dto.getChatId(), msgId, str)));
   }
 
 }

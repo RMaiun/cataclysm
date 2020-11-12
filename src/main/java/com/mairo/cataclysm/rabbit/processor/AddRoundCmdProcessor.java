@@ -7,7 +7,6 @@ import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.formatter.StoredIdMessageFormatter;
 import com.mairo.cataclysm.service.RoundsService;
-import com.mairo.cataclysm.utils.ErrorFormatter;
 import com.mairo.cataclysm.utils.MonoSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,9 +24,7 @@ public class AddRoundCmdProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), AddRoundDto.class))
         .flatMap(roundsService::saveRound)
         .map(formatter::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)))
-        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId, ErrorFormatter.format(e)))));
-
+        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
   }
 
 }

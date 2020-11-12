@@ -25,7 +25,6 @@ public class LastCmdProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), FindLastRoundsDto.class))
         .flatMap(roundsService::findLastRoundsInSeason)
         .map(formatter::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)))
-        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId, ErrorFormatter.format(e)))));
+        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
   }
 }

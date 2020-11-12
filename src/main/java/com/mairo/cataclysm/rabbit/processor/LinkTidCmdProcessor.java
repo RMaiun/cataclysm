@@ -7,7 +7,6 @@ import com.mairo.cataclysm.dto.LinkTidDto;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.formatter.LinkTidFormatter;
 import com.mairo.cataclysm.service.SubscriptionService;
-import com.mairo.cataclysm.utils.ErrorFormatter;
 import com.mairo.cataclysm.utils.MonoSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,12 +20,11 @@ public class LinkTidCmdProcessor {
   private final SubscriptionService subscriptionService;
   private final LinkTidFormatter formatter;
 
-  public Mono<OutputMessage> process(BotInputMessage input, int msgId){
+  public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), LinkTidDto.class))
         .flatMap(subscriptionService::linkTidForPlayer)
         .map(formatter::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)))
-        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId, ErrorFormatter.format(e)))));
+        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
   }
 
 }
