@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.rabbit.processor;
+package com.mairo.cataclysm.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
@@ -6,20 +6,23 @@ import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.SubscriptionActionDto;
 import com.mairo.cataclysm.dto.SubscriptionResultDto;
-import com.mairo.cataclysm.formatter.MessageFormatter;
 import com.mairo.cataclysm.service.SubscriptionService;
 import com.mairo.cataclysm.utils.MonoSupport;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class SubscriptionCmdProcessor {
+public class SubscriptionCmdProcessor implements CommandProcessor {
 
+  private static final String SUBSCRIBE_CMD = "subscribe";
+  private static final String UNSUBSCRIBE_CMD = "unsubscribe";
   private final ObjectMapper objectMapper;
   private final SubscriptionService subscriptionService;
 
+  @Override
   public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
     return MonoSupport.fromTry(() -> objectMapper.convertValue(input.getData(), SubscriptionActionDto.class))
         .flatMap(subscriptionService::updateSubscriptionsStatus)
@@ -27,8 +30,13 @@ public class SubscriptionCmdProcessor {
         .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
   }
 
+  @Override
+  public List<String> commands() {
+    return List.of(SUBSCRIBE_CMD, UNSUBSCRIBE_CMD);
+  }
+
   private String format(SubscriptionResultDto dto) {
     String action = dto.isNotificationsEnabled() ? "enabled" : "disabled";
-    return String.format("%s Notifications were %s%s", MessageFormatter.PREFIX, action, MessageFormatter.SUFFIX);
+    return String.format("%s Notifications were %s%s", PREFIX, action, SUFFIX);
   }
 }

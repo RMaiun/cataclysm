@@ -1,22 +1,12 @@
 package com.mairo.cataclysm.rabbit;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.exception.InvalidCommandException;
 import com.mairo.cataclysm.postprocessor.PostProcessor;
+import com.mairo.cataclysm.processor.CommandProcessor;
 import com.mairo.cataclysm.properties.RabbitProps;
-import com.mairo.cataclysm.rabbit.processor.AddRoundCmdProcessor;
-import com.mairo.cataclysm.rabbit.processor.LastCmdProcessor;
-import com.mairo.cataclysm.rabbit.processor.LinkTidCmdProcessor;
-import com.mairo.cataclysm.rabbit.processor.ListPlayersCmdProcessor;
-import com.mairo.cataclysm.rabbit.processor.StatsCmdProcessor;
-import com.mairo.cataclysm.rabbit.processor.SubscriptionCmdProcessor;
-import com.mairo.cataclysm.utils.ErrorFormatter;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
 import java.util.List;
@@ -37,15 +27,8 @@ public class CommandReceiver {
   private final RabbitSender rabbitSender;
   private final ConnectionFactory connectionFactory;
   private final RabbitProps rabbitProps;
-
-  private final ListPlayersCmdProcessor listPlayersCmdProcessor;
-  private final AddRoundCmdProcessor addRoundCmdProcessor;
-  private final StatsCmdProcessor statsCmdProcessor;
-  private final LastCmdProcessor lastCmdProcessor;
-  private final LinkTidCmdProcessor linkTidCmdProcessor;
-  private final SubscriptionCmdProcessor subscriptionCmdProcessor;
-
-  private final List<PostProcessor> postProcessorList;
+  private final List<CommandProcessor> processors;
+  private final List<PostProcessor> postProcessors;
 
   @PostConstruct
   public void init() {
@@ -64,7 +47,7 @@ public class CommandReceiver {
 
   private Mono<List<OutputMessage>> runProcessor(BotInputMessage input) {
     return processCmd(input)
-        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId(), ErrorFormatter.format(e)))))
+        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId(), format(e)))))
         .flatMap(rabbitSender::send)
         .flatMap(output -> runPostProcess(input, output));
   }
@@ -74,27 +57,26 @@ public class CommandReceiver {
   }
 
   private Mono<List<OutputMessage>> postProcess(BotInputMessage input) {
-    return postProcessorList.stream()
-        .filter(pp -> pp.cmds().contains(input.getCmd()))
+    return postProcessors.stream()
+        .filter(pp -> pp.commands().contains(input.getCmd()))
         .findAny()
         .map(pp -> pp.postProcess(input, msgId()).collectList())
         .orElseGet(Mono::empty);
   }
 
   private Mono<OutputMessage> processCmd(BotInputMessage dto) {
-    return Match(dto.getCmd()).of(
-        Case($("listPlayers"), listPlayersCmdProcessor.preparePlayers(dto, msgId())),
-        Case($("addRound"), addRoundCmdProcessor.addPlayer(dto, msgId())),
-        Case($("shortStats"), statsCmdProcessor.prepareStats(dto, msgId())),
-        Case($("findLastRounds"), lastCmdProcessor.prepareStats(dto, msgId())),
-        Case($("linkTid"), linkTidCmdProcessor.process(dto, msgId())),
-        Case($("subscribe"), subscriptionCmdProcessor.process(dto, msgId())),
-        Case($("unsubscribe"), subscriptionCmdProcessor.process(dto, msgId())),
-        Case($(), Mono.error(new InvalidCommandException(dto.getCmd())))
-    );
+    return processors.stream()
+        .filter(p -> p.commands().contains(dto.getCmd()))
+        .findFirst()
+        .map(p -> p.process(dto, msgId()))
+        .orElseGet(() -> Mono.error(new InvalidCommandException(dto.getCmd())));
   }
 
   private int msgId() {
     return (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+  }
+
+  public String format(Throwable error) {
+    return String.format("%sERROR: %s%s", CommandProcessor.PREFIX, error.getMessage(), CommandProcessor.SUFFIX);
   }
 }

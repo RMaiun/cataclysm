@@ -7,7 +7,7 @@ import reactor.core.publisher.Flux;
 
 public interface PostProcessor {
 
-  List<String> cmds();
+  List<String> commands();
 
   Flux<OutputMessage> postProcess(BotInputMessage input, int msgId);
 }

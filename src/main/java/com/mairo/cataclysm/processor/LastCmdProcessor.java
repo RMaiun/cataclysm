@@ -1,19 +1,46 @@
-package com.mairo.cataclysm.formatter;
+package com.mairo.cataclysm.processor;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.dto.BotOutputMessage;
+import com.mairo.cataclysm.dto.FindLastRoundsDto;
 import com.mairo.cataclysm.dto.FoundLastRounds;
 import com.mairo.cataclysm.dto.FullRound;
+import com.mairo.cataclysm.dto.OutputMessage;
+import com.mairo.cataclysm.service.RoundsService;
 import com.mairo.cataclysm.utils.DateUtils;
+import com.mairo.cataclysm.utils.MonoSupport;
+import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
-public class LastRoundsMessageFormatter implements MessageFormatter<FoundLastRounds> {
+@RequiredArgsConstructor
+public class LastCmdProcessor implements CommandProcessor {
+
+  private static final String FIND_LAST_ROUNDS_CMD = "findLastRounds";
+  private final ObjectMapper mapper;
+  private final RoundsService roundsService;
+
 
   @Override
-  public String format(FoundLastRounds data) {
+  public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
+    return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), FindLastRoundsDto.class))
+        .flatMap(roundsService::findLastRoundsInSeason)
+        .map(this::format)
+        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
+  }
 
+  @Override
+  public List<String> commands() {
+    return List.of(FIND_LAST_ROUNDS_CMD);
+  }
+
+  private String format(FoundLastRounds data) {
     if (isEmpty(data.getRounds())) {
       return String.format("%s There are no games in season %s%s", PREFIX, data.getSeason(), SUFFIX);
     } else {

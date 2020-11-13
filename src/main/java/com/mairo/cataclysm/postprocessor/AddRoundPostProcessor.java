@@ -11,7 +11,7 @@ import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.formatter.MessageFormatter;
+import com.mairo.cataclysm.processor.CommandProcessor;
 import com.mairo.cataclysm.rabbit.RabbitSender;
 import com.mairo.cataclysm.service.PlayerService;
 import java.util.Collections;
@@ -32,7 +32,7 @@ public class AddRoundPostProcessor implements PostProcessor {
   private final RabbitSender rabbitSender;
 
   @Override
-  public List<String> cmds() {
+  public List<String> commands() {
     return Collections.singletonList("addRound");
   }
 
@@ -66,6 +66,6 @@ public class AddRoundPostProcessor implements PostProcessor {
   private String formatNotification(String opponents, boolean winner) {
     String action = winner ? "WIN" : "LOSE";
     return format("%sYour %s against %s was stored%s",
-        MessageFormatter.PREFIX, action, capitalize(opponents), MessageFormatter.SUFFIX);
+        CommandProcessor.PREFIX, action, capitalize(opponents), CommandProcessor.SUFFIX);
   }
 }

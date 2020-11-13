@@ -1,16 +1,42 @@
-package com.mairo.cataclysm.formatter;
+package com.mairo.cataclysm.processor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.dto.BotOutputMessage;
+import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.SeasonShortStats;
+import com.mairo.cataclysm.service.StatisticsService;
+import com.mairo.cataclysm.utils.MonoSupport;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
-public class StatsMessageFormatter implements MessageFormatter<SeasonShortStats> {
+@RequiredArgsConstructor
+public class StatsCmdProcessor implements CommandProcessor {
+
+  private static final String SHORT_STATS_CMD = "shortStats";
+  private final ObjectMapper mapper;
+  private final StatisticsService statisticsService;
 
   @Override
-  public String format(SeasonShortStats data) {
+  public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
+    return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), SeasonShortStats.class))
+        .flatMap(dto -> statisticsService.seasonShortInfoStatistics(dto.getSeason()))
+        .map(this::format)
+        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
+  }
+
+  @Override
+  public List<String> commands() {
+    return List.of(SHORT_STATS_CMD);
+  }
+
+  private String format(SeasonShortStats data) {
     if (data.getGamesPlayed() == 0) {
       return String.format("%sNo games found in season %s%s", PREFIX, data.getSeason(), SUFFIX);
     }
