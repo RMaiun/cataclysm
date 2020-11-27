@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.properties.RabbitProps;
 import com.mairo.cataclysm.rabbit.RabbitSender;
 import com.rabbitmq.client.ConnectionFactory;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import reactor.rabbitmq.QueueSpecification;
 import reactor.rabbitmq.RabbitFlux;
 import reactor.rabbitmq.Sender;
 import reactor.rabbitmq.SenderOptions;
+import reactor.util.retry.Retry;
 
 @Configuration
 @RequiredArgsConstructor
@@ -50,9 +52,14 @@ public class RabbitConfiguration {
 
     Sender sender = RabbitFlux.createSender(senderOptions);
     sender.declare(QueueSpecification.queue(rabbitProperties.getInputQueue()))
+        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
         .then(sender.declare(QueueSpecification.queue(rabbitProperties.getOutputQueue())))
         .then(sender.declare(QueueSpecification.queue(rabbitProperties.getErrorQueue())))
         .then(sender.declare(QueueSpecification.queue(rabbitProperties.getBinaryQueue())))
+        .doOnError((err) -> {
+          err.printStackTrace();
+          System.exit(1);
+        })
         .subscribe();
     return sender;
   }
