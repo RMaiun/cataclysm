@@ -26,7 +26,7 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 @Configuration
 @EnableR2dbcRepositories
 @RequiredArgsConstructor
-class R2DBCConfiguration/* extends AbstractR2dbcConfiguration */ {
+class R2DBCConfiguration {
 
   private final DbProps dbProps;
 
@@ -52,8 +52,6 @@ class R2DBCConfiguration/* extends AbstractR2dbcConfiguration */ {
         .acquireRetry(3)
         .build();
     return new ConnectionPool(configuration);
-
-    // return connectionFactory;
   }
 
   @Bean

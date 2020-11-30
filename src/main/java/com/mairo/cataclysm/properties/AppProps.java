@@ -18,4 +18,5 @@ public class AppProps {
   private int loseShutoutPoints;
   private AlgorithmType algorithm;
   private String archiveReceiver;
+  private boolean notificationsEnabled;
 }

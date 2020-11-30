@@ -26,11 +26,6 @@ public class RabbitConfiguration {
   private final RabbitProps rabbitProperties;
   private final ObjectMapper objectMapper;
 
-  // @PreDestroy
-  // public void close(ConnectionFactory rabbitConnectionFactory) throws Exception {
-  //   Objects.requireNonNull(rabbitConnectionFactory.).close();
-  // }
-
   @Bean()
   ConnectionFactory rabbitConnectionFactory() {
     ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -76,6 +71,4 @@ public class RabbitConfiguration {
         new ChannelPoolOptions().maxCacheSize(10)
     );
   }
-
-
 }

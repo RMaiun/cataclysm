@@ -6,6 +6,7 @@ import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.exception.InvalidCommandException;
 import com.mairo.cataclysm.postprocessor.PostProcessor;
 import com.mairo.cataclysm.processor.CommandProcessor;
+import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.properties.RabbitProps;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
@@ -27,6 +28,7 @@ public class CommandReceiver {
   private final RabbitSender rabbitSender;
   private final ConnectionFactory connectionFactory;
   private final RabbitProps rabbitProps;
+  private final AppProps appProps;
   private final List<CommandProcessor> processors;
   private final List<PostProcessor> postProcessors;
 
@@ -57,11 +59,14 @@ public class CommandReceiver {
   }
 
   private Mono<List<OutputMessage>> postProcess(BotInputMessage input) {
-    return postProcessors.stream()
-        .filter(pp -> pp.commands().contains(input.getCmd()))
-        .findAny()
-        .map(pp -> pp.postProcess(input, msgId()).collectList())
-        .orElseGet(Mono::empty);
+    if (appProps.isNotificationsEnabled()) {
+      return postProcessors.stream()
+          .filter(pp -> pp.commands().contains(input.getCmd()))
+          .findAny()
+          .map(pp -> pp.postProcess(input, msgId()).collectList())
+          .orElseGet(Mono::empty);
+    }
+    return Mono.empty();
   }
 
   private Mono<OutputMessage> processCmd(BotInputMessage dto) {
