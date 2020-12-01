@@ -35,7 +35,7 @@ public interface StringValidationFunctions {
   static ValidationFunction<String> onlyNumbers() {
     return vf -> vf.getData().chars().allMatch(Character::isDigit)
         ? emptyList()
-        : singletonList(String.format("Field %s must contain only letters", vf.getField()));
+        : singletonList(String.format("Field %s must contain only numbers", vf.getField()));
   }
 
   static ValidationFunction<String> isLong() {
