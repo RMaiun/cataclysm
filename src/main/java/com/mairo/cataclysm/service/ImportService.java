@@ -26,6 +26,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -34,6 +36,8 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class ImportService {
+
+  public static final Logger logger = LogManager.getLogger(ImportService.class);
 
   private final ObjectMapper objectMapper;
   private final SeasonRepository seasonRepository;
@@ -75,6 +79,7 @@ public class ImportService {
 
   private Mono<Try<ImportDumpData>> fetchDumpData(InputStream is) {
     return Mono.fromCallable(() -> {
+      logger.info("Start data import from archive dump");
       List<Season> seasonList = new ArrayList<>();
       List<Player> playersList = new ArrayList<>();
       List<Round> roundsList = new ArrayList<>();
@@ -100,6 +105,7 @@ public class ImportService {
         e.printStackTrace();
         return Try.failure(e);
       }
+      logger.info("Data import from archive dump successfully finished");
       return Try.success(new ImportDumpData(seasonList, playersList, roundsList));
     });
   }

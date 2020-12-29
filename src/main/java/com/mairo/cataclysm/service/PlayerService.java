@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -27,12 +29,15 @@ import reactor.util.function.Tuple2;
 @RequiredArgsConstructor
 public class PlayerService {
 
+  public static final Logger logger = LogManager.getLogger(PlayerService.class);
+
   private final PlayerRepository playerRepository;
   private final UserRightsService userRightsService;
   private final PlayerServiceHelper psDelegate;
 
   Mono<Map<Long, String>> findAllPlayersAsMap() {
     return playerRepository.listAll()
+        .doOnNext(data -> logger.info("Found {} players", data.size()))
         .map(list -> list.stream()
             .collect(Collectors.toMap(Player::getId, Player::getSurname)));
   }

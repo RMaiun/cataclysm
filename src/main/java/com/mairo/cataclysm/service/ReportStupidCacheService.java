@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ReportStupidCacheService {
 
-  private Map<String, BinaryFileDto> cache = new ConcurrentHashMap<>();
+  private final Map<String, BinaryFileDto> cache = new ConcurrentHashMap<>();
 
   public Mono<BinaryFileDto> memorize(BinaryFileDto dto) {
     String key = dto.getFileName();

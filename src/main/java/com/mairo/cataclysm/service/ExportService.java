@@ -23,6 +23,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.output.CloseShieldOutputStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
@@ -30,6 +32,8 @@ import reactor.util.function.Tuple3;
 @Service
 @RequiredArgsConstructor
 public class ExportService {
+
+  public static final Logger logger = LogManager.getLogger(ExportService.class);
 
   private final SeasonRepository seasonRepository;
   private final PlayerRepository playerRepository;
@@ -48,6 +52,7 @@ public class ExportService {
   }
 
   private Mono<BinaryFileDto> prepareZipArchive(Tuple3<List<Season>, List<Player>, List<Round>> data) {
+    logger.info("Starting archive preparation for export");
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ZipOutputStream zipOutputStream = new ZipOutputStream(bos);
     Try<ZipOutputStream> zosResult = Try.of(() -> zipOutputStream)
@@ -55,7 +60,7 @@ public class ExportService {
         .flatMap(zos -> writeZipEntry(data.getT2(), PLAYERS, zos))
         .flatMap(zos -> prepareRoundsBySeason(data.getT3(), data.getT1(), zos))
         .andFinallyTry(zipOutputStream::close);
-
+    logger.info("Archive preparation for export was successfully finished");
     return MonoSupport.fromTry(zosResult)
         .map(__ -> bos.toByteArray())
         .map(this::prepareResultDto);
