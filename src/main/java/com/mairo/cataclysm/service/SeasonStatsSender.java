@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.schedulers;
+package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.processor.CommandProcessor.LINE_SEPARATOR;
 import static com.mairo.cataclysm.processor.CommandProcessor.PREFIX;
@@ -17,9 +17,6 @@ import com.mairo.cataclysm.dto.PlayerStats;
 import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.rabbit.RabbitSender;
-import com.mairo.cataclysm.service.PlayerService;
-import com.mairo.cataclysm.service.RoundsService;
-import com.mairo.cataclysm.service.StatisticsService;
 import com.mairo.cataclysm.utils.SeasonUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;

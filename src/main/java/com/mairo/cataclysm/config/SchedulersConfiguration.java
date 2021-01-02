@@ -1,6 +1,6 @@
 package com.mairo.cataclysm.config;
 
-import com.mairo.cataclysm.schedulers.SeasonStatsSender;
+import com.mairo.cataclysm.service.SeasonStatsSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
