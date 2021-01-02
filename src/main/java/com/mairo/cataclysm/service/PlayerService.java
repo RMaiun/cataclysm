@@ -55,7 +55,7 @@ public class PlayerService {
 
   public Mono<IdDto> addPlayer(AddPlayerDto dto) {
     return validate(dto, addPlayerValidationType)
-        .flatMap(this::processPlayerAdd);
+        .then(processPlayerAdd(dto));
   }
 
   public Mono<Player> findPlayerByName(String surname) {

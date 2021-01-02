@@ -21,13 +21,13 @@ public class StatisticsService {
 
   public Mono<SeasonStatsRows> seasonStatisticsRows(String seasonName) {
     return validate(seasonName, seasonValidationType)
-        .flatMap(__ -> roundsService.findAllRounds(seasonName))
+        .then(roundsService.findAllRounds(seasonName))
         .map(statsServiceHelper::prepareSeasonStatsTable);
   }
 
   public Mono<SeasonShortStats> seasonShortInfoStatistics(String seasonName) {
     return validate(seasonName, seasonValidationType)
-        .flatMap(__ -> roundsService.findAllRounds(seasonName))
+        .then(roundsService.findAllRounds(seasonName))
         .map(rounds -> statsServiceHelper.prepareSeasonShortStats(seasonName, rounds, appProperties.getAlgorithm()));
   }
 }
