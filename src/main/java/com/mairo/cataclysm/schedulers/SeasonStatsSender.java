@@ -52,13 +52,13 @@ public class SeasonStatsSender {
   private final RoundsService roundsService;
 
 
-  public Flux<OutputMessage> sendFinalSeasonStats(boolean once) {
+  public Flux<OutputMessage> sendFinalSeasonStats() {
     return Mono.just(appProps.isNotificationsEnabled())
         .doOnNext(__ -> logger.info("Starting Final Season Stats Reports generation with notificationEnabled {}", appProps.isNotificationsEnabled()))
         .filter(it -> it)
         .then(Mono.just(ZonedDateTime.now(ZoneId.of(appProps.getReportTimezone()))))
         .doOnNext(date -> logger.info("Check that {} equals to last day of current season where time = 20:00", date))
-        .filter(once ? x -> true : this::isTimingCorrect)
+        .filter(this::isTimingCorrect)
         .doOnNext(__ -> logger.info("Final Season Stats Reports generation criteria were passed successfully"))
         .flatMap(__ -> findPlayersWithRanks())
         .doOnNext(ranks -> logger.info("{} users will receive final stats notification", ranks.size()))
@@ -74,9 +74,9 @@ public class SeasonStatsSender {
 
   private Mono<List<PlayerRank>> findPlayersWithRanks() {
     return Mono.zip(
-        statisticsService.seasonShortInfoStatistics("S4|2020"),
+        statisticsService.seasonShortInfoStatistics(currentSeason()),
         playerService.findAllPlayers(),
-        roundsService.findAllRounds("S4|2020"))
+        roundsService.findAllRounds(currentSeason()))
         .map(this::preparePlayerRanks);
   }
 
@@ -123,7 +123,7 @@ public class SeasonStatsSender {
   private StringBuilder messageBuilder(PlayerRank rank) {
     return new StringBuilder()
         .append(PREFIX)
-        .append(String.format("Season %s is successfully closed.", "S4|2020")) //todo
+        .append(String.format("Season %s is successfully closed.", currentSeason()))
         .append(LINE_SEPARATOR)
         .append(String.format("%d players played %d games in total.", rank.getAllPlayers(), rank.getAllGames()))
         .append(LINE_SEPARATOR);

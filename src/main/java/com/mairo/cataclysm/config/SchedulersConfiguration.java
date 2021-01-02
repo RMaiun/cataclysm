@@ -11,19 +11,9 @@ public class SchedulersConfiguration {
 
   private final SeasonStatsSender seasonStatsSender;
 
-  private static boolean sendOnce = false;
-
   @Scheduled(cron = "0 0 20 * * ?")
   public void finalSeasonReportNotifications() {
-    seasonStatsSender.sendFinalSeasonStats(false).subscribe();
+    seasonStatsSender.sendFinalSeasonStats().subscribe();
   }
 
-  @Scheduled(cron = "0 0/1 * * * ?")
-  public void finalSeasonReportNotificationsOnce() {
-    if (!sendOnce) {
-      sendOnce = true;
-      System.out.println("Once");
-      seasonStatsSender.sendFinalSeasonStats(true).subscribe();
-    }
-  }
 }
