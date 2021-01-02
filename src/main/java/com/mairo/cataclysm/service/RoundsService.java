@@ -16,10 +16,9 @@ import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.dto.PlayerSeasonData;
 import com.mairo.cataclysm.dto.PlayerSeasonRoundsData;
 import com.mairo.cataclysm.exception.SamePlayersInRoundException;
-import com.mairo.cataclysm.exception.SeasonNotFoundException;
 import com.mairo.cataclysm.helper.RoundServiceHelper;
+import com.mairo.cataclysm.model.SeasonModel;
 import com.mairo.cataclysm.repository.RoundRepository;
-import com.mairo.cataclysm.repository.SeasonRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ import reactor.core.publisher.Mono;
 public class RoundsService {
 
   private final PlayerService playerService;
-  private final SeasonRepository seasonRepository;
+  private final SeasonModel seasonModel;
   private final RoundRepository roundRepository;
   private final RoundServiceHelper roundServiceHelper;
   private final UserRightsService userRightsService;
@@ -44,7 +43,7 @@ public class RoundsService {
   public Mono<FoundLastRounds> findLastRoundsInSeason(FindLastRoundsDto dto) {
     return validate(dto, listLastRoundsValidationType)
         .flatMap(__ -> playerService.findAllPlayersAsMap())
-        .zipWith(seasonRepository.getSeason(dto.getSeason()),
+        .zipWith(seasonModel.findSeason(dto.getSeason()),
             (players, season) -> Pair.of(season, players))
         .flatMap(t -> preparePlayerSeasonData(t, dto.getQty()))
         .map(roundServiceHelper::transformRounds)
@@ -58,7 +57,7 @@ public class RoundsService {
 
   public Mono<List<FullRound>> findAllRounds(String seasonName) {
     return playerService.findAllPlayersAsMap()
-        .zipWith(seasonRepository.getSeason(seasonName),
+        .zipWith(seasonModel.findSeason(seasonName),
             (players, season) -> new PlayerSeasonData(season, players))
         .flatMap(psd -> roundRepository.listRoundsBySeason(psd.getSeason().getId())
             .map(rounds -> new PlayerSeasonRoundsData(psd.getSeason(), psd.getPlayers(), rounds)))
@@ -74,7 +73,7 @@ public class RoundsService {
   }
 
   private Mono<Pair<Season, List<Player>>> checkPlayersExist(AddRoundDto dto) {
-    return safeSeasonGet(currentSeason())
+    return seasonModel.findSeasonSafely(currentSeason())
         .zipWith(playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())),
             Pair::of);
   }
@@ -91,21 +90,5 @@ public class RoundsService {
       return Mono.error(new SamePlayersInRoundException());
     }
     return Mono.empty();
-  }
-
-  private Mono<Season> safeSeasonGet(String season) {
-    return seasonRepository.getSeason(season)
-        .onErrorResume(err -> prepareAbsentSeason(season));
-  }
-
-  private Mono<Season> prepareAbsentSeason(String expected) {
-    String current = currentSeason();
-    if (current.equals(expected)) {
-      return seasonRepository.findLastId()
-          .map(id -> new Season(id + 1, expected))
-          .flatMap(season -> seasonRepository.saveSeason(season).map(__ -> season));
-    } else {
-      return Mono.error(new SeasonNotFoundException(expected));
-    }
   }
 }
