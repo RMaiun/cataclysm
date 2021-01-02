@@ -42,7 +42,7 @@ public class RoundsService {
 
   public Mono<FoundLastRounds> findLastRoundsInSeason(FindLastRoundsDto dto) {
     return validate(dto, listLastRoundsValidationType)
-        .flatMap(__ -> playerService.findAllPlayersAsMap())
+        .then(playerService.findAllPlayersAsMap())
         .zipWith(seasonModel.findSeason(dto.getSeason()),
             (players, season) -> Pair.of(season, players))
         .flatMap(t -> preparePlayerSeasonData(t, dto.getQty()))
@@ -66,7 +66,7 @@ public class RoundsService {
 
   public Mono<IdDto> saveRound(AddRoundDto dto) {
     return validate(dto, addRoundValidationType)
-        .flatMap(__ -> userRightsService.checkUserIsAdmin(dto.getModerator()))
+        .then(userRightsService.checkUserIsAdmin(dto.getModerator()))
         .flatMap(__ -> checkAllPlayersAreDifferent(dto).then(checkPlayersExist(dto)))
         .flatMap(p -> saveWithCacheRefresh(p, dto))
         .map(t -> new IdDto(t.getKey()));

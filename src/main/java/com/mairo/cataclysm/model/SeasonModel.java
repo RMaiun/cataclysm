@@ -17,7 +17,7 @@ public class SeasonModel {
 
   public static final Logger logger = LogManager.getLogger(SeasonModel.class);
 
-  private SeasonRepository seasonRepository;
+  private final SeasonRepository seasonRepository;
 
   public Mono<Season> findSeason(String season) {
     return seasonRepository.getSeason(season);
