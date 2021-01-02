@@ -1,6 +1,7 @@
 package com.mairo.cataclysm.processor;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
@@ -15,6 +16,7 @@ import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -32,7 +34,7 @@ public class LastCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), FindLastRoundsDto.class))
         .flatMap(roundsService::findLastRoundsInSeason)
         .map(this::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
+        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }
 
   @Override
@@ -52,8 +54,8 @@ public class LastCmdProcessor implements CommandProcessor {
 
   private String formatRound(FullRound round) {
     String date = DateUtils.formatDateWithHour(round.getCreated());
-    String winners = String.format("%s/%s", round.getWinner1(), round.getWinner2());
-    String losers = String.format("%s/%s", round.getLoser1(), round.getLoser2());
+    String winners = String.format("%s/%s", capitalize(round.getWinner1()), capitalize(round.getWinner2()));
+    String losers = String.format("%s/%s", capitalize(round.getLoser1()), capitalize(round.getLoser2()));
     StringBuilder sb = new StringBuilder();
     sb.append("date: ").append(date).append(LINE_SEPARATOR);
     sb.append("winners: ").append(winners).append(LINE_SEPARATOR);

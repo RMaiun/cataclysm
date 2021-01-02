@@ -2,7 +2,6 @@ package com.mairo.cataclysm.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
-import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.SubscriptionActionDto;
 import com.mairo.cataclysm.dto.SubscriptionResultDto;
@@ -27,7 +26,7 @@ public class SubscriptionCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> objectMapper.convertValue(input.getData(), SubscriptionActionDto.class))
         .flatMap(subscriptionService::updateSubscriptionsStatus)
         .map(this::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
+        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }
 
   @Override

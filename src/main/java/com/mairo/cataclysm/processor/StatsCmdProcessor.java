@@ -1,5 +1,7 @@
 package com.mairo.cataclysm.processor;
 
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.BotOutputMessage;
@@ -28,7 +30,7 @@ public class StatsCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), SeasonShortStats.class))
         .flatMap(dto -> statisticsService.seasonShortInfoStatistics(dto.getSeason()))
         .map(this::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
+        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }
 
   @Override
@@ -45,12 +47,12 @@ public class StatsCmdProcessor implements CommandProcessor {
         ? "Nobody played more than 30 games"
         : IntStream.range(0, data.getPlayersRating().size())
             .mapToObj(i -> String.format("%d. %s %s", i + 1,
-                StringUtils.capitalize(data.getPlayersRating().get(i).getSurname()),
+                capitalize(data.getPlayersRating().get(i).getSurname()),
                 data.getPlayersRating().get(i).getScore()))
             .collect(Collectors.joining(LINE_SEPARATOR));
 
-    String bestStreak = String.format("%s: %d games in row", data.getBestStreak().getPlayer(), data.getBestStreak().getGames());
-    String worstStreak = String.format("%s: %d games in row", data.getWorstStreak().getPlayer(), data.getWorstStreak().getGames());
+    String bestStreak = String.format("%s: %d games in row", capitalize(data.getBestStreak().getPlayer()), data.getBestStreak().getGames());
+    String worstStreak = String.format("%s: %d games in row", capitalize(data.getWorstStreak().getPlayer()), data.getWorstStreak().getGames());
     String separator = StringUtils.repeat("-", 30);
     return PREFIX
         + "Season: " + data.getSeason() + LINE_SEPARATOR

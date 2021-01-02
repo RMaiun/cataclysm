@@ -35,7 +35,7 @@ public class PlayerService {
   private final UserRightsService userRightsService;
   private final PlayerServiceHelper psDelegate;
 
-  Mono<Map<Long, String>> findAllPlayersAsMap() {
+  public Mono<Map<Long, String>> findAllPlayersAsMap() {
     return playerRepository.listAll()
         .doOnNext(data -> logger.info("Found {} players", data.size()))
         .map(list -> list.stream()
@@ -43,7 +43,9 @@ public class PlayerService {
   }
 
   public Mono<FoundAllPlayers> findAllPlayers() {
-    return playerRepository.listAll().map(FoundAllPlayers::new);
+    return playerRepository.listAll()
+        .doOnNext(players -> logger.info("Found {} players", players.size()))
+        .map(FoundAllPlayers::new);
   }
 
   Mono<List<Player>> checkPlayersExist(List<String> surnameList) {

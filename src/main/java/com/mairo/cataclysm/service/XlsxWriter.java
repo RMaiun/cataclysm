@@ -1,10 +1,13 @@
 package com.mairo.cataclysm.service;
 
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
 import com.mairo.cataclysm.dto.BinaryFileDto;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
 import com.mairo.cataclysm.exception.WriteXlsxDocumentException;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -64,7 +67,7 @@ public class XlsxWriter {
         .forEach(i -> {
           Cell cell = row.createCell(i + 1);
           cell.setCellStyle(defaultCellStyle(workbook));
-          cell.setCellValue(statsRows.getHeaders().get(i));
+          cell.setCellValue(capitalize(statsRows.getHeaders().get(i)));
         });
   }
 

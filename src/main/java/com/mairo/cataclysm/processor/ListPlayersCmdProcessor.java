@@ -1,7 +1,6 @@
 package com.mairo.cataclysm.processor;
 
 import com.mairo.cataclysm.dto.BotInputMessage;
-import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.service.PlayerService;
@@ -23,7 +22,7 @@ public class ListPlayersCmdProcessor implements CommandProcessor {
   public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
     return playerService.findAllPlayers()
         .map(this::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
+        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }
 
   @Override

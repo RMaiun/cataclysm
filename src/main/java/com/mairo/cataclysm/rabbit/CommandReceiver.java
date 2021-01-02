@@ -1,7 +1,6 @@
 package com.mairo.cataclysm.rabbit;
 
 import com.mairo.cataclysm.dto.BotInputMessage;
-import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.exception.InvalidCommandException;
 import com.mairo.cataclysm.postprocessor.PostProcessor;
@@ -49,7 +48,7 @@ public class CommandReceiver {
 
   private Mono<List<OutputMessage>> runProcessor(BotInputMessage input) {
     return processCmd(input)
-        .onErrorResume(e -> Mono.just(OutputMessage.error(new BotOutputMessage(input.getChatId(), msgId(), format(e)))))
+        .onErrorResume(e -> Mono.just(OutputMessage.error(input.getChatId(), msgId(), format(e))))
         .flatMap(rabbitSender::send)
         .flatMap(output -> runPostProcess(input, output));
   }

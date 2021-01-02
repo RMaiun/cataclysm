@@ -13,7 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,13 +21,13 @@ public class RoundServiceHelper {
   private FullRound transformRound(Round r, Map<Long, String> pm, String s) {
     return new FullRound(
         r.getWinner1(),
-        StringUtils.capitalize(pm.get(r.getWinner1())),
+        pm.get(r.getWinner1()),
         r.getWinner2(),
-        StringUtils.capitalize(pm.get(r.getWinner2())),
+        pm.get(r.getWinner2()),
         r.getLoser1(),
-        StringUtils.capitalize(pm.get(r.getLoser1())),
+        pm.get(r.getLoser1()),
         r.getLoser2(),
-        StringUtils.capitalize(pm.get(r.getLoser2())),
+        pm.get(r.getLoser2()),
         DateUtils.utcToEet(r.getCreated()),
         s, r.isShutout());
   }

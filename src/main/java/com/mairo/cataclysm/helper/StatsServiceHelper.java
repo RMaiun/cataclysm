@@ -83,7 +83,7 @@ public class StatsServiceHelper {
     BigDecimal foundWins = winRounds.getOrDefault(entry.getKey(), BigDecimal.ZERO);
     BigDecimal result = foundWins.divide(BigDecimal.valueOf(entry.getValue()), new MathContext(3, RoundingMode.HALF_EVEN));
 
-    BigDecimal roundedResult = result.setScale(3, RoundingMode.UNNECESSARY);
+    BigDecimal roundedResult = result.setScale(3, RoundingMode.HALF_EVEN);
     return roundedResult.toString();
   }
 
@@ -189,7 +189,7 @@ public class StatsServiceHelper {
         .collect(groupingBy(StatsCalcData::getPlayer, mapping(StatsCalcData::getQty, reducing(0, Integer::sum))))
         .entrySet().stream();
     if (filterByGames) {
-      return stream.filter(e -> e.getValue() >= 30)
+      return stream.filter(e -> e.getValue() >= appProps.getExpectedGames())
           .collect(toMap(Entry::getKey, Entry::getValue));
     } else {
       return stream.collect(toMap(Entry::getKey, Entry::getValue));

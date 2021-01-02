@@ -19,4 +19,6 @@ public class AppProps {
   private AlgorithmType algorithm;
   private String archiveReceiver;
   private boolean notificationsEnabled;
+  private int expectedGames;
+  private String reportTimezone;
 }

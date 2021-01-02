@@ -8,6 +8,8 @@ app:
   algorithm: "PERCENTAGE"
   archiveReceiver: "маюн"
   notificationsEnabled: false
+  expectedGames: 30
+  reportTimezone: "Europe/Kiev"
 
 db:
   host: "127.0.0.1"

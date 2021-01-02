@@ -28,7 +28,7 @@ public class AddPlayerCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), AddPlayerDto.class))
         .flatMap(playerService::addPlayer)
         .map(this::format)
-        .map(str -> OutputMessage.ok(new BotOutputMessage(input.getChatId(), msgId, str)));
+        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }
 
   @Override

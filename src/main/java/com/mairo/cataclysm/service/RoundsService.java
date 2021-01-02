@@ -56,7 +56,7 @@ public class RoundsService {
         .map(rounds -> new PlayerSeasonRoundsData(t.getKey(), t.getValue(), rounds));
   }
 
-  Mono<List<FullRound>> findAllRounds(String seasonName) {
+  public Mono<List<FullRound>> findAllRounds(String seasonName) {
     return playerService.findAllPlayersAsMap()
         .zipWith(seasonRepository.getSeason(seasonName),
             (players, season) -> new PlayerSeasonData(season, players))
