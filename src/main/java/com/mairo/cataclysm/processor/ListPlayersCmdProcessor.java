@@ -3,7 +3,7 @@ package com.mairo.cataclysm.processor;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.service.PlayerService;
+import com.mairo.cataclysm.model.PlayerModel;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +15,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ListPlayersCmdProcessor implements CommandProcessor {
 
-  private static final String LIST_PLAYERS_CMD = "listPlayers";
-  private final PlayerService playerService;
+  private final PlayerModel playerModel;
 
   @Override
   public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
-    return playerService.findAllPlayers()
+    return playerModel.findAllPlayers()
         .map(this::format)
         .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }

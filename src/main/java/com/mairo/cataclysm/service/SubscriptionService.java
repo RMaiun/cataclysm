@@ -3,6 +3,7 @@ package com.mairo.cataclysm.service;
 import com.mairo.cataclysm.dto.LinkTidDto;
 import com.mairo.cataclysm.dto.SubscriptionActionDto;
 import com.mairo.cataclysm.dto.SubscriptionResultDto;
+import com.mairo.cataclysm.model.PlayerModel;
 import com.mairo.cataclysm.validation.ValidationTypes;
 import com.mairo.cataclysm.validation.Validator;
 import java.time.LocalDateTime;
@@ -15,21 +16,21 @@ import reactor.core.publisher.Mono;
 public class SubscriptionService {
 
   private final UserRightsService userRightsService;
-  private final PlayerService playerService;
+  private final PlayerModel playerModel;
 
 
   public Mono<SubscriptionResultDto> linkTidForPlayer(LinkTidDto dto) {
     return Validator.validate(dto, ValidationTypes.linkTidValidationType)
         .flatMap(__ -> userRightsService.checkUserIsAdmin(dto.getModerator()))
-        .flatMap(admin -> playerService.enableNotifications(dto.getNameToLink(), dto.getTid()))
+        .flatMap(admin -> playerModel.enableNotifications(dto.getNameToLink(), dto.getTid()))
         .map(res -> new SubscriptionResultDto(dto.getNameToLink(), dto.getTid(), LocalDateTime.now(), true));
   }
 
   public Mono<SubscriptionResultDto> updateSubscriptionsStatus(SubscriptionActionDto dto) {
     return Validator.validate(dto, ValidationTypes.subscriptionActionValidationType)
-        .flatMap(__ -> playerService.findPlayerByTid(dto.getTid()))
+        .flatMap(__ -> playerModel.findPlayerByTid(dto.getTid()))
         .map(p -> p.withNotificationsEnabled(dto.isEnableSubscriptions()))
-        .flatMap(playerService::updatePlayer)
+        .flatMap(playerModel::updatePlayer)
         .map(p -> new SubscriptionResultDto(p.getSurname(), p.getTid(), LocalDateTime.now(), dto.isEnableSubscriptions()));
   }
 

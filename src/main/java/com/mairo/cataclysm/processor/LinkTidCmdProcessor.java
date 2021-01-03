@@ -16,8 +16,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class LinkTidCmdProcessor implements CommandProcessor {
 
-  private static final String LINK_TID_CMD = "linkTid";
-
   @Override
   public List<String> commands() {
     return List.of(LINK_TID_CMD);

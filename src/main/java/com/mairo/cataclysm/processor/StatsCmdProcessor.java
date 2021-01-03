@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
-import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.service.StatisticsService;
@@ -21,7 +20,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class StatsCmdProcessor implements CommandProcessor {
 
-  private static final String SHORT_STATS_CMD = "shortStats";
   private final ObjectMapper mapper;
   private final StatisticsService statisticsService;
 

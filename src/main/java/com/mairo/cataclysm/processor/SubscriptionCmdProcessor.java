@@ -16,8 +16,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class SubscriptionCmdProcessor implements CommandProcessor {
 
-  private static final String SUBSCRIBE_CMD = "subscribe";
-  private static final String UNSUBSCRIBE_CMD = "unsubscribe";
   private final ObjectMapper objectMapper;
   private final SubscriptionService subscriptionService;
 

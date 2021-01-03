@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.rabbitmq.RabbitFlux;
 import reactor.rabbitmq.Receiver;
 import reactor.rabbitmq.ReceiverOptions;
@@ -41,6 +42,7 @@ public class CommandReceiver {
     Receiver receiver = RabbitFlux.createReceiver(receiverOptions);
 
     receiver.consumeAutoAck(rabbitProps.getInputQueue())
+        .publishOn(Schedulers.elastic())
         .flatMap(delivery -> metadataParser.parseCommand(delivery.getBody()))
         .flatMap(this::runProcessor)
         .subscribe();

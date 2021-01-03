@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.service;
+package com.mairo.cataclysm.model;
 
 import static com.mairo.cataclysm.utils.MonoSupport.eitherToMono;
 import static com.mairo.cataclysm.validation.ValidationTypes.addPlayerValidationType;
@@ -12,6 +12,7 @@ import com.mairo.cataclysm.exception.PlayerAlreadyExistsException;
 import com.mairo.cataclysm.exception.PlayerNotFoundException;
 import com.mairo.cataclysm.helper.PlayerServiceHelper;
 import com.mairo.cataclysm.repository.PlayerRepository;
+import com.mairo.cataclysm.service.UserRightsService;
 import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +28,9 @@ import reactor.util.function.Tuple2;
 
 @Service
 @RequiredArgsConstructor
-public class PlayerService {
+public class PlayerModel {
 
-  public static final Logger logger = LogManager.getLogger(PlayerService.class);
+  public static final Logger logger = LogManager.getLogger(PlayerModel.class);
 
   private final PlayerRepository playerRepository;
   private final UserRightsService userRightsService;
@@ -48,7 +49,7 @@ public class PlayerService {
         .map(FoundAllPlayers::new);
   }
 
-  Mono<List<Player>> checkPlayersExist(List<String> surnameList) {
+  public Mono<List<Player>> checkPlayersExist(List<String> surnameList) {
     return Mono.just(psDelegate.lowercaseSurnames(surnameList))
         .flatMap(this::findAndCheckPlayers);
   }
@@ -83,7 +84,7 @@ public class PlayerService {
 
   private Mono<IdDto> processPlayerAdd(AddPlayerDto dto) {
     return checkUserIsAdmin(dto.getModerator())
-        .flatMap(__ -> prepareIdForCheckedPlayer(dto))
+        .then(prepareIdForCheckedPlayer(dto))
         .flatMap(this::savePlayer)
         .map(IdDto::new);
   }

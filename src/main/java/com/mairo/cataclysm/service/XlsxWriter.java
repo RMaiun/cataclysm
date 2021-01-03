@@ -39,7 +39,6 @@ public class XlsxWriter {
     autosizeColumns(statsRows.getHeaders().size(), sheet);
     freezeHeadersWithTotals(sheet);
     return Mono.fromCallable(() -> createDocument(season, workbook, new ByteArrayOutputStream()))
-        .subscribeOn(Schedulers.elastic())
         .flatMap(x -> x.fold(err -> Mono.error(new WriteXlsxDocumentException(err)), Mono::just));
   }
 

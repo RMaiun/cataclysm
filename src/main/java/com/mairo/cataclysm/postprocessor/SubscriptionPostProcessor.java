@@ -24,7 +24,7 @@ public class SubscriptionPostProcessor implements PostProcessor {
 
   @Override
   public List<String> commands() {
-    return Collections.singletonList("linkTid");
+    return Collections.singletonList(LINK_TID_CMD);
   }
 
   @Override

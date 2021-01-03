@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple3;
 
 @Service
@@ -48,6 +49,7 @@ public class ExportService {
   public Mono<BinaryFileDto> export(LocalDateTime before, String moderator) {
     return userRightsService.checkUserIsAdmin(moderator)
         .flatMap(__ -> Mono.zip(findAllSeasons(), findAllPlayers(), findRoundsBeforeDate(before)))
+        .publishOn(Schedulers.elastic())
         .flatMap(this::prepareZipArchive);
   }
 

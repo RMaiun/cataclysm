@@ -8,6 +8,7 @@ import com.mairo.cataclysm.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class ReportGeneratorService {
 
   private Mono<BinaryFileDto> generateNewReport(GenerateStatsDocumentDto dto) {
     return statisticsService.seasonStatisticsRows(dto.getSeason())
+        .publishOn(Schedulers.elastic())
         .flatMap(stats -> xlsxWriter.generateDocument(stats, dto.getSeason()))
         .flatMap(cacheService::memorize);
   }

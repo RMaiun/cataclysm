@@ -15,6 +15,8 @@ import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.PlayerRank;
 import com.mairo.cataclysm.dto.PlayerStats;
 import com.mairo.cataclysm.dto.SeasonShortStats;
+import com.mairo.cataclysm.model.PlayerModel;
+import com.mairo.cataclysm.model.RoundsModel;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.rabbit.RabbitSender;
 import com.mairo.cataclysm.utils.SeasonUtils;
@@ -43,10 +45,10 @@ public class SeasonStatsSender {
   public static final Logger logger = LogManager.getLogger(SeasonStatsSender.class);
 
   private final AppProps appProps;
-  private final PlayerService playerService;
+  private final PlayerModel playerModel;
   private final RabbitSender rabbitSender;
   private final StatisticsService statisticsService;
-  private final RoundsService roundsService;
+  private final RoundsModel roundsModel;
 
 
   public Flux<OutputMessage> sendFinalSeasonStats() {
@@ -72,8 +74,8 @@ public class SeasonStatsSender {
   private Mono<List<PlayerRank>> findPlayersWithRanks() {
     return Mono.zip(
         statisticsService.seasonShortInfoStatistics(currentSeason()),
-        playerService.findAllPlayers(),
-        roundsService.findAllRounds(currentSeason()))
+        playerModel.findAllPlayers(),
+        roundsModel.findAllRounds(currentSeason()))
         .map(this::preparePlayerRanks);
   }
 

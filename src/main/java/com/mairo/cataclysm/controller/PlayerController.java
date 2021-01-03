@@ -3,7 +3,7 @@ package com.mairo.cataclysm.controller;
 import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.IdDto;
-import com.mairo.cataclysm.service.PlayerService;
+import com.mairo.cataclysm.model.PlayerModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,16 +17,16 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class PlayerController {
 
-  private final PlayerService playerService;
+  private final PlayerModel playerModel;
 
 
   @GetMapping("/all")
   public Mono<FoundAllPlayers> findAllPlayers() {
-    return playerService.findAllPlayers();
+    return playerModel.findAllPlayers();
   }
 
   @PostMapping("/add")
   public Mono<IdDto> addPlayer(@RequestBody AddPlayerDto addPlayerDto) {
-    return playerService.addPlayer(addPlayerDto);
+    return playerModel.addPlayer(addPlayerDto);
   }
 }

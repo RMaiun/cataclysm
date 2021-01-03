@@ -32,6 +32,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +49,7 @@ public class ImportService {
 
   public Mono<ImportDumpDto> importDump(FilePart file, String moderator) {
     return userRightsService.checkUserIsAdmin(moderator)
+        .publishOn(Schedulers.elastic())
         .flatMap(__ -> filePartToInputStream(file))
         .flatMap(this::fetchDumpData)
         .flatMap(MonoSupport::fromTry)
