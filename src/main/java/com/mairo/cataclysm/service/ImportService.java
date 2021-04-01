@@ -65,7 +65,7 @@ public class ImportService {
         .flatMap(result -> importRounds(data.getRoundsList(), data.getSeasonList()).map(result::withRounds));
   }
 
-  private Mono<Integer> clearTables() {
+  private Mono<Long> clearTables() {
     return Mono.zip(
         roundRepository.removeAll(),
         seasonRepository.removeAll(),
@@ -129,13 +129,10 @@ public class ImportService {
   }
 
   private Mono<Map<String, Long>> importRounds(List<Round> rounds, List<Season> seasons) {
-    Flux<Long> storeRounds = Flux.fromIterable(rounds)
+    Flux<Round> storeRounds = Flux.fromIterable(rounds)
         .flatMap(roundRepository::saveRound);
-
-    Map<Long, String> seasonsMap = seasons.stream()
-        .collect(Collectors.toMap(Season::getId, Season::getName));
     Map<String, Long> roundsPerSeasons = rounds.stream()
-        .collect(Collectors.groupingBy(r -> seasonsMap.get(r.getSeasonId()), Collectors.counting()));
+        .collect(Collectors.groupingBy(Round::getSeason, Collectors.counting()));
     return storeRounds.then(Mono.just(roundsPerSeasons));
   }
 

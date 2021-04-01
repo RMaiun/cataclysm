@@ -10,13 +10,13 @@ app:
   notificationsEnabled: false
   expectedGames: 30
   reportTimezone: "Europe/Kiev"
-
 db:
   host: "127.0.0.1"
-  port: 3306
+  port: 27017
   database: "cata"
   username: "root"
   password: "password"
+  recreateMongoIndexes: true
 
 rabbit:
   username: "rabbitmq"

@@ -1,6 +1,8 @@
 package com.mairo.cataclysm.dto;
 
+import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Season;
+import java.util.List;
 import java.util.Map;
 import lombok.Value;
 import lombok.With;
@@ -9,6 +11,6 @@ import lombok.With;
 @With
 public class PlayerSeasonData {
 
-  Season season;
-  Map<Long, String> players;
+  String season;
+  List<Player> players;
 }

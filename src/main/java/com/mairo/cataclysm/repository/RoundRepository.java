@@ -1,62 +1,51 @@
 package com.mairo.cataclysm.repository;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
 import com.mairo.cataclysm.domain.Round;
-import java.time.LocalDateTime;
+import com.mongodb.client.result.DeleteResult;
+import java.time.ZonedDateTime;
 import java.util.List;
-import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 public class RoundRepository {
 
-  private final DatabaseClient dbClient;
+  private final ReactiveMongoTemplate template;
 
-  public RoundRepository(DatabaseClient dbClient) {
-    this.dbClient = dbClient;
+  public RoundRepository(ReactiveMongoTemplate template) {
+    this.template = template;
   }
 
-  public Mono<List<Round>> listRoundsBySeason(long season) {
-    return dbClient.execute("select *  from round  r where r.season_id = :sid")
-        .bind("sid", season)
-        .as(Round.class)
-        .fetch()
-        .all()
+  public Mono<List<Round>> listRoundsBySeason(String season) {
+    return template.find(new Query().addCriteria(where("season").is(season)), Round.class)
         .collectList();
   }
 
-  public Mono<List<Round>> listLastRoundsBySeason(long season, int roundsNum) {
-    return dbClient.execute("select *  from round  r where r.season_id = :season order by created desc limit :num")
-        .bind("season", season)
-        .bind("num", roundsNum)
-        .as(Round.class)
-        .fetch()
-        .all()
-        .collectList();
+  public Mono<List<Round>> listLastRoundsBySeason(String season, int roundsNum) {
+    Criteria criteria = Criteria.where("season").is(season);
+    Query query = new Query(criteria)
+        .with(Sort.by(Direction.DESC, "created")).limit(roundsNum);
+    return template.find(query, Round.class).collectList();
   }
 
-  public Mono<Long> saveRound(Round round) {
-    return dbClient.insert()
-        .into(Round.class)
-        .using(round)
-        .map((r, m) -> r.get(0, Long.class))
-        .one();
+  public Mono<Round> saveRound(Round round) {
+    return template.insert(round);
   }
 
-  public Mono<List<Round>> listLastRoundsBeforeDate(LocalDateTime before) {
-    return dbClient.execute("select *  from round  r where r.created <= :before")
-        .bind("before", before)
-        .as(Round.class)
-        .fetch()
-        .all()
-        .collectList();
+  public Mono<List<Round>> listLastRoundsBeforeDate(ZonedDateTime before) {
+    Criteria criteria = Criteria.where("created").lte(before);
+    return template.find(new Query(criteria), Round.class).collectList();
   }
 
-  public Mono<Integer> removeAll() {
-    return dbClient.delete()
-        .from(Round.class)
-        .fetch()
-        .rowsUpdated();
+  public Mono<Long> removeAll() {
+    return template.remove(Round.class).all().map(DeleteResult::getDeletedCount);
   }
 
 }

@@ -15,16 +15,14 @@ import com.mairo.cataclysm.repository.PlayerRepository;
 import com.mairo.cataclysm.service.UserRightsService;
 import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 @Service
 @RequiredArgsConstructor
@@ -36,17 +34,16 @@ public class PlayerModel {
   private final UserRightsService userRightsService;
   private final PlayerServiceHelper psDelegate;
 
-  public Mono<Map<Long, String>> findAllPlayersAsMap() {
-    return playerRepository.listAll()
-        .doOnNext(data -> logger.info("Found {} players", data.size()))
-        .map(list -> list.stream()
-            .collect(Collectors.toMap(Player::getId, Player::getSurname)));
-  }
-
   public Mono<FoundAllPlayers> findAllPlayers() {
     return playerRepository.listAll()
         .doOnNext(players -> logger.info("Found {} players", players.size()))
         .map(FoundAllPlayers::new);
+  }
+
+  public Mono<List<String>> findAllPlayerNames() {
+    return playerRepository.listAll()
+        .map(list -> list.stream().map(Player::getSurname).collect(Collectors.toList()))
+        .doOnNext(players -> logger.info("Found {} players", players.size()));
   }
 
   public Mono<List<Player>> checkPlayersExist(List<String> surnameList) {
@@ -83,20 +80,21 @@ public class PlayerModel {
   }
 
   private Mono<IdDto> processPlayerAdd(AddPlayerDto dto) {
-    return checkUserIsAdmin(dto.getModerator())
-        .then(prepareIdForCheckedPlayer(dto))
-        .flatMap(this::savePlayer)
+    // return checkUserIsAdmin(dto.getModerator())
+    //     .then(checkPlayerNotExist(dto))
+    //     .then(savePlayer(dto))
+    //     .map(IdDto::new);
+    return
+        checkPlayerNotExist(dto)
+        .then(savePlayer(dto))
         .map(IdDto::new);
   }
 
-  private Mono<Long> savePlayer(Tuple2<AddPlayerDto, Long> t) {
-    Player player = new Player(t.getT2() + 1, t.getT1().getSurname().toLowerCase(), t.getT1().getTid(), t.getT1().isAdmin(), false);
-    return playerRepository.savePlayer(player);
+  private Mono<String> savePlayer(AddPlayerDto dto) {
+    Player player = new Player(null, dto.getSurname().toLowerCase(), dto.getTid(), dto.isAdmin(), false);
+    return playerRepository.savePlayer(player).map(Player::getId);
   }
 
-  private Mono<Tuple2<AddPlayerDto, Long>> prepareIdForCheckedPlayer(AddPlayerDto dto) {
-    return Mono.zip(checkPlayerNotExist(dto), playerRepository.findLastId());
-  }
 
   private Mono<Player> checkUserIsAdmin(String moderator) {
     return userRightsService.checkUserIsAdmin(moderator);

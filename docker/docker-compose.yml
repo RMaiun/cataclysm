@@ -1,24 +1,20 @@
 version: '2'
 services:
-#  cataclysm:
-#    image: 'mairo/cataclysm:latest'
-#    container_name: cataclysm
-#    ports:
-#      - '8080:8080'
-#    environment:
-#      - USER=root
-#      - PASS=password
-#      - HOST=192.168.126.65
-#    depends_on:
-#      - mysql
-  mysql:
+  catamysql:
     image: mysql
     ports:
       - '3306:3306'
     environment:
       - MYSQL_DATABASE=cata
       - MYSQL_ROOT_PASSWORD=password
-  rabbit1:
+  catamongo:
+    image: mongo:4.0
+    container_name: fbcoremongo
+    restart: unless-stopped
+    command: --wiredTigerCacheSizeGB 2
+    ports:
+      - "27017:27017"
+  catarabbit:
     image: "rabbitmq:3-management"
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"

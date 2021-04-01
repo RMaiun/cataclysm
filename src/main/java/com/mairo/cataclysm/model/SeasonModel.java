@@ -33,9 +33,7 @@ public class SeasonModel {
     logger.info("Prepare absent season where current: {} and expected: {}", currentSeason(), expected);
     if (currentSeason().equals(expected)) {
       logger.info("Creating new season {}", expected);
-      return seasonRepository.findLastId()
-          .map(id -> new Season(id + 1, expected))
-          .flatMap(season -> seasonRepository.saveSeason(season).map(__ -> season));
+      return seasonRepository.saveSeason(Season.of(expected));
     } else {
       logger.warn("Expected season ({}) is not the current one ({})", expected, currentSeason());
       return Mono.error(new SeasonNotFoundException(expected));

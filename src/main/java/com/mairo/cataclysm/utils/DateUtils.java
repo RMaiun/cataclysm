@@ -16,17 +16,16 @@ public class DateUtils {
   private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
   private static final ZoneId EET_ZONE = ZoneId.of("Europe/Kiev");
 
-  public static LocalDateTime now() {
-    return LocalDateTime.now(ZoneOffset.UTC);
+  public static ZonedDateTime now() {
+    return ZonedDateTime.now(ZoneOffset.UTC);
   }
 
-  public static LocalDateTime utcToEet(LocalDateTime utcDateTime) {
-    ZonedDateTime utcTimeZoned = ZonedDateTime.of(utcDateTime, ZoneId.of("UTC"));
-    return utcTimeZoned.withZoneSameInstant(EET_ZONE).toLocalDateTime();
+  public static ZonedDateTime utcToEet(ZonedDateTime utcDateTime) {
+    return utcDateTime.withZoneSameInstant(EET_ZONE);
   }
 
-  public static String formatDateWithHour(LocalDateTime utcDateTime) {
-    LocalDateTime date = utcToEet(utcDateTime);
+  public static String formatDateWithHour(ZonedDateTime utcDateTime) {
+    ZonedDateTime date = utcToEet(utcDateTime);
     String month = date.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
     int day = date.getDayOfMonth();
     String dateTime = date.format(formatter);

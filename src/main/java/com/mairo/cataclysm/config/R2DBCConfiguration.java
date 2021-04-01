@@ -37,7 +37,7 @@ class R2DBCConfiguration {
         .option(DRIVER, "pool")
         .option(PROTOCOL, "mysql") // driver identifier, PROTOCOL is delegated as DRIVER by the pool.
         .option(HOST, dbProps.getHost())
-        .option(PORT, dbProps.getPort())
+        .option(PORT, 3306)
         .option(USER, dbProps.getUsername())
         .option(PASSWORD, dbProps.getPassword())
         .option(DATABASE, dbProps.getDatabase())

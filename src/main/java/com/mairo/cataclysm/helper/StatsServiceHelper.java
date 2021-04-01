@@ -141,13 +141,13 @@ public class StatsServiceHelper {
     List<RatingWithGames> playerStats = calculatePointsForPlayers(rounds, false);
 
     List<String> headers = playerStats.stream()
-        .sorted(Comparator.comparing(RatingWithGames::getPid))
+        .sorted(Comparator.comparing(RatingWithGames::getRating))
         .map(RatingWithGames::getPlayer)
         .collect(toList());
 
     List<Integer> totals = playerStats
         .stream()
-        .sorted(Comparator.comparing(RatingWithGames::getPid))
+        .sorted(Comparator.comparing(RatingWithGames::getRating))
         .map(RatingWithGames::getRating)
         .collect(toList());
 
@@ -177,10 +177,10 @@ public class StatsServiceHelper {
   private List<StatsCalcData> aggregatePlayersWithGames(List<FullRound> rounds) {
     return rounds.stream()
         .flatMap(r -> Stream.of(
-            new StatsCalcData(r.getW1Id(), r.getWinner1(), winPoints(r.isShutout())),
-            new StatsCalcData(r.getW2Id(), r.getWinner2(), winPoints(r.isShutout())),
-            new StatsCalcData(r.getL1Id(), r.getLoser1(), losePoints(r.isShutout())),
-            new StatsCalcData(r.getL2Id(), r.getLoser2(), losePoints(r.isShutout()))))
+            new StatsCalcData(r.getWinner1(), winPoints(r.isShutout())),
+            new StatsCalcData(r.getWinner2(), winPoints(r.isShutout())),
+            new StatsCalcData(r.getLoser1(), losePoints(r.isShutout())),
+            new StatsCalcData(r.getLoser2(), losePoints(r.isShutout()))))
         .collect(toList());
   }
 
@@ -203,10 +203,9 @@ public class StatsServiceHelper {
   }
 
   private RatingWithGames ratingWithGames(Entry<String, List<StatsCalcData>> e) {
-    long id = e.getValue().stream().findFirst().map(StatsCalcData::getPid).orElse(-1L);
     int points = e.getValue().stream().map(StatsCalcData::getPoints).reduce(1000, Integer::sum);
     int games = e.getValue().size();
-    return new RatingWithGames(id, e.getKey(), points, games);
+    return new RatingWithGames(e.getKey(), points, games);
   }
 
   private List<String> transformRoundIntoRow(FullRound r, List<String> headers) {

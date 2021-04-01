@@ -6,7 +6,6 @@ import lombok.Value;
 @Value
 public class PlayerRank {
   String playerSurname;
-  Long playerId;
   String tid;
   int rank;
   String score;

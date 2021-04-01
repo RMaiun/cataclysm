@@ -105,7 +105,7 @@ public class SeasonStatsSender {
               .filter(r -> asList(r.getWinner1(), r.getWinner2(), r.getLoser1(), r.getLoser2()).contains(p.getSurname()))
               .count();
           int rank = playersWithRating.indexOf(p.getSurname());
-          return new PlayerRank(p.getSurname(), p.getId(), p.getTid(), rank + 1, score, gamesPlayed, data.getT3().size(), participatedSurnames.size());
+          return new PlayerRank(p.getSurname(), p.getTid(), rank + 1, score, gamesPlayed, data.getT3().size(), participatedSurnames.size());
         })
         .collect(Collectors.toList());
   }

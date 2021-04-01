@@ -5,8 +5,10 @@ import com.mairo.cataclysm.dto.ImportDumpDto;
 import com.mairo.cataclysm.service.ExportService;
 import com.mairo.cataclysm.service.ImportService;
 import com.mairo.cataclysm.service.ReportGeneratorService;
+import com.mairo.cataclysm.utils.DateUtils;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +48,7 @@ public class BinaryController {
 
   @GetMapping(value = "/dump/export/{moderator}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
   public Mono<ResponseEntity<InputStreamResource>> exportDump(@PathVariable String moderator) {
-    LocalDateTime now = LocalDateTime.now();
+    ZonedDateTime now = DateUtils.now();
     return exportService.export(now, moderator)
         .map(res -> {
           String fileName = String.format("%s.%s", res.getFileName(), res.getExtension());

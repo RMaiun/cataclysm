@@ -12,10 +12,10 @@ import com.mairo.cataclysm.utils.MonoSupport;
 import io.vavr.control.Try;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +46,7 @@ public class ExportService {
   private final String PLAYERS = "players.json";
   private final String ROUNDS = "rounds_%s.json";
 
-  public Mono<BinaryFileDto> export(LocalDateTime before, String moderator) {
+  public Mono<BinaryFileDto> export(ZonedDateTime before, String moderator) {
     return userRightsService.checkUserIsAdmin(moderator)
         .flatMap(__ -> Mono.zip(findAllSeasons(), findAllPlayers(), findRoundsBeforeDate(before)))
         .publishOn(Schedulers.elastic())
@@ -80,9 +80,8 @@ public class ExportService {
   }
 
   private Try<ZipOutputStream> prepareRoundsBySeason(List<Round> rounds, List<Season> seasons, ZipOutputStream zos) {
-    Map<Long, String> seasonsData = seasons.stream().collect(Collectors.toMap(Season::getId, Season::getName));
     Stream<Entry<String, List<Round>>> roundsPerSeasonStream = rounds.stream()
-        .collect(Collectors.groupingBy(r -> seasonsData.get(r.getSeasonId())))
+        .collect(Collectors.groupingBy(Round::getSeason))
         .entrySet()
         .stream();
     io.vavr.collection.List<Entry<String, List<Round>>> vavrRoundsList = io.vavr.collection.Stream.ofAll(roundsPerSeasonStream).toList();
@@ -119,7 +118,7 @@ public class ExportService {
     return playerRepository.listAll();
   }
 
-  private Mono<List<Round>> findRoundsBeforeDate(LocalDateTime before) {
+  private Mono<List<Round>> findRoundsBeforeDate(ZonedDateTime before) {
     return roundRepository.listLastRoundsBeforeDate(before);
   }
 }

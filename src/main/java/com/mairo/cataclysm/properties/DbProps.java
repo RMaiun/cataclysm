@@ -14,4 +14,5 @@ public class DbProps {
   private String database;
   private String username;
   private String password;
+  private boolean recreateMongoIndexes;
 }

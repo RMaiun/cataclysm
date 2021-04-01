@@ -42,8 +42,7 @@ public class RabbitConfiguration {
   Sender sender(ConnectionFactory connectionFactory) {
     SenderOptions senderOptions = new SenderOptions()
         .connectionFactory(connectionFactory)
-        .connectionSupplier(cf -> cf.newConnection("sender"))
-        .resourceManagementScheduler(Schedulers.elastic());
+        .connectionSupplier(cf -> cf.newConnection("sender"));
 
     Sender sender = RabbitFlux.createSender(senderOptions);
     sender.declare(QueueSpecification.queue(rabbitProperties.getInputQueue()))

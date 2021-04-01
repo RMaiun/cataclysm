@@ -52,7 +52,7 @@ class PlayerControllerTest {
   @Test
   void playersAllTest() {
     Player p = new Player();
-    p.setId(1L);
+    p.setId("1234");
     p.setSurname("test");
     when(repository.listAll()).thenReturn(Mono.just(List.of(p)));
 
@@ -72,11 +72,10 @@ class PlayerControllerTest {
   @Test
   void playersAddTest() {
     Player p = new Player();
-    p.setId(1L);
+    p.setId("1234");
     p.setSurname("test");
-    when(repository.findLastId()).thenReturn(Mono.just(34L));
     when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.empty()));
-    when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(35L));
+    when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(p));
     when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
     webClient.post()
         .uri("/players/add")
@@ -88,18 +87,17 @@ class PlayerControllerTest {
         .expectBody(IdDto.class)
         .consumeWith(res -> {
           assertNotNull(res.getResponseBody());
-          assertEquals(35, res.getResponseBody().getId());
+          assertEquals("1234", res.getResponseBody().getId());
         });
   }
 
   @Test
   void playersAddTestUserExistsException() {
     Player p = new Player();
-    p.setId(1L);
+    p.setId("1234");
     p.setSurname("test");
-    when(repository.findLastId()).thenReturn(Mono.just(34L));
-    when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.of(new Player(30L,"test","1",false,false))));
-    when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(35L));
+    when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.of(new Player("30L","test","1",false,false))));
+    when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(p));
     when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
 
     webClient.post()

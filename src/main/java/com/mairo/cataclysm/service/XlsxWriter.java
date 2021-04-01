@@ -6,19 +6,23 @@ import com.mairo.cataclysm.dto.BinaryFileDto;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
 import com.mairo.cataclysm.exception.WriteXlsxDocumentException;
 import io.vavr.control.Try;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-
-import java.io.ByteArrayOutputStream;
-import java.util.List;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor

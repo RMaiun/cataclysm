@@ -5,20 +5,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @With
+@Document
 public class Player {
 
   @Id
-  private Long id;
+  private String id;
 
   private String surname;
   private String tid;
   private boolean admin;
-  @Column(value = "enable_notifications")
   private boolean notificationsEnabled;
 }
