@@ -1,4 +1,4 @@
-version: '2'
+version: '3.3'
 services:
   catamysql:
     image: mysql
@@ -8,12 +8,17 @@ services:
       - MYSQL_DATABASE=cata
       - MYSQL_ROOT_PASSWORD=password
   catamongo:
-    image: mongo:4.0
-    container_name: fbcoremongo
+    image: mongo:latest
+    container_name: catamongo
     restart: unless-stopped
-    command: --wiredTigerCacheSizeGB 2
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: cata
+      MONGO_INITDB_USERNAME: root
+      MONGO_INITDB_PASSWORD: password
   catarabbit:
     image: "rabbitmq:3-management"
     environment:

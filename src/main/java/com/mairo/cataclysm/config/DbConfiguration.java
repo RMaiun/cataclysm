@@ -23,8 +23,7 @@ public class DbConfiguration {
 
   @Bean
   public MongoClient mongoClient() {
-    String url = String.format("mongodb://%s:%d/%s", dbProps.getHost(), dbProps.getPort(), dbProps.getDatabase());
-    return MongoClients.create(url);
+    return MongoClients.create(dbProps.getMongoUrl());
   }
 
   @Bean

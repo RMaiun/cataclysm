@@ -6,6 +6,7 @@ import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.model.PlayerModel;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -30,8 +31,8 @@ public class ListPlayersCmdProcessor implements CommandProcessor {
   }
 
   private String format(FoundAllPlayers data) {
-    String players = data.getPlayers().stream()
-        .map(p -> String.format("%s|%s", p.getId(), StringUtils.capitalize(p.getSurname())))
+    String players = IntStream.range(0, data.getPlayers().size())
+        .mapToObj(i -> String.format("%d|%s", i+1, StringUtils.capitalize(data.getPlayers().get(i).getSurname())))
         .collect(Collectors.joining("\n"));
     return String.format("%s%s%s", PREFIX, players, SUFFIX);
   }

@@ -18,7 +18,7 @@ public class SchedulersConfiguration {
     seasonStatsSender.sendFinalSeasonStats().subscribe();
   }
 
-  @Scheduled(cron = "0 0 1 * * ?")
+  @Scheduled(cron = "0 0 * 1 * ?")
   public void initSeason() {
     initSeasonService.initSeason().subscribe();
   }

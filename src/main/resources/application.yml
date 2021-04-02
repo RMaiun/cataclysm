@@ -13,12 +13,12 @@ app:
   privileged: "testId"
 db:
   host: "127.0.0.1"
-  port: 27017
+  port: 3306
   database: "cata"
   username: "root"
   password: "password"
   recreateMongoIndexes: true
-
+  mongoUrl: "mongodb://root:password@localhost:27017/cata"
 rabbit:
   username: "rabbitmq"
   password: "rabbitmq"
