@@ -10,6 +10,7 @@ app:
   notificationsEnabled: false
   expectedGames: 30
   reportTimezone: "Europe/Kiev"
+  privileged: "testId"
 db:
   host: "127.0.0.1"
   port: 27017

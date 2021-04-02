@@ -21,7 +21,7 @@ public class SubscriptionService {
 
   public Mono<SubscriptionResultDto> linkTidForPlayer(LinkTidDto dto) {
     return Validator.validate(dto, ValidationTypes.linkTidValidationType)
-        .flatMap(__ -> userRightsService.checkUserIsAdmin(dto.getModerator()))
+        .then(userRightsService.checkUserIsAdmin(dto.getModerator()))
         .flatMap(admin -> playerModel.enableNotifications(dto.getNameToLink(), dto.getTid()))
         .map(res -> new SubscriptionResultDto(dto.getNameToLink(), dto.getTid(), LocalDateTime.now(), true));
   }

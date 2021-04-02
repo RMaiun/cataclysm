@@ -13,7 +13,7 @@ public class SchedulersConfiguration {
   private final SeasonStatsSender seasonStatsSender;
   private final InitSeasonService initSeasonService;
 
-  @Scheduled(cron = "0 0 20 * * ?")
+  @Scheduled(cron = "0 0 * * * ?")
   public void finalSeasonReportNotifications() {
     seasonStatsSender.sendFinalSeasonStats().subscribe();
   }

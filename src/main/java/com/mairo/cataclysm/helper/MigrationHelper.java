@@ -55,11 +55,26 @@ public class MigrationHelper {
         .as(String.class)
         .fetch()
         .all();
-    Flux<P> mysqlP = databaseClient.execute("select surname, tid, admin, enable_notifications from player")
-        .as(P.class)
-        .fetch().all();
+    Flux<P> mysqlP = databaseClient.execute("select surname, tid, admin, enable_notifications as notificationsEnabled from player")
+        .map(r -> {
+          P p = new P();
+          p.setSurname((String) r.get(0));
+          p.setTid((String) r.get(1));
 
-    Flux<R> mysqlR = databaseClient.execute("select p1.surname, p2.surname, p3.surname, p4.surname, round.shutout, round.created, s.name from round"
+          p.setAdmin((Byte) r.get(2) == 1);
+          p.setNotificationsEnabled((Byte) r.get(3) == 1);
+          return p;
+        })
+        .all().log();
+
+    Flux<R> mysqlR = databaseClient.execute(
+        "select p1.surname as w1, "
+            + "p2.surname as w2, "
+            + "p3.surname as l1, "
+            + "p4.surname as l2, "
+            + "round.shutout as shutout, "
+            + "round.created as created, "
+            + "s.name as season from round"
         + "    inner join player p1 on p1.id = round.winner1_id"
         + "    inner join player p2 on p2.id = round.winner2_id"
         + "    inner join player p3 on p3.id = round.loser1_id"
@@ -68,7 +83,7 @@ public class MigrationHelper {
         + "    order by created ASC ;")
         .as(R.class)
         .fetch()
-        .all();
+        .all().log();
 
     seasonRepository.removeAll()
         .then(playerRepository.removeAll())
@@ -77,10 +92,8 @@ public class MigrationHelper {
         .flatMap(s -> seasonRepository.saveSeason(Season.of(s, ZonedDateTime.of(SeasonUtils.seasonGate(s).getRight(), LocalTime.now(), ZoneOffset.UTC))))
         .thenMany(mysqlP.flatMap(p -> playerRepository.savePlayer(new Player(null, p.surname, p.tid, p.admin, p.notificationsEnabled))))
         .thenMany(mysqlR.flatMap(r -> {
-          System.out.println(r.getCreated());
           ZonedDateTime zdt = ZonedDateTime.of(r.getCreated().toLocalDate(), r.getCreated().toLocalTime(), ZoneOffset.UTC);
-          System.out.println(zdt);
-          return roundRepository.saveRound(new Round(null, r.winner1, r.winner2, r.loser1, r.loser2, r.shutout, r.season, zdt));
+          return roundRepository.saveRound(new Round(null, r.w1, r.w2, r.l1, r.l2, r.shutout, r.season, zdt));
         }))
         .subscribe();
   }
@@ -126,10 +139,10 @@ public class MigrationHelper {
   @NoArgsConstructor
   static class R {
 
-    private String winner1;
-    private String winner2;
-    private String loser1;
-    private String loser2;
+    private String w1;
+    private String w2;
+    private String l1;
+    private String l2;
     private boolean shutout;
     private LocalDateTime created;
     private String season;

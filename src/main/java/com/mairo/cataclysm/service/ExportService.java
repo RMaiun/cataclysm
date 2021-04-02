@@ -48,7 +48,7 @@ public class ExportService {
 
   public Mono<BinaryFileDto> export(ZonedDateTime before, String moderator) {
     return userRightsService.checkUserIsAdmin(moderator)
-        .flatMap(__ -> Mono.zip(findAllSeasons(), findAllPlayers(), findRoundsBeforeDate(before)))
+        .then(Mono.zip(findAllSeasons(), findAllPlayers(), findRoundsBeforeDate(before)))
         .publishOn(Schedulers.elastic())
         .flatMap(this::prepareZipArchive);
   }

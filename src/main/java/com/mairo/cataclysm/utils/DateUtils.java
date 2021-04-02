@@ -1,6 +1,5 @@
 package com.mairo.cataclysm.utils;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -15,6 +14,10 @@ public class DateUtils {
 
   private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
   private static final ZoneId EET_ZONE = ZoneId.of("Europe/Kiev");
+
+  public static boolean notLateToSend(ZonedDateTime dateTime) {
+    return dateTime.getHour() >= 10 && dateTime.getHour() <= 23;
+  }
 
   public static ZonedDateTime now() {
     return ZonedDateTime.now(ZoneOffset.UTC);

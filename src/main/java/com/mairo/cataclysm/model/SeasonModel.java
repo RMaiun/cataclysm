@@ -5,6 +5,8 @@ import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.exception.SeasonNotFoundException;
 import com.mairo.cataclysm.repository.SeasonRepository;
+import com.mairo.cataclysm.utils.DateUtils;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +29,18 @@ public class SeasonModel {
     return seasonRepository.getSeason(season)
         .doOnNext(s -> logger.info("Season {} is already found in system with id {}", season, s.getId()))
         .onErrorResume(err -> prepareAbsentSeason(season));
+  }
+
+  public Mono<Optional<Season>> findSeasonWithoutNotifications() {
+    return seasonRepository.findFirstSeasonWithoutNotification();
+  }
+
+  public Mono<Void> ackSendFinalNotifications() {
+    return seasonRepository.findFirstSeasonWithoutNotification()
+        .flatMap(maybeSeason -> maybeSeason
+            .map(s -> seasonRepository.updateSeason(new Season(s.getId(), s.getName(), DateUtils.now()))
+                .then())
+            .orElse(Mono.empty()));
   }
 
   public Mono<Season> prepareAbsentSeason(String expected) {

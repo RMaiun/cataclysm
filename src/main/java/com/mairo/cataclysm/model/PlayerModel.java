@@ -80,12 +80,8 @@ public class PlayerModel {
   }
 
   private Mono<IdDto> processPlayerAdd(AddPlayerDto dto) {
-    // return checkUserIsAdmin(dto.getModerator())
-    //     .then(checkPlayerNotExist(dto))
-    //     .then(savePlayer(dto))
-    //     .map(IdDto::new);
-    return
-        checkPlayerNotExist(dto)
+    return checkUserIsAdmin(dto.getModerator())
+        .then(checkPlayerNotExist(dto))
         .then(savePlayer(dto))
         .map(IdDto::new);
   }
@@ -96,7 +92,7 @@ public class PlayerModel {
   }
 
 
-  private Mono<Player> checkUserIsAdmin(String moderator) {
+  private Mono<Void> checkUserIsAdmin(String moderator) {
     return userRightsService.checkUserIsAdmin(moderator);
   }
 

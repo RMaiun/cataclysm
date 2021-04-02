@@ -4,8 +4,6 @@ import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,11 +18,11 @@ public class Season {
   private String name;
   private ZonedDateTime seasonEndNotification;
 
-  public static Season of(String name){
+  public static Season of(String name) {
     return new Season(null, name, null);
   }
 
-  public static Season of(String name, ZonedDateTime seasonEndNotification){
+  public static Season of(String name, ZonedDateTime seasonEndNotification) {
     return new Season(null, name, seasonEndNotification);
   }
 }

@@ -21,4 +21,5 @@ public class AppProps {
   private boolean notificationsEnabled;
   private int expectedGames;
   private String reportTimezone;
+  private String privileged;
 }

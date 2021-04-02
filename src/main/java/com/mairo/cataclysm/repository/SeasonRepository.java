@@ -4,6 +4,9 @@ import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.exception.SeasonNotFoundException;
 import com.mongodb.client.result.DeleteResult;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -13,6 +16,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class SeasonRepository {
 
+  public static final String ATTR_SEASON_END_NOTIFICATION = "seasonEndNotification";
   private final ReactiveMongoTemplate template;
 
   public SeasonRepository(ReactiveMongoTemplate template) {
@@ -28,6 +32,10 @@ public class SeasonRepository {
     return template.insert(season);
   }
 
+  public Mono<Season> updateSeason(Season season) {
+    return template.save(season);
+  }
+
   public Mono<List<Season>> listAll() {
     return template.findAll(Season.class).collectList();
   }
@@ -36,5 +44,13 @@ public class SeasonRepository {
     return template.remove(Season.class)
         .all()
         .map(DeleteResult::getDeletedCount);
+  }
+
+  public Mono<Optional<Season>> findFirstSeasonWithoutNotification() {
+    Criteria criteria = Criteria.where(ATTR_SEASON_END_NOTIFICATION).is(null);
+    Query query = new Query(criteria).with(Sort.by(Direction.ASC, ATTR_SEASON_END_NOTIFICATION));
+    return template.findOne(query, Season.class)
+        .map(Optional::of)
+        .switchIfEmpty(Mono.just(Optional.empty()));
   }
 }

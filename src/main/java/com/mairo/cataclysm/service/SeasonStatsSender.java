@@ -3,8 +3,10 @@ package com.mairo.cataclysm.service;
 import static com.mairo.cataclysm.processor.CommandProcessor.LINE_SEPARATOR;
 import static com.mairo.cataclysm.processor.CommandProcessor.PREFIX;
 import static com.mairo.cataclysm.processor.CommandProcessor.SUFFIX;
+import static com.mairo.cataclysm.utils.DateUtils.notLateToSend;
 import static com.mairo.cataclysm.utils.IdGenerator.msgId;
 import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
+import static com.mairo.cataclysm.utils.SeasonUtils.firstBeforeSecond;
 import static java.util.Arrays.asList;
 import static java.util.Objects.nonNull;
 
@@ -14,12 +16,13 @@ import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.PlayerRank;
 import com.mairo.cataclysm.dto.PlayerStats;
+import com.mairo.cataclysm.dto.SeasonNotificationData;
 import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.model.PlayerModel;
 import com.mairo.cataclysm.model.RoundsModel;
+import com.mairo.cataclysm.model.SeasonModel;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.rabbit.RabbitSender;
-import com.mairo.cataclysm.utils.SeasonUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZoneId;
@@ -49,33 +52,40 @@ public class SeasonStatsSender {
   private final RabbitSender rabbitSender;
   private final StatisticsService statisticsService;
   private final RoundsModel roundsModel;
+  private final SeasonModel seasonModel;
 
 
-  public Flux<OutputMessage> sendFinalSeasonStats() {
+  public Mono<Void> sendFinalSeasonStats() {
     return Mono.just(appProps.isNotificationsEnabled())
         .doOnNext(__ -> logger.info("Starting Final Season Stats Reports generation with notificationEnabled {}", appProps.isNotificationsEnabled()))
         .filter(it -> it)
         .then(Mono.just(ZonedDateTime.now(ZoneId.of(appProps.getReportTimezone()))))
         .doOnNext(date -> logger.info("Check that {} equals to last day of current season where time = 20:00", date))
-        .filter(this::isTimingCorrect)
-        .doOnNext(__ -> logger.info("Final Season Stats Reports generation criteria were passed successfully"))
-        .flatMap(__ -> findPlayersWithRanks())
+        .flatMap(this::shouldSend)
+        .filter(SeasonNotificationData::isReadyToBeProcessed)
+        .doOnNext(snd -> logger.info("Final Season Stats Reports generation criteria were passed successfully for season {}", snd.getSeason()))
+        .flatMap(snd -> findPlayersWithRanks(snd.getSeason()))
         .doOnNext(ranks -> logger.info("{} users will receive final stats notification", ranks.size()))
         .flatMapMany(Flux::fromIterable)
-        .flatMap(this::sendNotificationForPlayer);
+        .flatMap(this::sendNotificationForPlayer)
+        .then(seasonModel.ackSendFinalNotifications());
   }
 
-  private boolean isTimingCorrect(ZonedDateTime currentDateTime) {
-    int expectedDay = SeasonUtils.seasonGate(currentSeason()).getRight().getDayOfYear();
-    int currentDay = currentDateTime.getDayOfYear();
-    return currentDay == expectedDay && currentDateTime.getHour() == 20;
+  private Mono<SeasonNotificationData> shouldSend(ZonedDateTime currentDateTime) {
+    return seasonModel.findSeasonWithoutNotifications()
+        .map(maybeSeason ->
+            maybeSeason.map(foundSeason ->
+                new SeasonNotificationData(foundSeason.getName(), firstBeforeSecond(foundSeason.getName(), currentSeason()) && notLateToSend(currentDateTime)))
+                .orElse(new SeasonNotificationData(null, false)))
+        .doOnNext(snd -> logger.info("Current date {} criteria for sending notifications", snd.isReadyToBeProcessed() ? "passed" : "didn't pass"));
+
   }
 
-  private Mono<List<PlayerRank>> findPlayersWithRanks() {
+  private Mono<List<PlayerRank>> findPlayersWithRanks(String season) {
     return Mono.zip(
-        statisticsService.seasonShortInfoStatistics(currentSeason()),
+        statisticsService.seasonShortInfoStatistics(season),
         playerModel.findAllPlayers(),
-        roundsModel.findAllRounds(currentSeason()))
+        roundsModel.findAllRounds(season))
         .map(this::preparePlayerRanks);
   }
 
@@ -115,7 +125,7 @@ public class SeasonStatsSender {
     String msg = playerRank.getRank() > 0
         ? messageForPlayerWithDefinedRating(builder, playerRank)
         : messageForPlayerWithoutRating(builder, playerRank);
-
+    logger.info(OutputMessage.ok(playerRank.getTid(), msgId(), msg));
     return rabbitSender.send(OutputMessage.ok(playerRank.getTid(), msgId(), msg));
   }
 

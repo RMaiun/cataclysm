@@ -76,7 +76,7 @@ class PlayerControllerTest {
     p.setSurname("test");
     when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.empty()));
     when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(p));
-    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
+    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.empty());
     webClient.post()
         .uri("/players/add")
         .accept(MediaType.APPLICATION_JSON)
@@ -98,7 +98,7 @@ class PlayerControllerTest {
     p.setSurname("test");
     when(repository.getPlayer(anyString())).thenReturn(Mono.just(Optional.of(new Player("30L","test","1",false,false))));
     when(repository.savePlayer(any(Player.class))).thenReturn(Mono.just(p));
-    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.just(new Player()));
+    when(userRightsService.checkUserIsAdmin(eq("1111"))).thenReturn(Mono.empty());
 
     webClient.post()
         .uri("/players/add")

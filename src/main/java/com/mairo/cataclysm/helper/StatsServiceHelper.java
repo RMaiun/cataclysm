@@ -141,13 +141,13 @@ public class StatsServiceHelper {
     List<RatingWithGames> playerStats = calculatePointsForPlayers(rounds, false);
 
     List<String> headers = playerStats.stream()
-        .sorted(Comparator.comparing(RatingWithGames::getRating))
+        .sorted(Comparator.comparing(RatingWithGames::getPlayer))
         .map(RatingWithGames::getPlayer)
         .collect(toList());
 
     List<Integer> totals = playerStats
         .stream()
-        .sorted(Comparator.comparing(RatingWithGames::getRating))
+        .sorted(Comparator.comparing(RatingWithGames::getPlayer))
         .map(RatingWithGames::getRating)
         .collect(toList());
 

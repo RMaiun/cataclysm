@@ -50,7 +50,7 @@ public class ImportService {
   public Mono<ImportDumpDto> importDump(FilePart file, String moderator) {
     return userRightsService.checkUserIsAdmin(moderator)
         .publishOn(Schedulers.elastic())
-        .flatMap(__ -> filePartToInputStream(file))
+        .then(filePartToInputStream(file))
         .flatMap(this::fetchDumpData)
         .flatMap(MonoSupport::fromTry)
         .flatMap(this::storeDumpData);

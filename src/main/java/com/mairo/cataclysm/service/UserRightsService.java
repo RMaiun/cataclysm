@@ -2,6 +2,7 @@ package com.mairo.cataclysm.service;
 
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.exception.InvalidUserRightsException;
+import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +14,16 @@ import reactor.core.publisher.Mono;
 public class UserRightsService {
 
   private final PlayerRepository playerRepository;
+  private final AppProps appProps;
 
-  public Mono<Player> checkUserIsAdmin(String tid) {
-    return playerRepository.listAll()
-        .flatMap(players -> checkAdminPermissions(players, tid));
+  public Mono<Void> checkUserIsAdmin(String tid) {
+    if (tid.equals(appProps.getPrivileged())) {
+      return Mono.empty();
+    } else {
+      return playerRepository.listAll()
+          .flatMap(players -> checkAdminPermissions(players, tid))
+          .then();
+    }
   }
 
   private Mono<Player> checkAdminPermissions(List<Player> players, String tid) {
