@@ -6,6 +6,7 @@ import com.mairo.cataclysm.domain.Round;
 import com.mongodb.client.result.DeleteResult;
 import java.time.ZonedDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -15,13 +16,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class RoundRepository {
 
   private final ReactiveMongoTemplate template;
-
-  public RoundRepository(ReactiveMongoTemplate template) {
-    this.template = template;
-  }
 
   public Mono<List<Round>> listRoundsBySeason(String season) {
     return template.find(new Query().addCriteria(where("season").is(season)), Round.class)

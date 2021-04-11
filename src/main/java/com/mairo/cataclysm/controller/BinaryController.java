@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-public class BinaryController {
+public class BinaryController implements BinaryResponseSupport{
 
   private final ReportGeneratorService reportGeneratorService;
   private final ExportService exportService;
@@ -44,14 +44,5 @@ public class BinaryController {
   public Mono<ResponseEntity<InputStreamResource>> exportDump(@PathVariable String moderator) {
     ZonedDateTime now = DateUtils.now();
     return binaryResponse(exportService.export(now, moderator));
-  }
-
-  private Mono<ResponseEntity<InputStreamResource>> binaryResponse(Mono<BinaryFileDto> binaryFileMono) {
-    return binaryFileMono.map(res -> {
-      String fileName = String.format("%s.%s", res.getFileName().replace("|", "_"), res.getExtension());
-      return ResponseEntity.ok()
-          .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", fileName))
-          .body(new InputStreamResource(new ByteArrayInputStream(res.getData())));
-    });
   }
 }

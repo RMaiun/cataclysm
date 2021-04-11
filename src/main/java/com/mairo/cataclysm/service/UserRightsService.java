@@ -1,11 +1,16 @@
 package com.mairo.cataclysm.service;
 
+import static com.mairo.cataclysm.utils.MonoSupport.fromOptional;
+
 import com.mairo.cataclysm.domain.Player;
+import com.mairo.cataclysm.exception.AuthorizationRuntimeException;
 import com.mairo.cataclysm.exception.InvalidUserRightsException;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.repository.PlayerRepository;
+import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -24,6 +29,11 @@ public class UserRightsService {
           .flatMap(players -> checkAdminPermissions(players, tid))
           .then();
     }
+  }
+
+  public Mono<Player> checkUserIsRegistered(String tid){
+    return playerRepository.getPlayerByCriteria(Criteria.where("tid").is(tid))
+        .flatMap(maybeUser -> fromOptional(maybeUser, new AuthorizationRuntimeException()));
   }
 
   private Mono<Player> checkAdminPermissions(List<Player> players, String tid) {

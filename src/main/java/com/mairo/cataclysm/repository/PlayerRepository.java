@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -16,13 +17,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class PlayerRepository {
 
   private final ReactiveMongoTemplate template;
-
-  public PlayerRepository(ReactiveMongoTemplate template) {
-    this.template = template;
-  }
 
   public Mono<List<Player>> listAll() {
     return template.findAll(Player.class)

@@ -7,11 +7,14 @@ import com.mairo.cataclysm.postprocessor.PostProcessor;
 import com.mairo.cataclysm.processor.CommandProcessor;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.properties.RabbitProps;
+import com.mairo.cataclysm.service.UserRightsService;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -24,6 +27,8 @@ import reactor.util.retry.RetrySpec;
 @Service
 public class CommandReceiver {
 
+  private static final Logger log = LogManager.getLogger(CommandReceiver.class);
+
   private final MetadataParser metadataParser;
   private final RabbitSender rabbitSender;
   private final ConnectionFactory connectionFactory;
@@ -31,6 +36,7 @@ public class CommandReceiver {
   private final AppProps appProps;
   private final List<CommandProcessor> processors;
   private final List<PostProcessor> postProcessors;
+  private final UserRightsService userRightsService;
 
   @PostConstruct
   public void init() {
@@ -49,10 +55,17 @@ public class CommandReceiver {
   }
 
   private Mono<List<OutputMessage>> runProcessor(BotInputMessage input) {
-    return processCmd(input)
-        .onErrorResume(e -> Mono.just(OutputMessage.error(input.getChatId(), msgId(), format(e))))
-        .flatMap(rabbitSender::send)
-        .flatMap(output -> runPostProcess(input, output));
+    return
+        userRightsService.checkUserIsRegistered(input.getTid())
+            .then(processCmd(input))
+            .onErrorResume(e -> transformError(e, input))
+            .flatMap(rabbitSender::send)
+            .flatMap(output -> runPostProcess(input, output));
+  }
+
+  private Mono<OutputMessage> transformError(Throwable e, BotInputMessage input) {
+    return Mono.just(OutputMessage.error(input.getChatId(), msgId(), format(e)))
+        .doOnNext((msg) -> log.error(e.getMessage()));
   }
 
   private Mono<List<OutputMessage>> runPostProcess(BotInputMessage input, OutputMessage output) {

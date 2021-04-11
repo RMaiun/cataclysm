@@ -1,6 +1,7 @@
 package com.mairo.cataclysm.helper;
 
 import com.mairo.cataclysm.config.DbConfiguration;
+import com.mairo.cataclysm.domain.AuditLog;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Round;
 import com.mairo.cataclysm.domain.Season;
@@ -47,7 +48,7 @@ public class MigrationHelper {
 
   public void migrate() {
     createIndexes();
-    mysqlDataToMongo();
+    // mysqlDataToMongo();
   }
 
   public void mysqlDataToMongo() {
@@ -107,6 +108,7 @@ public class MigrationHelper {
       Mono<MongoCollection<Document>> seasonCollection = reactiveMongoTemplate.createCollection(Season.class);
       Mono<MongoCollection<Document>> playerCollection = reactiveMongoTemplate.createCollection(Player.class);
       Mono<MongoCollection<Document>> roundCollection = reactiveMongoTemplate.createCollection(Round.class);
+      Mono<MongoCollection<Document>> auditLogCollection = reactiveMongoTemplate.createCollection(AuditLog.class);
       seasonCollection
           .onErrorResume(errorFallback.apply("season", reactiveMongoTemplate))
           .doOnNext(MongoCollection::dropIndexes)
@@ -131,6 +133,13 @@ public class MigrationHelper {
                   new IndexModel(Indexes.ascending("_id"), new IndexOptions().unique(true)),
                   new IndexModel(Indexes.ascending("season"))))))
           .doOnNext(collection -> logger.info("Indexes were created for collection 'round'"))
+          .then(auditLogCollection
+              .onErrorResume(errorFallback.apply("auditLog", reactiveMongoTemplate))
+              .doOnNext(MongoCollection::dropIndexes)
+              .doOnNext(collection -> logger.info("Indexes were dropped for collection 'auditLog'"))
+              .doOnNext(c -> c.createIndexes(List.of(
+                  new IndexModel(Indexes.ascending("_id"), new IndexOptions().unique(true)))))
+          .doOnNext(collection -> logger.info("Indexes were created for collection 'auditLog'")))
           .subscribe();
     }
   }
