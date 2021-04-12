@@ -6,8 +6,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class GenerateLogsFileDto {
+public class DistributeLogsReportDto {
 
   private ZonedDateTime from;
   private ZonedDateTime to;
+  private String moderator;
 }

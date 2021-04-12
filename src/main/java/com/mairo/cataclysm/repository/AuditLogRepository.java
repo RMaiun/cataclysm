@@ -1,6 +1,7 @@
 package com.mairo.cataclysm.repository;
 
 import com.mairo.cataclysm.domain.AuditLog;
+import com.mongodb.client.result.DeleteResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -15,12 +16,21 @@ public class AuditLogRepository {
 
   private final ReactiveMongoTemplate template;
 
-  public Mono<AuditLog> save(AuditLog auditLog){
+  public Mono<AuditLog> save(AuditLog auditLog) {
     return template.save(auditLog);
   }
 
-  public Flux<AuditLog> listByCriteria(Criteria criteria){
-    return template.find(new Query(criteria),AuditLog.class);
+  public Flux<AuditLog> listByCriteria(Criteria criteria) {
+    return template.find(new Query(criteria), AuditLog.class);
   }
 
+  public Flux<AuditLog> listAll() {
+    return template.findAll(AuditLog.class);
+  }
+
+  public Mono<Long> removeAll() {
+    return template.remove(AuditLog.class)
+        .all()
+        .map(DeleteResult::getDeletedCount);
+  }
 }

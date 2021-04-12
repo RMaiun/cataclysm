@@ -5,7 +5,7 @@ import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.model.RoundsModel;
+import com.mairo.cataclysm.service.RoundsService;
 import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,12 @@ import reactor.core.publisher.Mono;
 public class AddRoundCmdProcessor implements CommandProcessor {
 
   private final ObjectMapper mapper;
-  private final RoundsModel roundsModel;
+  private final RoundsService roundsService;
 
   @Override
   public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), AddRoundDto.class))
-        .flatMap(roundsModel::saveRound)
+        .flatMap(roundsService::saveRound)
         .map(this::format)
         .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }

@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.model;
+package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
 import static com.mairo.cataclysm.validation.ValidationTypes.addRoundValidationType;
@@ -17,8 +17,6 @@ import com.mairo.cataclysm.dto.PlayerSeasonRoundsData;
 import com.mairo.cataclysm.exception.SamePlayersInRoundException;
 import com.mairo.cataclysm.helper.RoundServiceHelper;
 import com.mairo.cataclysm.repository.RoundRepository;
-import com.mairo.cataclysm.service.ReportStupidCacheService;
-import com.mairo.cataclysm.service.UserRightsService;
 import com.mairo.cataclysm.utils.DateUtils;
 import java.util.HashSet;
 import java.util.List;
@@ -31,10 +29,10 @@ import reactor.util.function.Tuple2;
 
 @Service
 @RequiredArgsConstructor
-public class RoundsModel {
+public class RoundsService {
 
-  private final PlayerModel playerModel;
-  private final SeasonModel seasonModel;
+  private final PlayerService playerService;
+  private final SeasonService seasonService;
   private final RoundRepository roundRepository;
   private final RoundServiceHelper roundServiceHelper;
   private final UserRightsService userRightsService;
@@ -42,8 +40,8 @@ public class RoundsModel {
 
   public Mono<FoundLastRounds> findLastRoundsInSeason(FindLastRoundsDto dto) {
     return validate(dto, listLastRoundsValidationType)
-        .then(seasonModel.findSeason(dto.getSeason()))
-        .then(playerModel.findAllPlayers())
+        .then(seasonService.findSeason(dto.getSeason()))
+        .then(playerService.findAllPlayers())
         .flatMap(foundAllPlayers -> preparePlayerSeasonData(foundAllPlayers.getPlayers(), dto.getSeason(), dto.getQty()))
         .map(roundServiceHelper::transformRounds)
         .map(rounds -> new FoundLastRounds(dto.getSeason(), rounds));
@@ -58,9 +56,9 @@ public class RoundsModel {
   }
 
   public Mono<List<FullRound>> findAllRounds(String seasonName) {
-    return seasonModel.findSeason(seasonName)
+    return seasonService.findSeason(seasonName)
         .then(Mono.zip(
-            playerModel.findAllPlayerNames(),
+            playerService.findAllPlayerNames(),
             roundRepository.listRoundsBySeason(seasonName),
             (players, rounds) -> new PlayerSeasonRoundsData(seasonName, players, rounds)))
         .map(roundServiceHelper::transformRounds);
@@ -71,13 +69,13 @@ public class RoundsModel {
         .then(userRightsService.checkUserIsAdmin(dto.getModerator()))
         .then(checkAllPlayersAreDifferent(dto))
         .then(checkPlayersExist(dto))
-        .then(seasonModel.findSeason(currentSeason()))
+        .then(seasonService.findSeason(currentSeason()))
         .flatMap(s -> saveWithCacheRefresh(s.getName(), dto))
         .map(r -> new IdDto(r.getId()));
   }
 
   private Mono<Tuple2<Season, List<Player>>> checkPlayersExist(AddRoundDto dto) {
-    return Mono.zip(seasonModel.findSeasonSafely(currentSeason()), playerModel.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())));
+    return Mono.zip(seasonService.findSeasonSafely(currentSeason()), playerService.checkPlayersExist(List.of(dto.getW1(), dto.getW2(), dto.getL1(), dto.getL2())));
   }
 
   private Mono<Round> saveWithCacheRefresh(String season, AddRoundDto dto) {

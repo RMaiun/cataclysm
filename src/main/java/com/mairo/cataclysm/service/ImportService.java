@@ -2,12 +2,14 @@ package com.mairo.cataclysm.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mairo.cataclysm.domain.AuditLog;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Round;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.ImportDumpData;
 import com.mairo.cataclysm.dto.ImportDumpDto;
 import com.mairo.cataclysm.exception.DumpException;
+import com.mairo.cataclysm.repository.AuditLogRepository;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
@@ -44,6 +46,7 @@ public class ImportService {
   private final SeasonRepository seasonRepository;
   private final PlayerRepository playerRepository;
   private final RoundRepository roundRepository;
+  private final AuditLogRepository auditLogRepository;
   private final UserRightsService userRightsService;
 
 
@@ -62,15 +65,19 @@ public class ImportService {
         .then(importSeasons(data.getSeasonList()))
         .flatMap(sSize -> importPlayers(data.getPlayersList())
             .map(pSize -> new ImportDumpDto().withPlayers(pSize).withSeasons(sSize)))
-        .flatMap(result -> importRounds(data.getRoundsList(), data.getSeasonList()).map(result::withRounds));
+        .flatMap(dto -> importAuditLogs(data.getAuditLogList())
+            .map(dto::withAuditLogs))
+        .flatMap(result -> importRounds(data.getRoundsList(), data.getSeasonList())
+            .map(result::withRounds));
   }
 
   private Mono<Long> clearTables() {
     return Mono.zip(
         roundRepository.removeAll(),
         seasonRepository.removeAll(),
-        playerRepository.removeAll())
-        .map(t -> t.getT1() + t.getT2() + t.getT3());
+        playerRepository.removeAll(),
+        auditLogRepository.removeAll())
+        .map(t -> t.getT1() + t.getT2() + t.getT3() + t.getT4());
 
   }
 
@@ -85,6 +92,7 @@ public class ImportService {
       List<Season> seasonList = new ArrayList<>();
       List<Player> playersList = new ArrayList<>();
       List<Round> roundsList = new ArrayList<>();
+      List<AuditLog> auditLogList = new ArrayList<>();
 
       try (ZipInputStream zis = new ZipInputStream(is)) {
         ZipEntry entry;
@@ -97,6 +105,10 @@ public class ImportService {
             TypeReference<List<Player>> playersTR = new TypeReference<>() {
             };
             processZipEntry(zis, bytes -> playersList.addAll(readData(bytes, playersTR)));
+          } else if (entry.getName().contains("auditLogs")) {
+            TypeReference<List<AuditLog>> playersTR = new TypeReference<>() {
+            };
+            processZipEntry(zis, bytes -> auditLogList.addAll(readData(bytes, playersTR)));
           } else {
             TypeReference<List<Round>> roundsTR = new TypeReference<>() {
             };
@@ -108,7 +120,7 @@ public class ImportService {
         return Try.failure(e);
       }
       logger.info("Data import from archive dump successfully finished");
-      return Try.success(new ImportDumpData(seasonList, playersList, roundsList));
+      return Try.success(new ImportDumpData(seasonList, playersList, roundsList, auditLogList));
     });
   }
 
@@ -146,6 +158,12 @@ public class ImportService {
     return Flux.fromIterable(seasons)
         .flatMap(playerRepository::savePlayer)
         .then(Mono.just(seasons.size()));
+  }
+
+  private Mono<Integer> importAuditLogs(List<AuditLog> auditLogs) {
+    return Flux.fromIterable(auditLogs)
+        .flatMap(auditLogRepository::save)
+        .then(Mono.just(auditLogs.size()));
   }
 
 }

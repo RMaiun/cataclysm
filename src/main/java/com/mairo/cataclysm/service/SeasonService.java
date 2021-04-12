@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.model;
+package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
 
@@ -15,9 +15,9 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-public class SeasonModel {
+public class SeasonService {
 
-  public static final Logger logger = LogManager.getLogger(SeasonModel.class);
+  public static final Logger logger = LogManager.getLogger(SeasonService.class);
 
   private final SeasonRepository seasonRepository;
 

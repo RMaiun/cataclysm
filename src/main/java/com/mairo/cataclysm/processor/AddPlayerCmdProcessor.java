@@ -5,7 +5,7 @@ import com.mairo.cataclysm.dto.AddPlayerDto;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.model.PlayerModel;
+import com.mairo.cataclysm.service.PlayerService;
 import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.Collections;
 import java.util.List;
@@ -16,13 +16,14 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class AddPlayerCmdProcessor implements CommandProcessor {
-  private final PlayerModel playerModel;
+
+  private final PlayerService playerService;
   private final ObjectMapper mapper;
 
   @Override
   public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), AddPlayerDto.class))
-        .flatMap(playerModel::addPlayer)
+        .flatMap(playerService::addPlayer)
         .map(this::format)
         .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }

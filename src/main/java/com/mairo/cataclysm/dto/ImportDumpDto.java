@@ -14,5 +14,6 @@ public class ImportDumpDto {
 
   private int seasons;
   private int players;
+  private int auditLogs;
   private Map<String, Long> rounds;
 }

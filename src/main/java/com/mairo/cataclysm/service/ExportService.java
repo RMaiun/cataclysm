@@ -1,10 +1,12 @@
 package com.mairo.cataclysm.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mairo.cataclysm.domain.AuditLog;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Round;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.BinaryFileDto;
+import com.mairo.cataclysm.repository.AuditLogRepository;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
@@ -28,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple4;
 
 @Service
 @RequiredArgsConstructor
@@ -39,21 +41,28 @@ public class ExportService {
   private final SeasonRepository seasonRepository;
   private final PlayerRepository playerRepository;
   private final RoundRepository roundRepository;
+  private final AuditLogRepository auditLogRepository;
   private final ObjectMapper objectMapper;
   private final UserRightsService userRightsService;
 
   private final String SEASONS = "seasons.json";
   private final String PLAYERS = "players.json";
   private final String ROUNDS = "rounds_%s.json";
+  private final String AUDIT_LOGS = "auditLogs.json";
 
   public Mono<BinaryFileDto> export(ZonedDateTime before, String moderator) {
     return userRightsService.checkUserIsAdmin(moderator)
-        .then(Mono.zip(findAllSeasons(), findAllPlayers(), findRoundsBeforeDate(before)))
+        .then(Mono.zip(
+            findAllSeasons(),
+            findAllPlayers(),
+            findRoundsBeforeDate(before),
+            findAuditLogs()
+        ))
         .publishOn(Schedulers.elastic())
         .flatMap(this::prepareZipArchive);
   }
 
-  private Mono<BinaryFileDto> prepareZipArchive(Tuple3<List<Season>, List<Player>, List<Round>> data) {
+  private Mono<BinaryFileDto> prepareZipArchive(Tuple4<List<Season>, List<Player>, List<Round>, List<AuditLog>> data) {
     logger.info("Starting archive preparation for export");
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ZipOutputStream zipOutputStream = new ZipOutputStream(bos);
@@ -61,6 +70,7 @@ public class ExportService {
         .flatMap(zos -> writeZipEntry(data.getT1(), SEASONS, zos))
         .flatMap(zos -> writeZipEntry(data.getT2(), PLAYERS, zos))
         .flatMap(zos -> prepareRoundsBySeason(data.getT3(), data.getT1(), zos))
+        .flatMap(zos -> writeZipEntry(data.getT4(), AUDIT_LOGS, zos))
         .andFinallyTry(zipOutputStream::close);
     logger.info("Archive preparation for export was successfully finished");
     return MonoSupport.fromTry(zosResult)
@@ -116,6 +126,10 @@ public class ExportService {
 
   private Mono<List<Player>> findAllPlayers() {
     return playerRepository.listAll();
+  }
+
+  private Mono<List<AuditLog>> findAuditLogs() {
+    return auditLogRepository.listAll().collectList();
   }
 
   private Mono<List<Round>> findRoundsBeforeDate(ZonedDateTime before) {

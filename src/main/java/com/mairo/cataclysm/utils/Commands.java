@@ -12,6 +12,7 @@ public interface Commands extends Constants{
   String SHORT_STATS_CMD = "shortStats";
   String SUBSCRIBE_CMD = "subscribe";
   String UNSUBSCRIBE_CMD = "unsubscribe";
+  String LOG_CMD = "log";
 
   List<String> commands();
 }

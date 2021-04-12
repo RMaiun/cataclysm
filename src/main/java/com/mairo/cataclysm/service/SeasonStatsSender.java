@@ -18,9 +18,6 @@ import com.mairo.cataclysm.dto.PlayerRank;
 import com.mairo.cataclysm.dto.PlayerStats;
 import com.mairo.cataclysm.dto.SeasonNotificationData;
 import com.mairo.cataclysm.dto.SeasonShortStats;
-import com.mairo.cataclysm.model.PlayerModel;
-import com.mairo.cataclysm.model.RoundsModel;
-import com.mairo.cataclysm.model.SeasonModel;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.rabbit.RabbitSender;
 import java.math.BigDecimal;
@@ -48,11 +45,11 @@ public class SeasonStatsSender {
   public static final Logger logger = LogManager.getLogger(SeasonStatsSender.class);
 
   private final AppProps appProps;
-  private final PlayerModel playerModel;
+  private final PlayerService playerService;
   private final RabbitSender rabbitSender;
   private final StatisticsService statisticsService;
-  private final RoundsModel roundsModel;
-  private final SeasonModel seasonModel;
+  private final RoundsService roundsService;
+  private final SeasonService seasonService;
 
 
   public Mono<Void> sendFinalSeasonStats() {
@@ -68,11 +65,11 @@ public class SeasonStatsSender {
         .doOnNext(ranks -> logger.info("{} users will receive final stats notification", ranks.size()))
         .flatMapMany(Flux::fromIterable)
         .flatMap(this::sendNotificationForPlayer)
-        .then(seasonModel.ackSendFinalNotifications());
+        .then(seasonService.ackSendFinalNotifications());
   }
 
   private Mono<SeasonNotificationData> shouldSend(ZonedDateTime currentDateTime) {
-    return seasonModel.findSeasonWithoutNotifications()
+    return seasonService.findSeasonWithoutNotifications()
         .map(maybeSeason ->
             maybeSeason.map(foundSeason ->
                 new SeasonNotificationData(foundSeason.getName(), firstBeforeSecond(foundSeason.getName(), currentSeason()) && notLateToSend(currentDateTime)))
@@ -84,8 +81,8 @@ public class SeasonStatsSender {
   private Mono<List<PlayerRank>> findPlayersWithRanks(String season) {
     return Mono.zip(
         statisticsService.seasonShortInfoStatistics(season),
-        playerModel.findAllPlayers(),
-        roundsModel.findAllRounds(season))
+        playerService.findAllPlayers(),
+        roundsService.findAllRounds(season))
         .map(this::preparePlayerRanks);
   }
 

@@ -9,7 +9,7 @@ import com.mairo.cataclysm.dto.FindLastRoundsDto;
 import com.mairo.cataclysm.dto.FoundLastRounds;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.model.RoundsModel;
+import com.mairo.cataclysm.service.RoundsService;
 import com.mairo.cataclysm.utils.DateUtils;
 import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
@@ -23,13 +23,13 @@ import reactor.core.publisher.Mono;
 public class LastCmdProcessor implements CommandProcessor {
 
   private final ObjectMapper mapper;
-  private final RoundsModel roundsModel;
+  private final RoundsService roundsService;
 
 
   @Override
   public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), FindLastRoundsDto.class))
-        .flatMap(roundsModel::findLastRoundsInSeason)
+        .flatMap(roundsService::findLastRoundsInSeason)
         .map(this::format)
         .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
   }

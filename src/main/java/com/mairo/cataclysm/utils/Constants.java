@@ -8,4 +8,5 @@ public interface Constants {
   String DELIMITER = StringUtils.repeat("-", 34) + LINE_SEPARATOR;
   String SUFFIX = "```";
   String PREFIX = SUFFIX + LINE_SEPARATOR;
+  String DEFAULT_RESULT = "";
 }

@@ -13,7 +13,7 @@ import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.processor.CommandProcessor;
 import com.mairo.cataclysm.rabbit.RabbitSender;
-import com.mairo.cataclysm.model.PlayerModel;
+import com.mairo.cataclysm.service.PlayerService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 public class AddRoundPostProcessor implements PostProcessor {
 
   private final ObjectMapper mapper;
-  private final PlayerModel playerModel;
+  private final PlayerService playerService;
   private final RabbitSender rabbitSender;
 
   @Override
@@ -55,7 +55,7 @@ public class AddRoundPostProcessor implements PostProcessor {
   }
 
   private Mono<OutputMessage> sendNotificationToUser(int msgId, String player, boolean winner, String opponents) {
-    return playerModel.findPlayerByName(player)
+    return playerService.findPlayerByName(player)
         .filter(Player::isNotificationsEnabled)
         .filter(p -> nonNull(p.getTid()))
         .map(p -> new BotOutputMessage(p.getTid(), msgId, formatNotification(opponents, winner)))

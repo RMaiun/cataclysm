@@ -15,6 +15,7 @@ import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.FindLastRoundsDto;
 import com.mairo.cataclysm.dto.GenerateStatsDocumentDto;
 import com.mairo.cataclysm.dto.LinkTidDto;
+import com.mairo.cataclysm.dto.StoreAuditLogDto;
 import com.mairo.cataclysm.dto.SubscriptionActionDto;
 
 public interface ValidationTypes {
@@ -54,4 +55,8 @@ public interface ValidationTypes {
   ValidationType<SubscriptionActionDto> subscriptionActionValidationType = dto ->
       schema()
           .withRule(rule(dto.getTid(), "moderator", notEmpty(), onlyNumbers()));
+
+  ValidationType<StoreAuditLogDto> storeAuditLogValidationType = dto ->
+      schema()
+          .withRule(requiredRule(dto.getMsg(), "msg", notEmpty()));
 }

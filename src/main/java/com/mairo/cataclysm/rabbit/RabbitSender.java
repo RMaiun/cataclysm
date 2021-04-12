@@ -1,6 +1,5 @@
 package com.mairo.cataclysm.rabbit;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
@@ -18,7 +17,11 @@ public class RabbitSender {
   private final RabbitProps rabbitProps;
 
   public Mono<OutputMessage> send(OutputMessage msg) {
-    return send(rabbitProps.getOutputQueue(), msg.getData()).map(__ -> msg);
+    if (msg.getData().getResult().isEmpty()) {
+      return Mono.just(msg);
+    } else {
+      return send(rabbitProps.getOutputQueue(), msg.getData()).map(__ -> msg);
+    }
   }
 
   private Mono<BotOutputMessage> send(String key, BotOutputMessage dto) {
@@ -33,10 +36,6 @@ public class RabbitSender {
   }
 
   private Mono<String> stringify(BotOutputMessage value) {
-    try {
-      return Mono.just(objectMapper.writeValueAsString(value));
-    } catch (JsonProcessingException e) {
-      return Mono.error(e);
-    }
+    return Mono.fromCallable(() -> objectMapper.writeValueAsString(value));
   }
 }

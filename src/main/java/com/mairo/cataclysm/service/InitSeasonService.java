@@ -3,7 +3,6 @@ package com.mairo.cataclysm.service;
 import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
 
 import com.mairo.cataclysm.domain.Season;
-import com.mairo.cataclysm.model.SeasonModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -12,9 +11,9 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class InitSeasonService {
 
-  private final SeasonModel seasonModel;
+  private final SeasonService seasonService;
 
   public Mono<Season> initSeason() {
-    return seasonModel.findSeasonSafely(currentSeason());
+    return seasonService.findSeasonSafely(currentSeason());
   }
 }

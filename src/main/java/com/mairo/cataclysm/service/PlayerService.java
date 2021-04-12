@@ -1,4 +1,4 @@
-package com.mairo.cataclysm.model;
+package com.mairo.cataclysm.service;
 
 import static com.mairo.cataclysm.utils.MonoSupport.eitherToMono;
 import static com.mairo.cataclysm.validation.ValidationTypes.addPlayerValidationType;
@@ -12,7 +12,6 @@ import com.mairo.cataclysm.exception.PlayerAlreadyExistsException;
 import com.mairo.cataclysm.exception.PlayerNotFoundException;
 import com.mairo.cataclysm.helper.PlayerServiceHelper;
 import com.mairo.cataclysm.repository.PlayerRepository;
-import com.mairo.cataclysm.service.UserRightsService;
 import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +25,9 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class PlayerModel {
+public class PlayerService {
 
-  public static final Logger logger = LogManager.getLogger(PlayerModel.class);
+  public static final Logger logger = LogManager.getLogger(PlayerService.class);
 
   private final PlayerRepository playerRepository;
   private final UserRightsService userRightsService;
