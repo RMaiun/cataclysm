@@ -1,12 +1,12 @@
 version: '3.3'
 services:
-  catamysql:
-    image: mysql
-    ports:
-      - '3306:3306'
-    environment:
-      - MYSQL_DATABASE=cata
-      - MYSQL_ROOT_PASSWORD=password
+#  catamysql:
+#    image: mysql
+#    ports:
+#      - '3306:3306'
+#    environment:
+#      - MYSQL_DATABASE=cata
+#      - MYSQL_ROOT_PASSWORD=password
   catamongo:
     image: mongo:latest
     container_name: catamongo

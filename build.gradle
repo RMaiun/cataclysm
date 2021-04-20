@@ -43,10 +43,6 @@ dependencies {
   implementation 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'
 
   compileOnly 'org.projectlombok:lombok'
-  implementation 'dev.miku:r2dbc-mysql'
-  compile group: 'io.r2dbc', name: 'r2dbc-pool', version: '0.8.3.RELEASE'
-  runtimeOnly 'mysql:mysql-connector-java'
-  implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

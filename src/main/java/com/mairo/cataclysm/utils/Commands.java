@@ -2,7 +2,7 @@ package com.mairo.cataclysm.utils;
 
 import java.util.List;
 
-public interface Commands extends Constants{
+public interface Commands extends Constants {
 
   String ADD_PLAYER_CMD = "addPlayer";
   String ADD_ROUND_CMD = "addRound";
@@ -12,7 +12,7 @@ public interface Commands extends Constants{
   String SHORT_STATS_CMD = "shortStats";
   String SUBSCRIBE_CMD = "subscribe";
   String UNSUBSCRIBE_CMD = "unsubscribe";
-  String LOG_CMD = "logs";
+  String STORE_LOG_CMD = "storeLog";
 
   List<String> commands();
 }

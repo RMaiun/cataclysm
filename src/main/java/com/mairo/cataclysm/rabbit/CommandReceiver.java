@@ -1,5 +1,6 @@
 package com.mairo.cataclysm.rabbit;
 
+import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.exception.InvalidCommandException;
@@ -8,6 +9,7 @@ import com.mairo.cataclysm.processor.CommandProcessor;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.properties.RabbitProps;
 import com.mairo.cataclysm.service.UserRightsService;
+import com.mairo.cataclysm.utils.Commands;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
 import java.util.List;
@@ -56,11 +58,19 @@ public class CommandReceiver {
 
   private Mono<List<OutputMessage>> runProcessor(BotInputMessage input) {
     return
-        userRightsService.checkUserIsRegistered(input.getTid())
+        checkUserIsRegistered(input)
             .then(processCmd(input))
             .onErrorResume(e -> transformError(e, input))
             .flatMap(rabbitSender::send)
             .flatMap(output -> runPostProcess(input, output));
+  }
+
+  private Mono<Player> checkUserIsRegistered(BotInputMessage input) {
+    if (input.getCmd().equals(Commands.STORE_LOG_CMD)) {
+      return Mono.empty();
+    } else {
+      return userRightsService.checkUserIsRegistered(input.getTid());
+    }
   }
 
   private Mono<OutputMessage> transformError(Throwable e, BotInputMessage input) {

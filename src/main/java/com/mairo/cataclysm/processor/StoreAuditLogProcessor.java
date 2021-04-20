@@ -28,6 +28,6 @@ public class StoreAuditLogProcessor implements CommandProcessor {
 
   @Override
   public List<String> commands() {
-    return Collections.singletonList(LOG_CMD);
+    return Collections.singletonList(STORE_LOG_CMD);
   }
 }
