@@ -1,13 +1,16 @@
 package com.mairo.cataclysm.rabbit;
 
+import com.mairo.cataclysm.domain.AuditLog;
 import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
+import com.mairo.cataclysm.dto.StoreAuditLogDto;
 import com.mairo.cataclysm.exception.InvalidCommandException;
 import com.mairo.cataclysm.postprocessor.PostProcessor;
 import com.mairo.cataclysm.processor.CommandProcessor;
 import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.properties.RabbitProps;
+import com.mairo.cataclysm.service.AuditLogService;
 import com.mairo.cataclysm.service.UserRightsService;
 import com.mairo.cataclysm.utils.Commands;
 import com.rabbitmq.client.ConnectionFactory;
@@ -39,6 +42,7 @@ public class CommandReceiver {
   private final List<CommandProcessor> processors;
   private final List<PostProcessor> postProcessors;
   private final UserRightsService userRightsService;
+  private final AuditLogService auditLogService;
 
   @PostConstruct
   public void init() {
@@ -58,11 +62,18 @@ public class CommandReceiver {
 
   private Mono<List<OutputMessage>> runProcessor(BotInputMessage input) {
     return
-        checkUserIsRegistered(input)
+        createAuditLog(input)
+            .then(checkUserIsRegistered(input))
             .then(processCmd(input))
             .onErrorResume(e -> transformError(e, input))
             .flatMap(rabbitSender::send)
             .flatMap(output -> runPostProcess(input, output));
+  }
+
+  private Mono<AuditLog> createAuditLog(BotInputMessage input) {
+    String msg = String.format("/%s was called by %s (%s)", input.getCmd(), input.getUser(), input.getTid());
+    return auditLogService.storeAuditLog(new StoreAuditLogDto(msg))
+        .doOnNext(al -> log.info(msg));
   }
 
   private Mono<Player> checkUserIsRegistered(BotInputMessage input) {

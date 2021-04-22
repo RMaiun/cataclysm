@@ -14,5 +14,6 @@ public class BotInputMessage {
   private String cmd;
   private String chatId;
   private String tid;
+  private String user;
   private Map<String, Object> data = new HashMap<>();
 }

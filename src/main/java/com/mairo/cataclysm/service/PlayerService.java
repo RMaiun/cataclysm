@@ -91,7 +91,7 @@ public class PlayerService {
   }
 
 
-  private Mono<Void> checkUserIsAdmin(String moderator) {
+  private Mono<Player> checkUserIsAdmin(String moderator) {
     return userRightsService.checkUserIsAdmin(moderator);
   }
 

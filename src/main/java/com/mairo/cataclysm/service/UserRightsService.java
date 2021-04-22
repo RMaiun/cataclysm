@@ -21,13 +21,12 @@ public class UserRightsService {
   private final PlayerRepository playerRepository;
   private final AppProps appProps;
 
-  public Mono<Void> checkUserIsAdmin(String tid) {
+  public Mono<Player> checkUserIsAdmin(String tid) {
     if (tid.equals(appProps.getPrivileged())) {
       return Mono.empty();
     } else {
       return playerRepository.listAll()
-          .flatMap(players -> checkAdminPermissions(players, tid))
-          .then();
+          .flatMap(players -> checkAdminPermissions(players, tid));
     }
   }
 
