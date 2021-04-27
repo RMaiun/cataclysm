@@ -1,6 +1,5 @@
 app:
   topPlayersLimit: 5
-  minGames: 30
   winPoints: 25
   winShutoutPoints: 50
   losePoints: -25
@@ -8,7 +7,7 @@ app:
   algorithm: "PERCENTAGE"
   archiveReceiver: "маюн"
   notificationsEnabled: false
-  expectedGames: 30
+  expectedGames: 20
   reportTimezone: "Europe/Kiev"
   privileged: "testId"
 db:

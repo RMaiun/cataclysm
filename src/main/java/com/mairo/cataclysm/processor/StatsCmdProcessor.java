@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.SeasonShortStats;
+import com.mairo.cataclysm.properties.AppProps;
 import com.mairo.cataclysm.service.StatisticsService;
 import com.mairo.cataclysm.utils.MonoSupport;
 import java.util.List;
@@ -22,6 +23,7 @@ public class StatsCmdProcessor implements CommandProcessor {
 
   private final ObjectMapper mapper;
   private final StatisticsService statisticsService;
+  private final AppProps appProps;
 
   @Override
   public Mono<OutputMessage> process(BotInputMessage input, int msgId) {
@@ -42,7 +44,7 @@ public class StatsCmdProcessor implements CommandProcessor {
     }
 
     String ratings = data.getPlayersRating().isEmpty()
-        ? "Nobody played more than 30 games"
+        ? String.format("Nobody played more than %d games", appProps.getExpectedGames())
         : IntStream.range(0, data.getPlayersRating().size())
             .mapToObj(i -> String.format("%d. %s %s", i + 1,
                 capitalize(data.getPlayersRating().get(i).getSurname()),
