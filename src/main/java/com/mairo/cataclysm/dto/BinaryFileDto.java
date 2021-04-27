@@ -8,7 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BinaryFileDto {
-  private byte[] data;
-  private String fileName;
-  private String extension;
+	private byte[] data;
+	private String fileName;
+	private String extension;
+
+	public String fullName() {
+		return String.format("%s.%s", fileName, extension);
+	}
 }

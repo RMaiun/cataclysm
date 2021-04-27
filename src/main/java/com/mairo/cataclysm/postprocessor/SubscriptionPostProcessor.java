@@ -31,7 +31,7 @@ public class SubscriptionPostProcessor implements PostProcessor {
   public Flux<OutputMessage> postProcess(BotInputMessage input, int msgId) {
     String message = String.format("%s You was participated for notifications%s", CommandProcessor.PREFIX, CommandProcessor.SUFFIX);
     Mono<OutputMessage> res = MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), LinkTidDto.class))
-        .map(dto -> new BotOutputMessage(dto.getTid(), msgId, message))
+        .map(dto -> BotOutputMessage.asString(dto.getTid(), msgId, message))
         .map(OutputMessage::ok)
         .flatMap(data -> rabbitSender.send(data).map(__ -> data));
     return Flux.from(res);

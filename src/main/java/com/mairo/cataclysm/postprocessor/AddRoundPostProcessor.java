@@ -58,7 +58,7 @@ public class AddRoundPostProcessor implements PostProcessor {
     return playerService.findPlayerByName(player)
         .filter(Player::isNotificationsEnabled)
         .filter(p -> nonNull(p.getTid()))
-        .map(p -> new BotOutputMessage(p.getTid(), msgId, formatNotification(opponents, winner)))
+        .map(p -> BotOutputMessage.asString(p.getTid(), msgId, formatNotification(opponents, winner)))
         .map(OutputMessage::ok)
         .flatMap(dto -> rabbitSender.send(dto).map(__ -> dto));
   }

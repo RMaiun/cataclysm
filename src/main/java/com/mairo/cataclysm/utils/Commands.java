@@ -13,6 +13,8 @@ public interface Commands extends Constants {
   String SUBSCRIBE_CMD = "subscribe";
   String UNSUBSCRIBE_CMD = "unsubscribe";
   String STORE_LOG_CMD = "storeLog";
+  String XLSX_REPORT_CMD = "xlsxReport";
+  String DUMP_CMD = "dump";
 
   List<String> commands();
 }
