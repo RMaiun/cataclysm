@@ -6,6 +6,7 @@ import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.properties.RabbitProps;
 import com.rabbitmq.client.AMQP;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.rabbitmq.OutboundMessage;
 import reactor.rabbitmq.Sender;
@@ -21,7 +22,7 @@ public class RabbitSender {
 	private final RabbitProps rabbitProps;
 
 	public Mono<OutputMessage> send(OutputMessage msg) {
-		if (msg.getData().getResult().isEmpty() && Objects.isNull(msg.getData().getBinaryFileDto())) {
+		if (StringUtils.isEmpty(msg.getData().getResult()) && Objects.isNull(msg.getData().getBinaryFileDto())) {
 			return Mono.just(msg);
 		} else if (msg.getData().isBinaryFile()) {
 			return sendBinary(rabbitProps.getBinaryQueue(), msg.getData()).map(__ -> msg);

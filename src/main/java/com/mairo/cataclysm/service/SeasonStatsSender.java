@@ -11,6 +11,7 @@ import static java.util.Arrays.asList;
 import static java.util.Objects.nonNull;
 
 import com.mairo.cataclysm.domain.Player;
+import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.FullRound;
 import com.mairo.cataclysm.dto.OutputMessage;
@@ -122,8 +123,8 @@ public class SeasonStatsSender {
     String msg = playerRank.getRank() > 0
         ? messageForPlayerWithDefinedRating(builder, playerRank)
         : messageForPlayerWithoutRating(builder, playerRank);
-    logger.info(OutputMessage.ok(playerRank.getTid(), msgId(), msg));
-    return rabbitSender.send(OutputMessage.ok(playerRank.getTid(), msgId(), msg));
+    logger.info(OutputMessage.ok(BotOutputMessage.asString(playerRank.getTid(), msgId(), msg)));
+    return rabbitSender.send(OutputMessage.ok(BotOutputMessage.asString(playerRank.getTid(), msgId(), msg)));
   }
 
   private StringBuilder messageBuilder(PlayerRank rank) {

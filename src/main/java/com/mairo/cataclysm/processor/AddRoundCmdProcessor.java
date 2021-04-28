@@ -3,6 +3,7 @@ package com.mairo.cataclysm.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.IdDto;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.service.RoundsService;
@@ -24,7 +25,7 @@ public class AddRoundCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), AddRoundDto.class))
         .flatMap(roundsService::saveRound)
         .map(this::format)
-        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
+        .map(str -> OutputMessage.ok(BotOutputMessage.asString(input.getChatId(), msgId, str)));
   }
 
   @Override

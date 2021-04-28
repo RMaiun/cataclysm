@@ -24,8 +24,7 @@ public class ReportGeneratorService {
   }
 
   private Mono<BinaryFileDto> processReportGeneration(GenerateStatsDocumentDto dto) {
-    return cacheService.get(String.format(XlsxWriter.REPORT_NAME_WITH_EXT, dto.getSeason()))
-        .flatMap(res -> res.map(Mono::just).orElseGet(() -> generateNewReport(dto)));
+    return generateNewReport(dto);
   }
 
   private Mono<BinaryFileDto> generateNewReport(GenerateStatsDocumentDto dto) {

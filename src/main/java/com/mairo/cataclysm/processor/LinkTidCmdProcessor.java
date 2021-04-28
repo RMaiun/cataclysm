@@ -2,6 +2,7 @@ package com.mairo.cataclysm.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.LinkTidDto;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.SubscriptionResultDto;
@@ -29,7 +30,7 @@ public class LinkTidCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), LinkTidDto.class))
         .flatMap(subscriptionService::linkTidForPlayer)
         .map(this::format)
-        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
+        .map(str -> OutputMessage.ok(BotOutputMessage.asString(input.getChatId(), msgId, str)));
   }
 
   private String format(SubscriptionResultDto data) {

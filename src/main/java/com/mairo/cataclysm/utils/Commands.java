@@ -15,6 +15,7 @@ public interface Commands extends Constants {
   String STORE_LOG_CMD = "storeLog";
   String XLSX_REPORT_CMD = "xlsxReport";
   String DUMP_CMD = "dump";
+  String LOG_REPORT_CMD = "logs";
 
   List<String> commands();
 }

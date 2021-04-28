@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.FindLastRoundsDto;
 import com.mairo.cataclysm.dto.FoundLastRounds;
 import com.mairo.cataclysm.dto.FullRound;
@@ -31,7 +32,7 @@ public class LastCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), FindLastRoundsDto.class))
         .flatMap(roundsService::findLastRoundsInSeason)
         .map(this::format)
-        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
+        .map(str -> OutputMessage.ok(BotOutputMessage.asString(input.getChatId(), msgId, str)));
   }
 
   @Override

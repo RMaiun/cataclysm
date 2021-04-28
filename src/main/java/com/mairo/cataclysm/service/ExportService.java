@@ -6,13 +6,14 @@ import com.mairo.cataclysm.domain.Player;
 import com.mairo.cataclysm.domain.Round;
 import com.mairo.cataclysm.domain.Season;
 import com.mairo.cataclysm.dto.BinaryFileDto;
+import com.mairo.cataclysm.exception.DumpException;
 import com.mairo.cataclysm.repository.AuditLogRepository;
 import com.mairo.cataclysm.repository.PlayerRepository;
 import com.mairo.cataclysm.repository.RoundRepository;
 import com.mairo.cataclysm.repository.SeasonRepository;
-import com.mairo.cataclysm.utils.MonoSupport;
 import io.vavr.control.Try;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
@@ -63,19 +64,20 @@ public class ExportService {
   }
 
   private Mono<BinaryFileDto> prepareZipArchive(Tuple4<List<Season>, List<Player>, List<Round>, List<AuditLog>> data) {
-    logger.info("Starting archive preparation for export");
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    ZipOutputStream zipOutputStream = new ZipOutputStream(bos);
-    Try<ZipOutputStream> zosResult = Try.of(() -> zipOutputStream)
-        .flatMap(zos -> writeZipEntry(data.getT1(), SEASONS, zos))
-        .flatMap(zos -> writeZipEntry(data.getT2(), PLAYERS, zos))
-        .flatMap(zos -> prepareRoundsBySeason(data.getT3(), data.getT1(), zos))
-        .flatMap(zos -> writeZipEntry(data.getT4(), AUDIT_LOGS, zos))
-        .andFinallyTry(zipOutputStream::close);
-    logger.info("Archive preparation for export was successfully finished");
-    return MonoSupport.fromTry(zosResult)
-        .map(__ -> bos.toByteArray())
-        .map(this::prepareResultDto);
+    return Mono.fromCallable(() -> {
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      logger.info("Starting archive preparation for export");
+      try (ZipOutputStream zos = new ZipOutputStream(byteArrayOutputStream)) {
+        writeZipEntry(data.getT1(), SEASONS, zos);
+        writeZipEntry(data.getT2(), PLAYERS, zos);
+        // prepareRoundsBySeason(data.getT3(), data.getT1(), zos);
+        writeZipEntry(data.getT4(), AUDIT_LOGS, zos);
+        logger.info("Archive preparation for export was successfully finished");
+      }
+      byte[] bytes = byteArrayOutputStream.toByteArray();
+      byteArrayOutputStream = null;
+      return bytes;
+    }).map(this::prepareResultDto);
   }
 
   private BinaryFileDto prepareResultDto(byte[] bytes) {
@@ -89,35 +91,32 @@ public class ExportService {
     return new BinaryFileDto(bytes, archiveName, "zip");
   }
 
-  private Try<ZipOutputStream> prepareRoundsBySeason(List<Round> rounds, List<Season> seasons, ZipOutputStream zos) {
-    Stream<Entry<String, List<Round>>> roundsPerSeasonStream = rounds.stream()
-        .collect(Collectors.groupingBy(Round::getSeason))
-        .entrySet()
-        .stream();
-    io.vavr.collection.List<Entry<String, List<Round>>> vavrRoundsList = io.vavr.collection.Stream.ofAll(roundsPerSeasonStream).toList();
-    return writeRoundsRecursively(vavrRoundsList, Try.of(() -> zos));
-  }
+  // private Try<ZipOutputStream> prepareRoundsBySeason(List<Round> rounds, List<Season> seasons, ZipOutputStream zos) {
+  //   Stream<Entry<String, List<Round>>> roundsPerSeasonStream = rounds.stream()
+  //       .collect(Collectors.groupingBy(Round::getSeason))
+  //       .entrySet()
+  //       .stream();
+  //   io.vavr.collection.List<Entry<String, List<Round>>> vavrRoundsList = io.vavr.collection.Stream.ofAll(roundsPerSeasonStream).toList();
+  //   return writeRoundsRecursively(vavrRoundsList, Try.of(() -> zos));
+  // }
 
-  private Try<ZipOutputStream> writeRoundsRecursively(io.vavr.collection.List<Entry<String, List<Round>>> roundsPerSeason, Try<ZipOutputStream> zos) {
-    if (roundsPerSeason.isEmpty()) {
-      return zos;
-    }
-    Try<ZipOutputStream> modifiedZos = zos.flatMap(zosVal -> {
-      Entry<String, List<Round>> head = roundsPerSeason.head();
-      String fileName = head.getKey().replace("|", "_");
-      return writeZipEntry(head.getValue(), String.format(ROUNDS, fileName), zosVal);
-    });
-    return writeRoundsRecursively(roundsPerSeason.tail(), modifiedZos);
-  }
+  // private Try<ZipOutputStream> writeRoundsRecursively(io.vavr.collection.List<Entry<String, List<Round>>> roundsPerSeason, Try<ZipOutputStream> zos) {
+  //   if (roundsPerSeason.isEmpty()) {
+  //     return zos;
+  //   }
+  //   Try<ZipOutputStream> modifiedZos = zos.flatMap(zosVal -> {
+  //     Entry<String, List<Round>> head = roundsPerSeason.head();
+  //     String fileName = head.getKey().replace("|", "_");
+  //     return writeZipEntry(head.getValue(), String.format(ROUNDS, fileName), zosVal);
+  //   });
+  //   return writeRoundsRecursively(roundsPerSeason.tail(), modifiedZos);
+  // }
 
-  private Try<ZipOutputStream> writeZipEntry(Object data, String name, ZipOutputStream zos) {
-    return Try.of(() -> {
-      ZipEntry e = new ZipEntry(name);
-      zos.putNextEntry(e);
-      objectMapper.writerWithDefaultPrettyPrinter().writeValue(new CloseShieldOutputStream(zos), data);
-      zos.closeEntry();
-      return zos;
-    });
+  private void writeZipEntry(Object data, String name, ZipOutputStream zos) throws IOException {
+    ZipEntry e = new ZipEntry(name);
+    zos.putNextEntry(e);
+    objectMapper.writerWithDefaultPrettyPrinter().writeValue(new CloseShieldOutputStream(zos), data);
+    zos.closeEntry();
   }
 
   private Mono<List<Season>> findAllSeasons() {

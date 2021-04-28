@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
+import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.dto.SeasonShortStats;
 import com.mairo.cataclysm.properties.AppProps;
@@ -30,7 +31,7 @@ public class StatsCmdProcessor implements CommandProcessor {
     return MonoSupport.fromTry(() -> mapper.convertValue(input.getData(), SeasonShortStats.class))
         .flatMap(dto -> statisticsService.seasonShortInfoStatistics(dto.getSeason()))
         .map(this::format)
-        .map(str -> OutputMessage.ok(input.getChatId(), msgId, str));
+        .map(str -> OutputMessage.ok(BotOutputMessage.asString(input.getChatId(), msgId, str)));
   }
 
   @Override
