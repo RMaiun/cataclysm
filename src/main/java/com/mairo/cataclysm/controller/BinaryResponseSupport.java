@@ -13,7 +13,7 @@ public interface BinaryResponseSupport {
     return binaryFileMono.map(res -> {
       String fileName = String.format("%s.%s", res.getFileName().replace("|", "_"), res.getExtension());
       return ResponseEntity.ok()
-          .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", fileName))
+          .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment;filename=%s", fileName))
           .body(new InputStreamResource(new ByteArrayInputStream(res.getData())));
     });
   }

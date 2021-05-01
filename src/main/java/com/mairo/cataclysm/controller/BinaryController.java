@@ -1,17 +1,14 @@
 package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.dto.BinaryFileDto;
 import com.mairo.cataclysm.dto.GenerateStatsDocumentDto;
 import com.mairo.cataclysm.dto.ImportDumpDto;
 import com.mairo.cataclysm.service.ExportService;
 import com.mairo.cataclysm.service.ImportService;
 import com.mairo.cataclysm.service.ReportGeneratorService;
 import com.mairo.cataclysm.utils.DateUtils;
-import java.io.ByteArrayInputStream;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
@@ -24,13 +21,13 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-public class BinaryController implements BinaryResponseSupport{
+public class BinaryController implements BinaryResponseSupport {
 
   private final ReportGeneratorService reportGeneratorService;
   private final ExportService exportService;
   private final ImportService importService;
 
-  @GetMapping("/reports/xlsx/{season}")
+  @GetMapping(value = "/reports/xlsx/{season}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public Mono<ResponseEntity<InputStreamResource>> xlsxReport(@PathVariable String season) {
     return binaryResponse(reportGeneratorService.generateXslxReport(new GenerateStatsDocumentDto(season)));
   }
