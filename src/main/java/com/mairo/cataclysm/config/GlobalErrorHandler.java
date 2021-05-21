@@ -2,7 +2,7 @@ package com.mairo.cataclysm.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.ErrorResponse;
-import com.mairo.cataclysm.exception.CataRuntimeException;
+import com.mairo.cataclysm.core.exception.CataRuntimeException;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;

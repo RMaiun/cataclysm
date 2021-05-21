@@ -1,13 +1,13 @@
 package com.mairo.cataclysm.postprocessor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mairo.cataclysm.core.dto.LinkTidDto;
+import com.mairo.cataclysm.core.utils.MonoSupport;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.BotOutputMessage;
-import com.mairo.cataclysm.dto.LinkTidDto;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.processor.CommandProcessor;
-import com.mairo.cataclysm.rabbit.RabbitSender;
-import com.mairo.cataclysm.utils.MonoSupport;
+import com.mairo.cataclysm.service.RabbitSender;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

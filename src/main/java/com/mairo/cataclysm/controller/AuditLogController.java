@@ -1,7 +1,7 @@
 package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.dto.DistributeLogsReportDto;
-import com.mairo.cataclysm.service.AuditLogService;
+import com.mairo.cataclysm.core.dto.DistributeLogsReportDto;
+import com.mairo.cataclysm.core.service.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

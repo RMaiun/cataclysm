@@ -1,11 +1,11 @@
 package com.mairo.cataclysm.controller;
 
 
-import com.mairo.cataclysm.dto.AddRoundDto;
-import com.mairo.cataclysm.dto.FindLastRoundsDto;
-import com.mairo.cataclysm.dto.FoundLastRounds;
-import com.mairo.cataclysm.dto.IdDto;
-import com.mairo.cataclysm.service.RoundsService;
+import com.mairo.cataclysm.core.dto.AddRoundDto;
+import com.mairo.cataclysm.core.dto.FindLastRoundsDto;
+import com.mairo.cataclysm.core.dto.FoundLastRounds;
+import com.mairo.cataclysm.core.dto.IdDto;
+import com.mairo.cataclysm.core.service.RoundsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

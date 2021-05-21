@@ -1,12 +1,12 @@
 package com.mairo.cataclysm.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mairo.cataclysm.dto.AddRoundDto;
+import com.mairo.cataclysm.core.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.BotInputMessage;
-import com.mairo.cataclysm.dto.IdDto;
+import com.mairo.cataclysm.core.dto.IdDto;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.service.RoundsService;
-import com.mairo.cataclysm.utils.MonoSupport;
+import com.mairo.cataclysm.core.service.RoundsService;
+import com.mairo.cataclysm.core.utils.MonoSupport;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

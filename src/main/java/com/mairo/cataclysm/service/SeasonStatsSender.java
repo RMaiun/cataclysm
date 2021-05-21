@@ -1,25 +1,25 @@
 package com.mairo.cataclysm.service;
 
-import static com.mairo.cataclysm.processor.CommandProcessor.LINE_SEPARATOR;
-import static com.mairo.cataclysm.processor.CommandProcessor.PREFIX;
-import static com.mairo.cataclysm.processor.CommandProcessor.SUFFIX;
-import static com.mairo.cataclysm.utils.DateUtils.notLateToSend;
-import static com.mairo.cataclysm.utils.IdGenerator.msgId;
-import static com.mairo.cataclysm.utils.SeasonUtils.currentSeason;
-import static com.mairo.cataclysm.utils.SeasonUtils.firstBeforeSecond;
 import static java.util.Arrays.asList;
 import static java.util.Objects.nonNull;
 
-import com.mairo.cataclysm.domain.Player;
-import com.mairo.cataclysm.dto.FoundAllPlayers;
-import com.mairo.cataclysm.dto.FullRound;
+import com.mairo.cataclysm.core.domain.Player;
+import com.mairo.cataclysm.core.dto.FoundAllPlayers;
+import com.mairo.cataclysm.core.dto.FullRound;
+import com.mairo.cataclysm.core.dto.PlayerRank;
+import com.mairo.cataclysm.core.dto.PlayerStats;
+import com.mairo.cataclysm.core.dto.SeasonNotificationData;
+import com.mairo.cataclysm.core.dto.SeasonShortStats;
+import com.mairo.cataclysm.core.properties.AppProps;
+import com.mairo.cataclysm.core.service.PlayerService;
+import com.mairo.cataclysm.core.service.RoundsService;
+import com.mairo.cataclysm.core.service.SeasonService;
+import com.mairo.cataclysm.core.service.StatisticsService;
+import com.mairo.cataclysm.core.utils.DateUtils;
+import com.mairo.cataclysm.core.utils.IdGenerator;
+import com.mairo.cataclysm.core.utils.SeasonUtils;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.dto.PlayerRank;
-import com.mairo.cataclysm.dto.PlayerStats;
-import com.mairo.cataclysm.dto.SeasonNotificationData;
-import com.mairo.cataclysm.dto.SeasonShortStats;
-import com.mairo.cataclysm.properties.AppProps;
-import com.mairo.cataclysm.rabbit.RabbitSender;
+import com.mairo.cataclysm.utils.Constants;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZoneId;
@@ -72,7 +72,7 @@ public class SeasonStatsSender {
     return seasonService.findSeasonWithoutNotifications()
         .map(maybeSeason ->
             maybeSeason.map(foundSeason ->
-                new SeasonNotificationData(foundSeason.getName(), firstBeforeSecond(foundSeason.getName(), currentSeason()) && notLateToSend(currentDateTime)))
+                new SeasonNotificationData(foundSeason.getName(), SeasonUtils.firstBeforeSecond(foundSeason.getName(), SeasonUtils.currentSeason()) && DateUtils.notLateToSend(currentDateTime)))
                 .orElse(new SeasonNotificationData(null, false)))
         .doOnNext(snd -> logger.info("Current date {} criteria for sending notifications", snd.isReadyToBeProcessed() ? "passed" : "didn't pass"));
 
@@ -122,51 +122,51 @@ public class SeasonStatsSender {
     String msg = playerRank.getRank() > 0
         ? messageForPlayerWithDefinedRating(builder, playerRank)
         : messageForPlayerWithoutRating(builder, playerRank);
-    logger.info(OutputMessage.ok(playerRank.getTid(), msgId(), msg));
-    return rabbitSender.send(OutputMessage.ok(playerRank.getTid(), msgId(), msg));
+    logger.info(OutputMessage.ok(playerRank.getTid(), IdGenerator.msgId(), msg));
+    return rabbitSender.send(OutputMessage.ok(playerRank.getTid(), IdGenerator.msgId(), msg));
   }
 
   private StringBuilder messageBuilder(PlayerRank rank) {
     return new StringBuilder()
-        .append(PREFIX)
-        .append(String.format("Season %s is successfully closed.", currentSeason()))
-        .append(LINE_SEPARATOR)
+        .append(Constants.PREFIX)
+        .append(String.format("Season %s is successfully closed.", SeasonUtils.currentSeason()))
+        .append(Constants.LINE_SEPARATOR)
         .append(String.format("%d players played %d games in total.", rank.getAllPlayers(), rank.getAllGames()))
-        .append(LINE_SEPARATOR);
+        .append(Constants.LINE_SEPARATOR);
   }
 
   private String messageForPlayerWithDefinedRating(StringBuilder builder, PlayerRank rank) {
     String winRate = new BigDecimal(rank.getScore()).multiply(BigDecimal.valueOf(100L)).setScale(1, RoundingMode.HALF_EVEN).toString();
     return builder
         .append("Your achievements:")
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append(String.format("- #%d in rating", rank.getRank()))
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append(String.format("- win rate %s%%", winRate))
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append(String.format("- games played: %d", rank.getGamesPlayed()))
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append("\uD83D\uDC4D\uD83D\uDC4D\uD83D\uDC4D")
-        .append(SUFFIX)
+        .append(Constants.SUFFIX)
         .toString();
   }
 
   private String messageForPlayerWithoutRating(StringBuilder builder, PlayerRank rank) {
     return builder
         .append(String.format("You've played %d games in this season.", rank.getGamesPlayed()))
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append(String.format("Unfortunately you must play %d games", appProps.getExpectedGames()))
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append("to be included into rating.")
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append("Hope that in next season")
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append("you will reach our game limit")
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append("and will show us your best.")
-        .append(LINE_SEPARATOR)
+        .append(Constants.LINE_SEPARATOR)
         .append("⭐⭐⭐")
-        .append(SUFFIX)
+        .append(Constants.SUFFIX)
         .toString();
   }
 }

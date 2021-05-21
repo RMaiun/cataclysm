@@ -1,19 +1,19 @@
 package com.mairo.cataclysm.postprocessor;
 
-import static com.mairo.cataclysm.utils.MonoSupport.fromTry;
+import static com.mairo.cataclysm.core.utils.MonoSupport.fromTry;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mairo.cataclysm.domain.Player;
-import com.mairo.cataclysm.dto.AddRoundDto;
+import com.mairo.cataclysm.core.domain.Player;
+import com.mairo.cataclysm.core.dto.AddRoundDto;
 import com.mairo.cataclysm.dto.BotInputMessage;
 import com.mairo.cataclysm.dto.BotOutputMessage;
 import com.mairo.cataclysm.dto.OutputMessage;
 import com.mairo.cataclysm.processor.CommandProcessor;
-import com.mairo.cataclysm.rabbit.RabbitSender;
-import com.mairo.cataclysm.service.PlayerService;
+import com.mairo.cataclysm.service.RabbitSender;
+import com.mairo.cataclysm.core.service.PlayerService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

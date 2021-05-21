@@ -1,17 +1,17 @@
 package com.mairo.cataclysm.processor;
 
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.dto.BotInputMessage;
-import com.mairo.cataclysm.dto.FindLastRoundsDto;
-import com.mairo.cataclysm.dto.FoundLastRounds;
-import com.mairo.cataclysm.dto.FullRound;
+import com.mairo.cataclysm.core.dto.FindLastRoundsDto;
+import com.mairo.cataclysm.core.dto.FoundLastRounds;
+import com.mairo.cataclysm.core.dto.FullRound;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.service.RoundsService;
-import com.mairo.cataclysm.utils.DateUtils;
-import com.mairo.cataclysm.utils.MonoSupport;
+import com.mairo.cataclysm.core.service.RoundsService;
+import com.mairo.cataclysm.core.utils.DateUtils;
+import com.mairo.cataclysm.core.utils.MonoSupport;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;

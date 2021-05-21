@@ -1,6 +1,6 @@
 package com.mairo.cataclysm.config;
 
-import com.mairo.cataclysm.service.InitSeasonService;
+import com.mairo.cataclysm.core.service.InitSeasonService;
 import com.mairo.cataclysm.service.SeasonStatsSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

@@ -1,9 +1,9 @@
 package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.dto.AddPlayerDto;
-import com.mairo.cataclysm.dto.FoundAllPlayers;
-import com.mairo.cataclysm.dto.IdDto;
-import com.mairo.cataclysm.service.PlayerService;
+import com.mairo.cataclysm.core.dto.AddPlayerDto;
+import com.mairo.cataclysm.core.dto.FoundAllPlayers;
+import com.mairo.cataclysm.core.dto.IdDto;
+import com.mairo.cataclysm.core.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

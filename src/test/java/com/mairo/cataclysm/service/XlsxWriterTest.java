@@ -3,6 +3,7 @@ package com.mairo.cataclysm.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.mairo.cataclysm.core.service.XlsxWriter;
 import com.mairo.cataclysm.dto.BinaryFileDto;
 import com.mairo.cataclysm.dto.SeasonStatsRows;
 import java.io.ByteArrayInputStream;

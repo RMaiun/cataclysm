@@ -1,0 +1,20 @@
+app:
+  topPlayersLimit: 5
+  winPoints: 25
+  winShutoutPoints: 50
+  losePoints: -25
+  loseShutoutPoints: -50
+  algorithm: "PERCENTAGE"
+  archiveReceiver: "маюн"
+  notificationsEnabled: false
+  expectedGames: 20
+  reportTimezone: "Europe/Kiev"
+  privileged: "testId"
+db:
+  host: "127.0.0.1"
+  port: 3306
+  database: "cata"
+  username: "root"
+  password: "password"
+  recreateMongoIndexes: true
+  mongoUrl: "mongodb://root:password@localhost:27017/cata"

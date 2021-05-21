@@ -1,9 +1,9 @@
 package com.mairo.cataclysm.processor;
 
 import com.mairo.cataclysm.dto.BotInputMessage;
-import com.mairo.cataclysm.dto.FoundAllPlayers;
+import com.mairo.cataclysm.core.dto.FoundAllPlayers;
 import com.mairo.cataclysm.dto.OutputMessage;
-import com.mairo.cataclysm.service.PlayerService;
+import com.mairo.cataclysm.core.service.PlayerService;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

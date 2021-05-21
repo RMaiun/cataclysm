@@ -1,8 +1,8 @@
 package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.dto.SeasonShortStats;
-import com.mairo.cataclysm.dto.SeasonStatsRows;
-import com.mairo.cataclysm.service.StatisticsService;
+import com.mairo.cataclysm.core.dto.SeasonShortStats;
+import com.mairo.cataclysm.core.dto.SeasonStatsRows;
+import com.mairo.cataclysm.core.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

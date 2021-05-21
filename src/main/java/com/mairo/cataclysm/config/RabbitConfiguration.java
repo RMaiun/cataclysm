@@ -2,14 +2,13 @@ package com.mairo.cataclysm.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mairo.cataclysm.properties.RabbitProps;
-import com.mairo.cataclysm.rabbit.RabbitSender;
+import com.mairo.cataclysm.service.RabbitSender;
 import com.rabbitmq.client.ConnectionFactory;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.rabbitmq.ChannelPool;
 import reactor.rabbitmq.ChannelPoolFactory;
 import reactor.rabbitmq.ChannelPoolOptions;

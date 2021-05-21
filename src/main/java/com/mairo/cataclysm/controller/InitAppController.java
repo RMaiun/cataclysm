@@ -1,6 +1,6 @@
 package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.helper.MigrationHelper;
+import com.mairo.cataclysm.core.helper.MigrationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

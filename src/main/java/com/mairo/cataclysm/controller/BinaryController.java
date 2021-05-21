@@ -1,11 +1,11 @@
 package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.dto.GenerateStatsDocumentDto;
-import com.mairo.cataclysm.dto.ImportDumpDto;
-import com.mairo.cataclysm.service.ExportService;
-import com.mairo.cataclysm.service.ImportService;
-import com.mairo.cataclysm.service.ReportGeneratorService;
-import com.mairo.cataclysm.utils.DateUtils;
+import com.mairo.cataclysm.core.dto.GenerateStatsDocumentDto;
+import com.mairo.cataclysm.core.dto.ImportDumpDto;
+import com.mairo.cataclysm.core.service.ExportService;
+import com.mairo.cataclysm.core.service.ImportService;
+import com.mairo.cataclysm.core.service.ReportGeneratorService;
+import com.mairo.cataclysm.core.utils.DateUtils;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;

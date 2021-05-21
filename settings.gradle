@@ -1,1 +1,5 @@
 rootProject.name = 'cataclysm'
+include 'core'
+include 'http'
+//include 'rabbit'
+

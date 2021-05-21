@@ -1,6 +1,6 @@
 package com.mairo.cataclysm.controller;
 
-import com.mairo.cataclysm.dto.BinaryFileDto;
+import com.mairo.cataclysm.core.dto.BinaryFileDto;
 import java.io.ByteArrayInputStream;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
